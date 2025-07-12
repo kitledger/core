@@ -27,7 +27,10 @@
 		"react-dom": "npm:react-dom@^19.1.0",
 		"zod": "npm:zod@^4.0.5"
 	},
+	"nodeModulesDir": "auto",
 	"tasks": {
+		"compile": "deno compile --output ./bin/kitledger --include ./src/database/migrations -A ./src/main.ts",
+		"db:generate": "deno run -A npm:drizzle-kit generate",
 		"dev": "deno run -A --watch ./src/main.ts",
 		"format": "deno fmt"
 	}
