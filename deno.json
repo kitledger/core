@@ -30,6 +30,7 @@
 	"nodeModulesDir": "auto",
 	"tasks": {
 		"compile": "deno compile --output ./bin/kitledger --include ./src/database/migrations -A ./src/main.ts",
+		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
 		"dev": "deno run -A --watch ./src/main.ts",
 		"format": "deno fmt"

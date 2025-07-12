@@ -1,12 +1,16 @@
-import { Hono } from "@hono/hono";
 import { runMigrations } from "./database/db.ts";
+import server from "./server.ts";
+import config from "./config.ts";
 
-const app = new Hono();
-
-app.get("/", (c) => {
-	return c.text("Hello, Hono!");
-});
-
+/**
+ * Run database migrations
+ */
 await runMigrations();
 
-Deno.serve({ port: 8888 }, app.fetch);
+/**
+ * Start the App
+ */
+Deno.serve(
+	{ port: config.server.port },
+	server.fetch,
+);
