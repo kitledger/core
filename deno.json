@@ -22,6 +22,7 @@
 		"@types/react-dom": "npm:@types/react-dom@^19.1.6",
 		"drizzle-kit": "npm:drizzle-kit@^0.31.4",
 		"drizzle-orm": "npm:drizzle-orm@^0.44.2",
+		"iovalkey": "npm:iovalkey@^0.3.3",
 		"postgres": "npm:postgres@^3.4.7",
 		"react": "npm:react@^19.1.0",
 		"react-dom": "npm:react-dom@^19.1.0",
@@ -32,7 +33,7 @@
 		"compile": "deno compile --output ./bin/kitledger --include ./src/database/migrations -A ./src/main.ts",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev": "deno run -A --watch ./src/main.ts",
+		"dev": "deno run -A --watch --env-file ./src/main.ts",
 		"format": "deno fmt"
 	}
 }

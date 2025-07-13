@@ -1,4 +1,4 @@
-import config from "./src/config.ts";
+import { appConfig } from "./src/config.ts";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
@@ -10,7 +10,7 @@ export default defineConfig({
 		schema: "public",
 	},
 	dbCredentials: {
-		url: config.database.url,
-		ssl: config.database.ssl ? { rejectUnauthorized: false } : false,
+		url: appConfig.database.url,
+		ssl: appConfig.database.ssl ? { rejectUnauthorized: false } : false,
 	}
 });
