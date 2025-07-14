@@ -1,0 +1,59 @@
+{
+  "name": "kitledger",
+  "version": "1.0.0",
+  "description": "Framework for building business management applications based on double entry accounting",
+  "keywords": [
+    "platform",
+    "double-entry",
+    "framework",
+    "database",
+    "erp",
+    "accounting",
+    "business",
+    "management"
+  ],
+  "homepage": "https://github.com/atomic-reference/kitledger#readme",
+  "bugs": {
+    "url": "https://github.com/atomic-reference/kitledger/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atomic-reference/kitledger.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Alejandro Barrera Aponte",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "db:custom": "drizzle-kit generate --custom",
+    "db:generate": "drizzle-kit generate",
+    "dev": "tsx src/index.ts",
+	"format": "biome format --write",
+    "lint": "oxlint --fix",
+    "test": "vitest run",
+    "test:ui": "vitest --ui"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.16.0",
+    "dotenv": "^17.2.0",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.8.4",
+    "iovalkey": "^0.3.3",
+    "postgres": "^3.4.7",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.1.1",
+    "@faker-js/faker": "^9.9.0",
+    "@types/node": "^20.11.2",
+    "@vitest/ui": "^3.2.4",
+    "drizzle-kit": "^0.31.4",
+    "oxlint": "^1.6.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.3.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  }
+}

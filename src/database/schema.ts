@@ -1,22 +1,24 @@
 import { pgTable, text, uuid, varchar, boolean, index, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { timestamps } from "./helpers.ts";
+import { timestamps } from "./helpers.js";
 
 export enum BalanceType {
 	DEBIT = "debit",
 	CREDIT = "credit",
 }
 
-export const users = pgTable("users", {
-	id: uuid("id").primaryKey(),
-	first_name: text("first_name").notNull(),
-	last_name: text("last_name").notNull(),
-	email: text("email").notNull().unique(),
-	password_hash: text("password_hash").notNull(),
-	...timestamps,
-}, (table) => [
-	index("user_email_idx").on(table.email),
-]);
+export const users = pgTable(
+	"users",
+	{
+		id: uuid("id").primaryKey(),
+		first_name: text("first_name").notNull(),
+		last_name: text("last_name").notNull(),
+		email: text("email").notNull().unique(),
+		password_hash: text("password_hash").notNull(),
+		...timestamps,
+	},
+	(table) => [index("user_email_idx").on(table.email)],
+);
 
 export const userRelations = relations(users, ({ many }) => ({
 	roles: many(user_roles),
@@ -38,8 +40,12 @@ export const roleRelations = relations(roles, ({ many }) => ({
 
 export const user_roles = pgTable("user_roles", {
 	id: uuid("id").primaryKey(),
-	user_id: uuid("user_id").notNull().references(() => users.id),
-	role_id: uuid("role_id").notNull().references(() => roles.id),
+	user_id: uuid("user_id")
+		.notNull()
+		.references(() => users.id),
+	role_id: uuid("role_id")
+		.notNull()
+		.references(() => roles.id),
 	...timestamps,
 });
 
@@ -54,17 +60,21 @@ export const userRoleRelations = relations(user_roles, ({ one }) => ({
 	}),
 }));
 
-export const api_tokens = pgTable("api_tokens", {
-	id: uuid("id").primaryKey(),
-	user_id: uuid("user_id").notNull().references(() => users.id),
-	name: varchar("name", { length: 64 }).notNull(),
-	hash: text("hash").notNull().unique(),
-	expires_at: timestamp("expires_at").notNull(),
-	revoked_at: timestamp("revoked_at"),
-	...timestamps
-}, (table) => [
-	index("api_token_user_idx").on(table.user_id),
-]);
+export const api_tokens = pgTable(
+	"api_tokens",
+	{
+		id: uuid("id").primaryKey(),
+		user_id: uuid("user_id")
+			.notNull()
+			.references(() => users.id),
+		name: varchar("name", { length: 64 }).notNull(),
+		hash: text("hash").notNull().unique(),
+		expires_at: timestamp("expires_at").notNull(),
+		revoked_at: timestamp("revoked_at"),
+		...timestamps,
+	},
+	(table) => [index("api_token_user_idx").on(table.user_id)],
+);
 
 export const apiTokenRelations = relations(api_tokens, ({ one }) => ({
 	user: one(users, {
@@ -72,7 +82,6 @@ export const apiTokenRelations = relations(api_tokens, ({ one }) => ({
 		references: [users.id],
 	}),
 }));
-
 
 // TODO: Add a table for permissions
 
@@ -85,7 +94,7 @@ export const entity_models = pgTable("entity_models", {
 	alt_id: varchar("alt_id", { length: 64 }).unique(),
 	name: varchar("name", { length: 255 }).notNull(),
 	active: boolean("active").default(true).notNull(),
-	...timestamps
+	...timestamps,
 });
 
 // Add indexes
@@ -97,7 +106,7 @@ export const transaction_models = pgTable("transaction_models", {
 	alt_id: varchar("alt_id", { length: 64 }).unique(),
 	name: varchar("name", { length: 255 }).notNull(),
 	active: boolean("active").default(true).notNull(),
-	...timestamps
+	...timestamps,
 });
 
 // Add indexes
@@ -110,5 +119,5 @@ export const unit_models = pgTable("unit_models", {
 	name: varchar("name", { length: 255 }).notNull(),
 	active: boolean("active").default(true).notNull(),
 	base_unit_id: uuid("base_unit_id").unique(),
-	...timestamps
+	...timestamps,
 });

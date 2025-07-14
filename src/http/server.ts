@@ -1,5 +1,5 @@
-import { Hono } from "@hono/hono";
-import { auth } from "./middleware/auth_middleware.ts";
+import { Hono } from "hono";
+import { auth } from "./middleware/auth_middleware.js";
 
 const server = new Hono();
 

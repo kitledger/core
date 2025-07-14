@@ -1,0 +1,17 @@
+import { runMigrations } from "./database/db.js";
+import { serve } from "@hono/node-server";
+import server from "./http/server.js";
+import { appConfig } from "./config.js";
+
+/**
+ * Run database migrations
+ */
+await runMigrations();
+
+/**
+ * Start the App
+ */
+serve({
+	fetch: server.fetch,
+	port: appConfig.server.port,
+});

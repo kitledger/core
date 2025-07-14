@@ -1,14 +1,13 @@
-import { createMiddleware } from "@hono/hono/factory";
-import { authConfig } from "../../config.ts";
+import { createMiddleware } from "hono/factory";
+import { authConfig } from "../../config.js";
 
 export const auth = createMiddleware(async (c, next) => {
 	const authMode = authConfig.authMode;
 
 	switch (authMode) {
-		case 'token': {
-
+		case "token": {
 			const raw_token = c.req.header("Authorization")?.replace("Bearer ", "");
-			
+
 			// Return early if no token is provided.
 			if (!raw_token) {
 				return c.json({ error: "Unauthorized" }, 401);
@@ -27,4 +26,3 @@ export const auth = createMiddleware(async (c, next) => {
 		}
 	}
 });
-
