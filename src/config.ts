@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { AlgorithmTypes } from "hono/utils/jwt/jwa";
 
 config();
 
@@ -36,12 +37,14 @@ export const appConfig: AppConfig = {
 	},
 };
 
+// FOR NOW, WE'RE USING HS256 AS THE DEFAULT AND ONLY ALGORITHM.
+const authAlgorithm = "HS256" as AlgorithmTypes;
+
 // __ SECURITY CONFIG __
-const authModes = ["token"] as const;
 type AuthConfig = {
 	secret: string;
 	pastSecrets: string[];
-	authMode: (typeof authModes)[number];
+	algorithm: AlgorithmTypes;
 };
 
 const authSecret = process.env.KL_AUTH_SECRET;
@@ -53,14 +56,8 @@ if (!authSecret) {
 const pastSecretsString = process.env.KL_AUTH_PAST_SECRETS;
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 
-const authMode = process.env.KL_AUTH_MODE ?? "token";
-
-if (authMode && !authModes.includes(authMode as (typeof authModes)[number])) {
-	throw new Error(`KL_AUTH_MODE must be one of ${authModes.join(", ")}.`);
-}
-
 export const authConfig: AuthConfig = {
 	secret: authSecret,
 	pastSecrets: pastSecrets,
-	authMode: authMode as (typeof authModes)[number],
+	algorithm: authAlgorithm,
 };

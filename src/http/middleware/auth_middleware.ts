@@ -1,28 +1,25 @@
 import { createMiddleware } from "hono/factory";
-import { authConfig } from "../../config.js";
+import { verifyToken } from "../../auth/jwt.js";
 
 export const auth = createMiddleware(async (c, next) => {
-	const authMode = authConfig.authMode;
+	const raw_token = c.req.header("Authorization")?.replace("Bearer ", "");
 
-	switch (authMode) {
-		case "token": {
-			const raw_token = c.req.header("Authorization")?.replace("Bearer ", "");
-
-			// Return early if no token is provided.
-			if (!raw_token) {
-				return c.json({ error: "Unauthorized" }, 401);
-			}
-
-			// TEMP: HANDLE ANY TOKEN
-			// TODO: Implement proper token validation logic for both user and m2m.
-			const token = raw_token.trim();
-			console.log(`Received token: ${token}`);
-			await next();
-
-			break;
-		}
-		default: {
-			return c.json({ error: "Unsupported authentication mode" }, 500);
-		}
+	// Return early if no token is provided.
+	if (!raw_token) {
+		return c.json({ error: "Unauthorized" }, 401);
 	}
+
+	try {
+		const token = await verifyToken(raw_token);
+		console.table(token);
+		// TODO: Figure out what to do with the token after verification.
+		//c.set("user", token);
+	}
+
+	catch (error) {
+		console.error("Token verification failed:", error);
+		return c.json({ error: "Unauthorized" }, 401);
+	}
+
+	await next();
 });
