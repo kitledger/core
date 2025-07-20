@@ -14,9 +14,7 @@ export const auth = createMiddleware(async (c, next) => {
 		console.table(token);
 		// TODO: Figure out what to do with the token after verification.
 		//c.set("user", token);
-	}
-
-	catch (error) {
+	} catch (error) {
 		console.error("Token verification failed:", error);
 		return c.json({ error: "Unauthorized" }, 401);
 	}

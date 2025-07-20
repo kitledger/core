@@ -1,6 +1,6 @@
-import { appConfig } from "../config.js";
-import Valkey from "iovalkey";
+import { cacheConfig } from "../config.js";
+import { Redis } from "iovalkey";
 
-const valkey = new Valkey(appConfig.cache.url);
+const valkey = new Redis(cacheConfig.url);
 
 export const cache = valkey;

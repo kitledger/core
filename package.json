@@ -31,7 +31,8 @@
 	"format": "biome format --write",
     "lint": "oxlint --fix",
     "test": "vitest run",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+	"typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.16.0",

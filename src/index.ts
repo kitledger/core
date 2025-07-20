@@ -1,7 +1,7 @@
 import { runMigrations } from "./database/db.js";
 import { serve } from "@hono/node-server";
 import server from "./http/server.js";
-import { appConfig } from "./config.js";
+import { serverConfig } from "./config.js";
 
 /**
  * Run database migrations
@@ -13,5 +13,5 @@ await runMigrations();
  */
 serve({
 	fetch: server.fetch,
-	port: appConfig.server.port,
+	port: serverConfig.port,
 });
