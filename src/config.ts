@@ -18,12 +18,12 @@ type CacheConfig = {
 };
 
 type CorsConfig = {
-	origin: string;
-	methods: string[];
-	allowedHeaders: string[];
-	exposedHeaders: string[];
-	credentials: boolean;
-	maxAge: number;
+	origin: string | string[],
+	allowMethods?: string[],
+	allowHeaders?: string[];
+	maxAge?: number;
+	credentials?: boolean;
+	exposeHeaders?: string[];
 };
 
 type DbConfig = {
@@ -43,12 +43,23 @@ type ServerConfig = {
 
 const authAlgorithm = "HS256" as AlgorithmTypes;
 
+// Secret values
 const authSecret = process.env.KL_AUTH_SECRET;
 if (!authSecret) {
 	throw new Error("KL_AUTH_SECRET environment variable is not set.");
 }
 const pastSecretsString = process.env.KL_AUTH_PAST_SECRETS;
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
+
+// CORS configuration
+const corsDefaultHeaders = ['Content-Type', 'Authorization', 'X-Requested-With'];
+const corsAllowedHeaders = [...new Set([...corsDefaultHeaders, ...(process.env.KL_CORS_ALLOWED_HEADERS?.split(",") || [])])];
+const corsAllowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+const corsAllowedOrigins = process.env.KL_CORS_ALLOWED_ORIGINS ? process.env.KL_CORS_ALLOWED_ORIGINS.split(",") : "*";
+const corsCredentials = false;
+const corsExposeHeaders :string[] = [];
+const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
+
 
 /*******
  * 3) Export the configuration objects.
@@ -72,13 +83,12 @@ export const dbConfig: DbConfig = {
 
 export const serverConfig: ServerConfig = {
 	port: process.env.KL_SERVER_PORT ? parseInt(process.env.KL_SERVER_PORT) : 8888,
-	// __ CORS CONFIG __ : TODO - OPTIMIZE
 	cors: {
-		origin: process.env.KL_CORS_ORIGIN || "*",
-		methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization"],
-		exposedHeaders: ["Content-Length", "X-Kitledger-RateLimit"],
-		credentials: true,
-		maxAge: 86400, // 24 hours
+		origin: corsAllowedOrigins,
+		allowMethods: corsAllowedMethods,
+		allowHeaders: corsAllowedHeaders,
+		exposeHeaders: corsExposeHeaders,
+		credentials: corsCredentials,
+		maxAge: corsMaxAge,
 	},
 };
