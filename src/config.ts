@@ -37,6 +37,11 @@ type ServerConfig = {
 	cors: CorsConfig;
 };
 
+type SessionConfig = {
+	ttl: number;
+	maxLifetime: number;
+}
+
 /*
  * 2) Define the logic for complex values.
  */
@@ -67,6 +72,18 @@ const corsAllowedOrigins = process.env.KL_CORS_ALLOWED_ORIGINS ? process.env.KL_
 const corsCredentials = false;
 const corsExposeHeaders :string[] = [];
 const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
+
+/**
+ * Session configuration values and defaults.
+ * This is used to manage session lifetimes and time-to-live (TTL).
+ */
+const sessionTtl = parseInt(process.env.KL_SESSION_TTL || "3600"); // 1 hour default
+const sessionMaxLifetime = parseInt(process.env.KL_SESSION_MAX_LIFETIME || "86400"); // 24 hours default
+
+// Error out if session TTL is greater than max lifetime or if either is not set.
+if (sessionTtl > sessionMaxLifetime || (sessionTtl <= 0 || sessionMaxLifetime <= 0)) {
+	throw new Error("KL_SESSION_MAX_LIFETIME value in seconds must be greater than KL_SESSION_TTL value in seconds, and both must be positive integers.");
+}
 
 
 /*
@@ -115,4 +132,13 @@ export const serverConfig: ServerConfig = {
 		credentials: corsCredentials,
 		maxAge: corsMaxAge,
 	},
+};
+
+/**
+ * Export pre-assembled configuration values for session management.
+ * Values are a mix of environment variables and defaults.
+ */
+export const sessionConfig: SessionConfig = {
+	ttl: sessionTtl,
+	maxLifetime: sessionMaxLifetime,
 };
