@@ -2,12 +2,7 @@ CREATE TABLE "api_tokens" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"user_id" uuid NOT NULL,
 	"name" varchar(64) NOT NULL,
-	"hash" text NOT NULL,
-	"expires_at" timestamp NOT NULL,
-	"revoked_at" timestamp,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp,
-	CONSTRAINT "api_tokens_hash_unique" UNIQUE("hash")
+	"revoked_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "entity_models" (

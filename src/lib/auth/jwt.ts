@@ -1,10 +1,10 @@
-import { verify } from "hono/jwt";
+import { verify, sign } from "hono/jwt";
 import { type JWTPayload } from "hono/utils/jwt/types";
-import { authConfig } from "../config.js";
+import { authConfig } from "../../config.js";
 
 export enum TokenType {
 	SESSION = "SESSION",
-	INTEGRATION = "INTEGRATION",
+	API = "API",
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload> {
@@ -39,5 +39,17 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 
 		console.error("Token verification ultimately failed:", currentSecretError);
 		throw new Error("Invalid or expired token.");
+	}
+}
+
+export async function signToken(payload: JWTPayload): Promise<string> {
+	const currentSecret = authConfig.secret;
+
+	try {
+		const token = await sign(payload, currentSecret, authConfig.algorithm);
+		return token;
+	} catch (error) {
+		console.error("Failed to sign token:", error);
+		throw new Error("Token signing failed.");
 	}
 }

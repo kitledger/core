@@ -68,10 +68,7 @@ export const api_tokens = pgTable(
 			.notNull()
 			.references(() => users.id),
 		name: varchar("name", { length: 64 }).notNull(),
-		hash: text("hash").notNull().unique(),
-		expires_at: timestamp("expires_at").notNull(),
 		revoked_at: timestamp("revoked_at"),
-		...timestamps,
 	},
 	(table) => [index("api_token_user_idx").on(table.user_id)],
 );

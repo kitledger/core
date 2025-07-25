@@ -28,11 +28,11 @@
     "db:custom": "drizzle-kit generate --custom",
     "db:generate": "drizzle-kit generate",
     "dev": "tsx src/index.ts",
-	"format": "biome format --write",
+    "format": "biome format --write",
     "lint": "oxlint --fix",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-	"typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@hono/node-server": "^1.16.0",
@@ -41,6 +41,7 @@
     "hono": "^4.8.4",
     "iovalkey": "^0.3.3",
     "postgres": "^3.4.7",
+    "uuid": "^11.1.0",
     "zod": "^4.0.5"
   },
   "devDependencies": {

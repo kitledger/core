@@ -3,9 +3,11 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { dbConfig } from "../config.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as schema from "./schema.js";
 
 export const db = drizzle({
 	connection: dbConfig,
+	schema: schema,
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

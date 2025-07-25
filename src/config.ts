@@ -78,7 +78,7 @@ const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
 const sessionTtl = parseInt(process.env.KL_SESSION_TTL || "3600"); // 1 hour default
-const sessionMaxLifetime = parseInt(process.env.KL_SESSION_MAX_LIFETIME || "86400"); // 24 hours default
+const sessionMaxLifetime = parseInt(process.env.KL_SESSION_MAX_LIFETIME || "86400"); // Default to 1 week.
 
 // Error out if session TTL is greater than max lifetime or if either is not set.
 if (sessionTtl > sessionMaxLifetime || (sessionTtl <= 0 || sessionMaxLifetime <= 0)) {
