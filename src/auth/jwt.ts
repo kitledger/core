@@ -2,6 +2,11 @@ import { verify } from "hono/jwt";
 import { type JWTPayload } from "hono/utils/jwt/types";
 import { authConfig } from "../config.js";
 
+export enum TokenType {
+	SESSION = "SESSION",
+	INTEGRATION = "INTEGRATION",
+}
+
 export async function verifyToken(token: string): Promise<JWTPayload> {
 	const currentSecret = authConfig.secret;
 
