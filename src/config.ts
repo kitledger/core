@@ -1,7 +1,4 @@
-import { config } from "dotenv";
-import { AlgorithmTypes } from "hono/utils/jwt/jwa";
-
-config();
+import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
 
 /*
  * 1) Define the types
@@ -51,11 +48,11 @@ type SessionConfig = {
  */
 const jwtAlgorithm = "HS256" as AlgorithmTypes;
 
-const authSecret = process.env.KL_AUTH_SECRET;
+const authSecret = Deno.env.get("KL_AUTH_SECRET");
 if (!authSecret) {
 	throw new Error("KL_AUTH_SECRET environment variable is not set.");
 }
-const pastSecretsString = process.env.KL_AUTH_PAST_SECRETS;
+const pastSecretsString = Deno.env.get("KL_AUTH_PAST_SECRETS");
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 
 /**
@@ -63,20 +60,22 @@ const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
  */
 const corsDefaultHeaders = ["Content-Type", "Authorization", "X-Requested-With"];
 const corsAllowedHeaders = [
-	...new Set([...corsDefaultHeaders, ...(process.env.KL_CORS_ALLOWED_HEADERS?.split(",") || [])]),
+	...new Set([...corsDefaultHeaders, ...(Deno.env.get("KL_CORS_ALLOWED_HEADERS")?.split(",") || [])]),
 ];
 const corsAllowedMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
-const corsAllowedOrigins = process.env.KL_CORS_ALLOWED_ORIGINS ? process.env.KL_CORS_ALLOWED_ORIGINS.split(",") : "*";
+const corsAllowedOrigins = Deno.env.get("KL_CORS_ALLOWED_ORIGINS")
+	? String(Deno.env.get("KL_CORS_ALLOWED_ORIGINS")).split(",")
+	: "*";
 const corsCredentials = false;
 const corsExposeHeaders: string[] = [];
-const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
+const corsMaxAge = parseInt(Deno.env.get("KL_CORS_MAX_AGE") || "86400");
 
 /**
  * Session configuration values and defaults.
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
-const sessionTtl = parseInt(process.env.KL_SESSION_TTL || "3600"); // 1 hour default
-const sessionMaxLifetime = parseInt(process.env.KL_SESSION_MAX_LIFETIME || "86400"); // Default to 1 week.
+const sessionTtl = parseInt(Deno.env.get("KL_SESSION_TTL") || "3600"); // 1 hour default
+const sessionMaxLifetime = parseInt(Deno.env.get("KL_SESSION_MAX_LIFETIME") || "86400"); // Default to 1 week.
 
 // Error out if session TTL is greater than max lifetime or if either is not set.
 if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 0) {
@@ -104,7 +103,7 @@ export const authConfig: AuthConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const cacheConfig: CacheConfig = {
-	url: process.env.KL_VALKEY_URL || "redis://localhost:6379",
+	url: Deno.env.get("KL_VALKEY_URL") || "redis://localhost:6379",
 };
 
 /**
@@ -112,9 +111,9 @@ export const cacheConfig: CacheConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const dbConfig: DbConfig = {
-	url: process.env.KL_POSTGRES_URL || "postgres://localhost:5432/kitledger",
-	ssl: process.env.KL_POSTGRES_SSL === "true",
-	max: parseInt(process.env.KL_POSTGRES_MAX_CONNECTIONS || "10"),
+	url: Deno.env.get("KL_POSTGRES_URL") || "postgres://localhost:5432/kitledger",
+	ssl: Deno.env.get("KL_POSTGRES_SSL") === "true",
+	max: parseInt(Deno.env.get("KL_POSTGRES_MAX_CONNECTIONS") || "10"),
 };
 
 /**
@@ -122,7 +121,7 @@ export const dbConfig: DbConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const serverConfig: ServerConfig = {
-	port: process.env.KL_SERVER_PORT ? parseInt(process.env.KL_SERVER_PORT) : 8888,
+	port: Deno.env.get("KL_SERVER_PORT") ? parseInt(String(Deno.env.get("KL_SERVER_PORT"))) : 8888,
 	cors: {
 		origin: corsAllowedOrigins,
 		allowMethods: corsAllowedMethods,

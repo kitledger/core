@@ -1,7 +1,7 @@
-import { createMiddleware } from "hono/factory";
-import { verifyToken, TokenType } from "../../lib/auth/jwt.js";
-import { getSessionUserId } from "../../lib/auth/session.js";
-import { getTokenUserId } from "../../lib/auth/token.js";
+import { createMiddleware } from "@hono/hono/factory";
+import { TokenType, verifyToken } from "../../lib/auth/jwt.ts";
+import { getSessionUserId } from "../../lib/auth/session.ts";
+import { getTokenUserId } from "../../lib/auth/token.ts";
 
 export const auth = createMiddleware(async (c, next) => {
 	const raw_token = c.req.header("Authorization")?.replace("Bearer ", "");
@@ -19,7 +19,7 @@ export const auth = createMiddleware(async (c, next) => {
 		}
 
 		switch (String(token.token_type).toUpperCase() as TokenType) {
-			case TokenType.SESSION:
+			case TokenType.SESSION: {
 				if (!token.jti) {
 					throw new Error("Invalid session ID.");
 				}
@@ -31,7 +31,8 @@ export const auth = createMiddleware(async (c, next) => {
 				// Handle session token logic here
 				c.set("user", sessionUserId);
 				break;
-			case TokenType.API:
+			}
+			case TokenType.API: {
 				if (!token.jti) {
 					throw new Error("Invalid token ID.");
 				}
@@ -45,8 +46,10 @@ export const auth = createMiddleware(async (c, next) => {
 
 				// Handle integration token logic here
 				break;
-			default:
+			}
+			default: {
 				throw new Error("Invalid token type.");
+			}
 		}
 	} catch (error) {
 		console.error("Token verification failed:", error);

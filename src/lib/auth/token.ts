@@ -1,7 +1,7 @@
-import { db } from "../../database/db.js";
-import { api_tokens } from "../../database/schema.js";
-import { eq, and, isNull } from "drizzle-orm";
-import { v7 } from "uuid";
+import { db } from "../../database/db.ts";
+import { api_tokens } from "../../database/schema.ts";
+import { and, eq, isNull } from "drizzle-orm";
+import { generate as v7 } from "@std/uuid/unstable-v7";
 
 export async function getTokenUserId(tokenId: string): Promise<string | null> {
 	const token = await db.query.api_tokens.findFirst({

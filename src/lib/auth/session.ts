@@ -1,6 +1,6 @@
-import { cache } from "../../database/cache.js";
-import { sessionConfig } from "../../config.js";
-import { v7 } from "uuid";
+import { cache } from "../../database/cache.ts";
+import { sessionConfig } from "../../config.ts";
+import { generate as v7 } from "@std/uuid/unstable-v7";
 
 export type Session = {
 	user_id: string;

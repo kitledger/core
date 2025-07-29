@@ -1,4 +1,4 @@
-import { cacheConfig } from "../config.js";
+import { cacheConfig } from "../config.ts";
 import { Redis } from "iovalkey";
 
 const valkey = new Redis(cacheConfig.url);

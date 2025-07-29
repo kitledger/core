@@ -1,7 +1,7 @@
-import { Hono } from "hono";
-import { auth } from "./middleware/auth_middleware.js";
-import { cors } from "hono/cors";
-import { serverConfig } from "../config.js";
+import { Hono } from "@hono/hono";
+import { auth } from "./middleware/auth_middleware.ts";
+import { cors } from "@hono/hono/cors";
+import { serverConfig } from "../config.ts";
 
 const server = new Hono();
 

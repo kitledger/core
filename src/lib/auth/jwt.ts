@@ -1,6 +1,6 @@
-import { verify, sign } from "hono/jwt";
-import { type JWTPayload } from "hono/utils/jwt/types";
-import { authConfig } from "../../config.js";
+import { sign, verify } from "@hono/hono/jwt";
+import { type JWTPayload } from "@hono/hono/utils/jwt/types";
+import { authConfig } from "../../config.ts";
 
 export enum TokenType {
 	SESSION = "SESSION",
@@ -25,7 +25,9 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 							return decoded;
 						} catch (err) {
 							console.warn(
-								`Failed to verify token with past secrets (${err instanceof Error ? err.message : String(err)}`,
+								`Failed to verify token with past secrets (${
+									err instanceof Error ? err.message : String(err)
+								}`,
 							);
 							throw err;
 						}

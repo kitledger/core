@@ -1,6 +1,6 @@
-import { pgTable, text, uuid, varchar, boolean, index, timestamp } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { timestamps } from "./helpers.js";
+import { timestamps } from "./helpers.ts";
 
 /**
  * 1. Tables, Indexes, and Constraints
