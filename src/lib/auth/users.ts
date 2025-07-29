@@ -2,11 +2,12 @@ import { system_permissions, users } from "../../database/schema.ts";
 import { type InferInsertModel, type InferSelectModel } from "drizzle-orm";
 import { db } from "../../database/db.ts";
 import { randomBytes } from "node:crypto";
-import { hashPassword } from "./utils.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 import { SYSTEM_ADMIN_PERMISSION } from "./permission.ts";
 import { createToken } from "./token.ts";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt.ts";
+import { workerPool } from "../../workers/pool.ts";
+import { availableWorkerTasks } from "../../workers/worker.ts";
 
 export type User = InferSelectModel<typeof users>;
 export type UserInsert = InferInsertModel<typeof users>;
@@ -27,7 +28,17 @@ export async function createSuperUser(
 			 * generate a random password.
 			 */
 			const password = randomBytes(20).toString("hex");
-			const passwordHash = await hashPassword(password);
+			let passwordHash = null;
+
+			try {
+				passwordHash = await workerPool.runTask(
+					availableWorkerTasks.HASH_PASSWORD,
+					password,
+				);
+			} catch (error) {
+				console.error("Error hashing password:", error);
+				passwordHash = null;
+			}
 
 			if (!passwordHash) {
 				throw new Error("Failed to hash password");
@@ -41,7 +52,7 @@ export async function createSuperUser(
 					first_name: firstName,
 					last_name: lastName,
 					email: email,
-					password_hash: passwordHash,
+					password_hash: passwordHash as string,
 				})
 				.returning();
 

@@ -39,6 +39,11 @@ type SessionConfig = {
 	maxLifetime: number;
 };
 
+type WorkerConfig = {
+	poolSize: number;
+	taskTimeout: number;
+};
+
 /*
  * 2) Define the logic for complex values.
  */
@@ -83,6 +88,12 @@ if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 
 		"KL_SESSION_MAX_LIFETIME value in seconds must be greater than KL_SESSION_TTL value in seconds, and both must be positive integers.",
 	);
 }
+
+/**
+ * Worker pool configuration values and defaults.
+ */
+const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency - 1)) || 1;
+const workerTaskTimeout = parseInt(Deno.env.get("KL_WORKER_TASK_TIMEOUT") || "5000"); // Default to 5 seconds
 
 /*
  * 3) Export the configuration objects.
@@ -139,4 +150,13 @@ export const serverConfig: ServerConfig = {
 export const sessionConfig: SessionConfig = {
 	ttl: sessionTtl,
 	maxLifetime: sessionMaxLifetime,
+};
+
+/**
+ * Export pre-assembled configuration values for the worker pool.
+ * Values are a mix of environment variables and defaults.
+ */
+export const workerConfig: WorkerConfig = {
+	poolSize: workerPoolSize,
+	taskTimeout: workerTaskTimeout,
 };
