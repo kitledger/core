@@ -4,11 +4,10 @@ import { v7 } from "uuid";
 
 export type Session = {
 	user_id: string;
-	expires_at: number|string;
-}
+	expires_at: number | string;
+};
 
-export async function getSessionUserId(sessionId: string) :Promise<string | null> {
-	
+export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const cacheKey = getSessionCacheKey(sessionId);
 	const sessionData = await cache.get(cacheKey);
 
@@ -18,10 +17,6 @@ export async function getSessionUserId(sessionId: string) :Promise<string | null
 			const currentTimeInSeconds = Date.now() / 1000;
 
 			if (Number(session.expires_at) < currentTimeInSeconds) {
-				console.table({
-					currentTimeInSeconds,
-					expiresAt: session.expires_at,
-				});
 				// Clear the expired session from cache
 				await cache.del(cacheKey);
 				return null;
@@ -35,19 +30,17 @@ export async function getSessionUserId(sessionId: string) :Promise<string | null
 			console.error("Failed to parse session data:", error);
 			return null;
 		}
-	}
-
-	else {
+	} else {
 		return null;
 	}
 }
 
-export async function startSession(userId: string) :Promise<string> {
+export async function startSession(userId: string): Promise<string> {
 	const sessionId = v7();
 	const expiresAt = Date.now() + sessionConfig.maxLifetime * 1000;
 
 	const sessionKey = getSessionCacheKey(sessionId);
-	const sessionData :Session = {
+	const sessionData: Session = {
 		user_id: userId,
 		expires_at: expiresAt,
 	};

@@ -14,12 +14,11 @@ export const auth = createMiddleware(async (c, next) => {
 	try {
 		const token = await verifyToken(raw_token);
 
-		if(!token || !token.token_type)
-		{
+		if (!token || !token.token_type) {
 			throw new Error("Token type is missing or invalid.");
 		}
 
-		switch(String(token.token_type).toUpperCase() as TokenType) {
+		switch (String(token.token_type).toUpperCase() as TokenType) {
 			case TokenType.SESSION:
 				if (!token.jti) {
 					throw new Error("Invalid session ID.");
@@ -49,12 +48,9 @@ export const auth = createMiddleware(async (c, next) => {
 			default:
 				throw new Error("Invalid token type.");
 		}
-
-		console.table(token);
-		
 	} catch (error) {
 		console.error("Token verification failed:", error);
-		
+
 		// Try to get the error message from the error object, otherwise use a generic message.
 		const errorMessage = error instanceof Error ? error.message : "Unauthorized";
 

@@ -17,6 +17,24 @@ CREATE TABLE "entity_models" (
 	CONSTRAINT "entity_models_alt_id_unique" UNIQUE("alt_id")
 );
 --> statement-breakpoint
+CREATE TABLE "permission_assignments" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"permission_id" uuid NOT NULL,
+	"user_id" uuid,
+	"role_id" uuid,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
+);
+--> statement-breakpoint
+CREATE TABLE "permissions" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"name" varchar(64) NOT NULL,
+	"description" varchar(255),
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	CONSTRAINT "permissions_name_unique" UNIQUE("name")
+);
+--> statement-breakpoint
 CREATE TABLE "roles" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"name" varchar(64) NOT NULL,
@@ -24,6 +42,14 @@ CREATE TABLE "roles" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,
 	CONSTRAINT "roles_name_unique" UNIQUE("name")
+);
+--> statement-breakpoint
+CREATE TABLE "system_permissions" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"permission" varchar(64) NOT NULL,
+	"user_id" uuid NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "transaction_models" (
@@ -72,7 +98,14 @@ CREATE TABLE "users" (
 );
 --> statement-breakpoint
 ALTER TABLE "api_tokens" ADD CONSTRAINT "api_tokens_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "permission_assignments" ADD CONSTRAINT "permission_assignments_permission_id_permissions_id_fk" FOREIGN KEY ("permission_id") REFERENCES "public"."permissions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "system_permissions" ADD CONSTRAINT "system_permissions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "api_token_user_idx" ON "api_tokens" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "permission_assignment_user_idx" ON "permission_assignments" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "permission_assignment_role_idx" ON "permission_assignments" USING btree ("role_id");--> statement-breakpoint
+CREATE INDEX "permission_assignment_permission_idx" ON "permission_assignments" USING btree ("permission_id");--> statement-breakpoint
+CREATE INDEX "system_permission_user_idx" ON "system_permissions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "system_permission_permission_idx" ON "system_permissions" USING btree ("permission");--> statement-breakpoint
 CREATE INDEX "user_email_idx" ON "users" USING btree ("email");

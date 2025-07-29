@@ -10,7 +10,7 @@ config();
 type AuthConfig = {
 	secret: string;
 	pastSecrets: string[];
-	algorithm: AlgorithmTypes;
+	jwtAlgorithm: AlgorithmTypes;
 };
 
 type CacheConfig = {
@@ -18,8 +18,8 @@ type CacheConfig = {
 };
 
 type CorsConfig = {
-	origin: string | string[],
-	allowMethods?: string[],
+	origin: string | string[];
+	allowMethods?: string[];
 	allowHeaders?: string[];
 	maxAge?: number;
 	credentials?: boolean;
@@ -40,21 +40,17 @@ type ServerConfig = {
 type SessionConfig = {
 	ttl: number;
 	maxLifetime: number;
-}
+};
 
 /*
  * 2) Define the logic for complex values.
  */
 
 /**
- * Authentication algorithm configuration values and defaults.
- * This is used to sign and verify JWTs. Comes from Hono's JWT utilities.
- */
-const authAlgorithm = "HS256" as AlgorithmTypes;
-
-/**
  * Authentication secrets configuration values and defaults.
  */
+const jwtAlgorithm = "HS256" as AlgorithmTypes;
+
 const authSecret = process.env.KL_AUTH_SECRET;
 if (!authSecret) {
 	throw new Error("KL_AUTH_SECRET environment variable is not set.");
@@ -65,12 +61,14 @@ const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 /**
  * CORS configuration values and defaults.
  */
-const corsDefaultHeaders = ['Content-Type', 'Authorization', 'X-Requested-With'];
-const corsAllowedHeaders = [...new Set([...corsDefaultHeaders, ...(process.env.KL_CORS_ALLOWED_HEADERS?.split(",") || [])])];
-const corsAllowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+const corsDefaultHeaders = ["Content-Type", "Authorization", "X-Requested-With"];
+const corsAllowedHeaders = [
+	...new Set([...corsDefaultHeaders, ...(process.env.KL_CORS_ALLOWED_HEADERS?.split(",") || [])]),
+];
+const corsAllowedMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
 const corsAllowedOrigins = process.env.KL_CORS_ALLOWED_ORIGINS ? process.env.KL_CORS_ALLOWED_ORIGINS.split(",") : "*";
 const corsCredentials = false;
-const corsExposeHeaders :string[] = [];
+const corsExposeHeaders: string[] = [];
 const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
 
 /**
@@ -81,10 +79,11 @@ const sessionTtl = parseInt(process.env.KL_SESSION_TTL || "3600"); // 1 hour def
 const sessionMaxLifetime = parseInt(process.env.KL_SESSION_MAX_LIFETIME || "86400"); // Default to 1 week.
 
 // Error out if session TTL is greater than max lifetime or if either is not set.
-if (sessionTtl > sessionMaxLifetime || (sessionTtl <= 0 || sessionMaxLifetime <= 0)) {
-	throw new Error("KL_SESSION_MAX_LIFETIME value in seconds must be greater than KL_SESSION_TTL value in seconds, and both must be positive integers.");
+if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 0) {
+	throw new Error(
+		"KL_SESSION_MAX_LIFETIME value in seconds must be greater than KL_SESSION_TTL value in seconds, and both must be positive integers.",
+	);
 }
-
 
 /*
  * 3) Export the configuration objects.
@@ -97,7 +96,7 @@ if (sessionTtl > sessionMaxLifetime || (sessionTtl <= 0 || sessionMaxLifetime <=
 export const authConfig: AuthConfig = {
 	secret: authSecret,
 	pastSecrets: pastSecrets,
-	algorithm: authAlgorithm,
+	jwtAlgorithm: jwtAlgorithm,
 };
 
 /**

@@ -11,7 +11,7 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 	const currentSecret = authConfig.secret;
 
 	try {
-		const decoded = await verify(token, currentSecret, authConfig.algorithm);
+		const decoded = await verify(token, currentSecret, authConfig.jwtAlgorithm);
 		return decoded;
 	} catch (currentSecretError) {
 		const pastSecrets = authConfig.pastSecrets || [];
@@ -21,7 +21,7 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 				const decodedFromPast = await Promise.any(
 					pastSecrets.map(async (pastSecret) => {
 						try {
-							const decoded = await verify(token, pastSecret, authConfig.algorithm);
+							const decoded = await verify(token, pastSecret, authConfig.jwtAlgorithm);
 							return decoded;
 						} catch (err) {
 							console.warn(
@@ -46,10 +46,24 @@ export async function signToken(payload: JWTPayload): Promise<string> {
 	const currentSecret = authConfig.secret;
 
 	try {
-		const token = await sign(payload, currentSecret, authConfig.algorithm);
+		const token = await sign(payload, currentSecret, authConfig.jwtAlgorithm);
 		return token;
 	} catch (error) {
 		console.error("Failed to sign token:", error);
 		throw new Error("Token signing failed.");
 	}
+}
+
+export function assembleApiTokenJwtPayload(tokenId: string): JWTPayload {
+	return {
+		jti: tokenId,
+		token_type: TokenType.API,
+	};
+}
+
+export function assembleSessionJwtPayload(sessionId: string): JWTPayload {
+	return {
+		jti: sessionId,
+		token_type: TokenType.SESSION,
+	};
 }

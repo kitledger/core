@@ -32,7 +32,6 @@ bin/
 
 # Dependency directories
 node_modules/
-jspm_packages/
 
 # TypeScript cache
 *.tsbuildinfo
@@ -50,13 +49,3 @@ jspm_packages/
 .env
 .env.*
 !.env.example
-
-# vuepress build output
-.vuepress/dist
-
-# Docusaurus cache and generated files
-.docusaurus
-
-# Vite logs files
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
