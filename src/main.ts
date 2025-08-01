@@ -1,9 +1,6 @@
-import { runMigrations } from "./database/db.ts";
 import server from "./http/server.ts";
 import { serverConfig } from "./config.ts";
 import { execute } from "./cli.ts";
-
-await runMigrations();
 
 const args = Deno.args;
 
