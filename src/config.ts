@@ -42,6 +42,7 @@ type SessionConfig = {
 type WorkerConfig = {
 	poolSize: number;
 	taskTimeout: number;
+	maxQueueSize: number;
 };
 
 /*
@@ -94,6 +95,7 @@ if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 
  */
 const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency - 1)) || 1;
 const workerTaskTimeout = parseInt(Deno.env.get("KL_WORKER_TASK_TIMEOUT") || "5000"); // Default to 5 seconds
+const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE") ? parseInt(String(Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE"))) : Infinity;
 
 /*
  * 3) Export the configuration objects.
@@ -159,4 +161,5 @@ export const sessionConfig: SessionConfig = {
 export const workerConfig: WorkerConfig = {
 	poolSize: workerPoolSize,
 	taskTimeout: workerTaskTimeout,
+	maxQueueSize: workerMaxQueueSize,
 };

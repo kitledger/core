@@ -9,14 +9,14 @@
     "jsr:@std/internal@^1.0.9": "1.0.9",
     "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/uuid@^1.0.9": "1.0.9",
+    "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "22.15.15",
     "npm:drizzle-kit@~0.31.4": "0.31.4_esbuild@0.25.8",
     "npm:drizzle-orm@~0.44.2": "0.44.4_postgres@3.4.7",
     "npm:iovalkey@~0.3.3": "0.3.3",
-    "npm:postgres@^3.4.7": "3.4.7",
-    "npm:zod@^4.0.5": "4.0.13"
+    "npm:postgres@^3.4.7": "3.4.7"
   },
   "jsr": {
     "@hono/hono@4.8.10": {
@@ -49,6 +49,9 @@
         "jsr:@std/bytes",
         "jsr:@std/crypto"
       ]
+    },
+    "@valibot/valibot@1.1.0": {
+      "integrity": "2617f02b532011b8140926899d420a3e1bbb0fcb7cdf8e7b669df89e7edd7f5f"
     }
   },
   "npm": {
@@ -612,9 +615,6 @@
     },
     "undici-types@6.21.0": {
       "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
-    },
-    "zod@4.0.13": {
-      "integrity": "sha512-jv+zRxuZQxTrFHzxZ46ezL2FtnE+M4HIJHJEwLsZ7UjrXHltdG6HrxvqM0twoVCWxJiYf8WqKjAcjztegpkB+Q=="
     }
   },
   "workspace": {
@@ -623,13 +623,13 @@
       "jsr:@std/assert@1",
       "jsr:@std/path@^1.1.1",
       "jsr:@std/uuid@^1.0.9",
+      "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",
       "npm:drizzle-orm@~0.44.2",
       "npm:iovalkey@~0.3.3",
-      "npm:postgres@^3.4.7",
-      "npm:zod@^4.0.5"
+      "npm:postgres@^3.4.7"
     ]
   }
 }

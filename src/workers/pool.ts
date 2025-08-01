@@ -21,12 +21,6 @@ type WorkerState = {
 	isIdle: boolean;
 };
 
-type PoolOptions = {
-	size?: number;
-	taskTimeout?: number;
-	maxQueueSize?: number;
-};
-
 type WorkerMessage = {
 	id: string;
 	status: "success" | "error";
@@ -38,15 +32,11 @@ class WorkerPool {
 	private taskQueue: Task[] = [];
 	private activeTasks = new Map<string, Task>();
 	private isClosing = false;
-	private readonly options: Required<PoolOptions>;
+	private readonly options: typeof workerConfig;
 
-	constructor(private workerPath: string, options: PoolOptions = {}) {
-		this.options = {
-			size: options.size ?? navigator.hardwareConcurrency,
-			taskTimeout: options.taskTimeout ?? 30000,
-			maxQueueSize: options.maxQueueSize ?? Infinity,
-		};
-		for (let i = 0; i < this.options.size; i++) {
+	constructor(private workerPath: string) {
+		this.options = workerConfig
+		for (let i = 0; i < this.options.poolSize; i++) {
 			this.addNewWorker();
 		}
 	}
@@ -201,8 +191,4 @@ class WorkerPool {
 
 export const workerPool = new WorkerPool(
 	new URL("./worker.ts", import.meta.url).pathname,
-	{
-		size: workerConfig.poolSize,
-		taskTimeout: workerConfig.taskTimeout,
-	},
 );
