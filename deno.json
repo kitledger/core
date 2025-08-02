@@ -26,7 +26,7 @@
 		"db:generate": "deno run -A npm:drizzle-kit generate",
 		"dev": "deno run -A --unstable-kv --watch --env-file ./src/main.ts",
 		"format": "deno fmt",
-		"test": "deno test --allow-all --unstable --coverage=./coverage",
+		"test": "deno test --env-file -A --unstable-kv",
 		"typecheck": "deno check src/**/*.ts|*tsx"
 	}
 }

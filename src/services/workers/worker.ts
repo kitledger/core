@@ -1,4 +1,4 @@
-import { hashPassword } from "../domain/auth/utils.ts";
+import { hashPassword } from "../../domain/auth/utils.ts";
 
 export enum availableWorkerTasks {
 	HASH_PASSWORD = "HASH_PASSWORD",

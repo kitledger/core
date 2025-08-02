@@ -1,5 +1,3 @@
-import { expect, test } from 'vitest'
+import { assert } from "@std/assert";
 
-test('adds 1 + 2 to equal 3', () => {
-  expect(1 + 2).toBe(3)
-})
+assert("I am truthy"); // Doesn't throw

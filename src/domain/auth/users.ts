@@ -8,7 +8,7 @@ import { workerPool } from "../../services/workers/pool.ts";
 import { availableWorkerTasks } from "../../services/workers/worker.ts";
 import { type User } from "../../services/database/schema.ts";
 
-type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
+export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
 	password: string;
 	api_token: string;
 };
