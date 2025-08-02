@@ -49,3 +49,6 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Default Sqlite Directory
+data/

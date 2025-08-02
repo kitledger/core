@@ -10,10 +10,6 @@ type AuthConfig = {
 	jwtAlgorithm: AlgorithmTypes;
 };
 
-type CacheConfig = {
-	url: string;
-};
-
 type CorsConfig = {
 	origin: string | string[];
 	allowMethods?: string[];
@@ -23,11 +19,10 @@ type CorsConfig = {
 	exposeHeaders?: string[];
 };
 
-type DbConfig = {
-	url: string;
-	ssl: boolean;
-	max: number;
-};
+type KvConfig = {
+	path: string;
+	local_db_name: string;
+}
 
 type ServerConfig = {
 	port: number;
@@ -81,7 +76,7 @@ const corsMaxAge = parseInt(Deno.env.get("KL_CORS_MAX_AGE") || "86400");
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
 const sessionTtl = parseInt(Deno.env.get("KL_SESSION_TTL") || "3600"); // 1 hour default
-const sessionMaxLifetime = parseInt(Deno.env.get("KL_SESSION_MAX_LIFETIME") || "86400"); // Default to 1 week.
+const sessionMaxLifetime = parseInt(Deno.env.get("KL_SESSION_MAX_LIFETIME") || "604800"); // Default to 1 week.
 
 // Error out if session TTL is greater than max lifetime or if either is not set.
 if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 0) {
@@ -112,22 +107,14 @@ export const authConfig: AuthConfig = {
 };
 
 /**
- * Export pre-assembled configuration values for the cache.
+ * Export pre-assembled configuration values for the key-value store.
  * Values are a mix of environment variables and defaults.
+ * Value can be a local path or a remote URL.
  */
-export const cacheConfig: CacheConfig = {
-	url: Deno.env.get("KL_VALKEY_URL") || "redis://localhost:6379",
-};
-
-/**
- * Export pre-assembled configuration values for the database.
- * Values are a mix of environment variables and defaults.
- */
-export const dbConfig: DbConfig = {
-	url: Deno.env.get("KL_POSTGRES_URL") || "postgres://localhost:5432/kitledger",
-	ssl: Deno.env.get("KL_POSTGRES_SSL") === "true",
-	max: parseInt(Deno.env.get("KL_POSTGRES_MAX_CONNECTIONS") || "10"),
-};
+export const kvConfig: KvConfig = {
+	path: Deno.env.get("KL_KV_PATH") || "./data",
+	local_db_name: Deno.env.get("KL_KV_LOCAL_DB_NAME") || "kitledger.db",
+}
 
 /**
  * Export pre-assembled configuration values for the HTTP server.

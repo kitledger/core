@@ -1,4 +1,4 @@
-import { cache } from "../../database/cache.ts";
+import { kv } from "../../database/kv.ts";
 import { sessionConfig } from "../../config.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
@@ -9,21 +9,21 @@ export type Session = {
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const cacheKey = getSessionCacheKey(sessionId);
-	const sessionData = await cache.get(cacheKey);
+	const sessionDataResult = await kv.get(cacheKey);
 
-	if (sessionData) {
+	if (sessionDataResult.value) {
 		try {
-			const session = JSON.parse(sessionData) as Session;
+			const session = sessionDataResult.value as Session;
 			const currentTimeInSeconds = Date.now() / 1000;
 
 			if (Number(session.expires_at) < currentTimeInSeconds) {
 				// Clear the expired session from cache
-				await cache.del(cacheKey);
+				await kv.delete(cacheKey);
 				return null;
 			}
 
 			// Bump the TTL
-			await cache.expire(cacheKey, sessionConfig.ttl);
+			await kv.set(cacheKey, session, { expireIn: ttlToMilliseconds(sessionConfig.ttl) });
 
 			return session.user_id || null;
 		} catch (error) {
@@ -44,10 +44,14 @@ export async function startSession(userId: string): Promise<string> {
 		user_id: userId,
 		expires_at: expiresAt,
 	};
-	await cache.set(sessionKey, JSON.stringify(sessionData), "EX", sessionConfig.ttl);
+	await kv.set(sessionKey, sessionData, { expireIn: ttlToMilliseconds(sessionConfig.ttl) });
 	return sessionId;
 }
 
-function getSessionCacheKey(sessionId: string): string {
-	return `kl_session:${sessionId}`;
+function getSessionCacheKey(sessionId: string): string[] {
+	return ["session", sessionId];
+}
+
+function ttlToMilliseconds(ttl: number): number {
+	return ttl * 1000;
 }

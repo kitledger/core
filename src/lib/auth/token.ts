@@ -1,15 +1,17 @@
-import { db } from "../../database/db.ts";
-import { api_tokens } from "../../database/schema.ts";
-import { and, eq, isNull } from "drizzle-orm";
+import { kv } from "../../database/kv.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
+export type ApiToken = {
+    id: string;
+    user_id: string;
+    name: string;
+    revoked_at: Date | null;
+}
+
 export async function getTokenUserId(tokenId: string): Promise<string | null> {
-	const token = await db.query.api_tokens.findFirst({
-		where: and(eq(api_tokens.id, tokenId), isNull(api_tokens.revoked_at)),
-		columns: {
-			user_id: true,
-		},
-	});
+
+	const result = await kv.get(["api_token", tokenId]);
+	const token = result.value as ApiToken | null;
 
 	if (token) {
 		return token.user_id;
@@ -21,8 +23,7 @@ export async function getTokenUserId(tokenId: string): Promise<string | null> {
 export async function createToken(userId: string, name?: string | null): Promise<string> {
 	const tokenId = v7();
 
-	await db.insert(api_tokens).values({
-		id: tokenId,
+	await kv.set(["api_token", tokenId], {
 		user_id: userId,
 		name: name ?? "API Token",
 		revoked_at: null,

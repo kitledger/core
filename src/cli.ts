@@ -1,4 +1,5 @@
 import { createSuperUser } from "./lib/auth/users.ts";
+import { startSession } from "./lib/auth/session.ts";
 
 type Command = {
 	name: string;
@@ -33,6 +34,28 @@ const commands: Command[] = [
 			Deno.exit(0);
 		},
 	},
+	{
+		name: "startSession",
+		description: "Start a session for a user",
+		usage: "startSession <userId>",
+		handler: async (args) => {
+			if (args.length < 1) {
+				console.error(`Usage: ${commands.find((c) => c.name === "startSession")!.usage}`);
+				Deno.exit(1);
+			}
+
+			const userId = args[0];
+			const sessionId = await startSession(userId);
+
+			if (!sessionId) {
+				console.error("Failed to start session.");
+				Deno.exit(1);
+			}
+
+			console.log(`Session started with ID: ${sessionId}`);
+			Deno.exit(0);
+		},
+	}
 ];
 
 export async function execute(args: string[]): Promise<void> {
