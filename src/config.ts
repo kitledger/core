@@ -112,7 +112,7 @@ export const authConfig: AuthConfig = {
  * Value can be a local path or a remote URL.
  */
 export const kvConfig: KvConfig = {
-	path: Deno.env.get("KL_KV_PATH") || "./data/kitledger.db",
+	path: Deno.env.get("KL_KV_PATH") || "./data",
 	local_db_name: Deno.env.get("KL_KV_LOCAL_DB_NAME") || "kitledger.db",
 }
 

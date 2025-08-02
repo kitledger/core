@@ -42,6 +42,13 @@ export async function createSuperUser(
 			throw new Error("Failed to hash password");
 		}
 
+		const tokenName = `${firstName} ${lastName} Super User Token`.slice(0, 64);
+		const apiToken = await createToken(userId, tokenName);
+
+		if (!apiToken) {
+			console.error("Failed to create API token for super user");
+		}
+
 		const newUser :User = {
 			id: userId,
 			first_name: firstName,
@@ -50,25 +57,31 @@ export async function createSuperUser(
 			password_hash: passwordHash as string,
 		};
 
-		await kv.set(["user", userId], newUser);
-		await kv.set(["user", "email", email], userId);
-
+		/**
+		 * Assemble SuperUser object that is returned to the caller.
+		 * It includes the password and API token, which are not stored in the database.
+		 * The password is used for the initial login, and the API token is used for API.
+		 * These credentials are only meant to be shown once.
+		 */
 		const newSuperUser :NewSuperUser = {
-			...newUser,
+			id: newUser.id,
+			first_name: newUser.first_name,
+			last_name: newUser.last_name,
+			email: newUser.email,
 			password: password,
-			api_token: "",
+			api_token: await signToken(assembleApiTokenJwtPayload(apiToken)),
 		};
 
-		const tokenName = `${firstName} ${lastName} Super User Token`.slice(0, 64);
-		const apiToken = await createToken(newSuperUser.id, tokenName);
+		const res = await kv.atomic()
+			.set(["user", userId], newUser)
+			.set(["user", "email", email], userId)
+			.set(["system_permissions", newUser.id], [SYSTEM_ADMIN_PERMISSION])
+			.commit();
 
-		if (!apiToken) {
-			console.error("Failed to create API token for super user");
+		if (!res.ok) {
+			console.error("Failed to create super user in database");
+			return null;
 		}
-
-		newSuperUser.api_token = await signToken(assembleApiTokenJwtPayload(apiToken));
-
-		await kv.set(["system_permissions", newUser.id], [SYSTEM_ADMIN_PERMISSION]);
 
 		return newSuperUser;
 
