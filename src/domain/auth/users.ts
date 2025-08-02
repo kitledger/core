@@ -1,21 +1,12 @@
-import { kv } from "../../database/kv.ts";
+import { kv } from "../../services/database/kv.ts";
 import { randomBytes } from "node:crypto";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 import { SYSTEM_ADMIN_PERMISSION } from "./permission.ts";
 import { createToken } from "./token.ts";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt.ts";
-import { workerPool } from "../../workers/pool.ts";
-import { availableWorkerTasks } from "../../workers/worker.ts";
-
-export type User = {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    password_hash: string;
-    created_at?: Date | undefined;
-    updated_at?: Date | null | undefined;
-}
+import { workerPool } from "../../services/workers/pool.ts";
+import { availableWorkerTasks } from "../../services/workers/worker.ts";
+import { type User } from "../../services/database/schema.ts";
 
 type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
 	password: string;
@@ -27,13 +18,12 @@ export async function createSuperUser(
 	lastName: string,
 	email: string,
 ): Promise<NewSuperUser | null> {
-
 	const userId = v7();
 	let passwordHash = null;
 
 	try {
 		const password = randomBytes(20).toString("hex");
-		
+
 		passwordHash = await workerPool.runTask(
 			availableWorkerTasks.HASH_PASSWORD,
 			password,
@@ -49,7 +39,7 @@ export async function createSuperUser(
 			console.error("Failed to create API token for super user");
 		}
 
-		const newUser :User = {
+		const newUser: User = {
 			id: userId,
 			first_name: firstName,
 			last_name: lastName,
@@ -63,7 +53,7 @@ export async function createSuperUser(
 		 * The password is used for the initial login, and the API token is used for API.
 		 * These credentials are only meant to be shown once.
 		 */
-		const newSuperUser :NewSuperUser = {
+		const newSuperUser: NewSuperUser = {
 			id: newUser.id,
 			first_name: newUser.first_name,
 			last_name: newUser.last_name,
@@ -84,7 +74,6 @@ export async function createSuperUser(
 		}
 
 		return newSuperUser;
-
 	} catch (error) {
 		console.error("Error creating super user:", error);
 		return null;

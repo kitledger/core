@@ -3,7 +3,7 @@
  * for it to work with Deno compile.
  */
 import "./worker.ts";
-import { workerConfig } from "../config.ts";
+import { workerConfig } from "../../config.ts";
 
 type Task = {
 	id: string;
@@ -35,7 +35,7 @@ class WorkerPool {
 	private readonly options: typeof workerConfig;
 
 	constructor(private workerPath: string) {
-		this.options = workerConfig
+		this.options = workerConfig;
 		for (let i = 0; i < this.options.poolSize; i++) {
 			this.addNewWorker();
 		}

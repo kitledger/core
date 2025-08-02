@@ -1,5 +1,5 @@
-import { createSuperUser } from "./lib/auth/users.ts";
-import { startSession } from "./lib/auth/session.ts";
+import { createSuperUser } from "./domain/auth/users.ts";
+import { startSession } from "./domain/auth/session.ts";
 
 type Command = {
 	name: string;
@@ -55,7 +55,7 @@ const commands: Command[] = [
 			console.log(`Session started with ID: ${sessionId}`);
 			Deno.exit(0);
 		},
-	}
+	},
 ];
 
 export async function execute(args: string[]): Promise<void> {

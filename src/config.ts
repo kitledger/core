@@ -22,7 +22,7 @@ type CorsConfig = {
 type KvConfig = {
 	path: string;
 	local_db_name: string;
-}
+};
 
 type ServerConfig = {
 	port: number;
@@ -90,7 +90,9 @@ if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 
  */
 const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency - 1)) || 1;
 const workerTaskTimeout = parseInt(Deno.env.get("KL_WORKER_TASK_TIMEOUT") || "5000"); // Default to 5 seconds
-const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE") ? parseInt(String(Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE"))) : Infinity;
+const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
+	? parseInt(String(Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")))
+	: Infinity;
 
 /*
  * 3) Export the configuration objects.
@@ -114,7 +116,7 @@ export const authConfig: AuthConfig = {
 export const kvConfig: KvConfig = {
 	path: Deno.env.get("KL_KV_PATH") || "./data",
 	local_db_name: Deno.env.get("KL_KV_LOCAL_DB_NAME") || "kitledger.db",
-}
+};
 
 /**
  * Export pre-assembled configuration values for the HTTP server.

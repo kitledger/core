@@ -1,4 +1,4 @@
-import { kvConfig } from "../config.ts";
+import { kvConfig } from "../../config.ts";
 
 let kv_store: Deno.Kv | null = null;
 
@@ -15,17 +15,13 @@ try {
 	if (!kvConfig.path.startsWith("http")) {
 		await Deno.mkdir(kvConfig.path, { recursive: true });
 		kv_store = await Deno.openKv(`${kvConfig.path}/${kvConfig.local_db_name}`);
-	}
-
-	/**
+	} /**
 	 * Handle remote URL for the key-value store.
 	 */
 	else {
 		kv_store = await Deno.openKv(kvConfig.path);
 	}
-}
-
-catch {
+} catch {
 	console.error("Unable to create KV directory");
 	throw new Error("Failed to initialize key-value store. Please check the configuration.");
 }
