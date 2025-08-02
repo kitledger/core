@@ -31,3 +31,25 @@ try {
  * This can be used to perform operations on the key-value store.
  */
 export const kv = kv_store;
+
+/**
+ * This function exists to have type safety when building keys for the key-value store.
+ * Specially when the key has a parameter that needs to match a property of a type.
+ */
+export function getKeyPart<T>(property: keyof T): string {
+  return String(property);
+}
+
+export enum PrimaryKeyType {
+	API_TOKEN = "api_token",
+	ENTITY_MODEL = "entity_model",
+	PERMISSION_ASSIGNMENT = "permission_assignment",
+	PERMISSION = "permission",
+	ROLE = "role",
+	SESSION = "session",
+	SYSTEM_PERMISSION = "system_permission",
+	TRANSACTION_MODEL = "transaction_model",
+	UNIT_MODEL = "unit_model",
+	USER = "user",
+	USER_ROLE = "user_role",
+}

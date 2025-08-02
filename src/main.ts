@@ -1,4 +1,4 @@
-import server from "./http/server.ts";
+import server from "./services/http/server.ts";
 import { serverConfig } from "./config.ts";
 import { execute } from "./cli.ts";
 

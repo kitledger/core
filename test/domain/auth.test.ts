@@ -1,9 +1,9 @@
 import { factory, makeApiToken, makeSession, makeUser } from "../../src/services/database/factory.ts";
 import { type User } from "../../src/services/database/schema.ts";
 import { assert } from "@std/assert";
-import { type NewSuperUser, createSuperUser } from "../../src/domain/auth/users.ts";
+import { type NewSuperUser, createSuperUser, getUserKey, getUserEmailKey } from "../../src/domain/auth/users.ts";
 import { kv } from "../../src/services/database/kv.ts";
-import { SYSTEM_ADMIN_PERMISSION } from "../../src/domain/auth/permission.ts";
+import { SYSTEM_ADMIN_PERMISSION, getSystemPermissionKey } from "../../src/domain/auth/permission.ts";
 
 Deno.test("User factory creates valid User objects", () => {
 	const users = factory(makeUser, 5);
@@ -55,17 +55,17 @@ Deno.test("createSuperUser returns a valid NewSuperUser object", async () => {
 	assert(newSuperUser.password.length > 0);
 
 	// Retrieve the user from the database to verify it was created.
-	const userFromDbRes = await kv.get(["user", newSuperUser.id]);
+	const userFromDbRes = await kv.get(getUserKey(newSuperUser.id));
 	const userFromDb = userFromDbRes.value as User | null;
 	assert(userFromDb !== null);
 	assert(userFromDb.first_name === newSuperUser.first_name);
 	assert(userFromDb.last_name === newSuperUser.last_name);
 
-	const userEmailFromDbRes = await kv.get(["user", "email", newSuperUser.email]);
+	const userEmailFromDbRes = await kv.get(getUserEmailKey(newSuperUser.email));
 	const userEmailFromDb = userEmailFromDbRes.value as string | null;
 	assert(userEmailFromDb === newSuperUser.id);
 
-	const systemPermissionFromDbRes = await kv.get(["system_permissions", newSuperUser.id]);
+	const systemPermissionFromDbRes = await kv.get(getSystemPermissionKey(newSuperUser.id));
 	const systemPermissionFromDb = systemPermissionFromDbRes.value as string[] | null;
 	assert(systemPermissionFromDb?.includes(SYSTEM_ADMIN_PERMISSION));
 });
