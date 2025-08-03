@@ -1,4 +1,4 @@
-import { kv } from "../../services/database/kv.ts";
+import { kv, PrimaryKeyType } from "../../services/database/kv.ts";
 import { sessionConfig } from "../../config.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 import { type Session } from "../../services/database/schema.ts";
@@ -10,9 +10,9 @@ export async function getSessionUserId(sessionId: string): Promise<string | null
 	if (sessionDataResult.value) {
 		try {
 			const session = sessionDataResult.value as Session;
-			const currentTimeInSeconds = Date.now() / 1000;
+			const currentTime = Date.now();
 
-			if (Number(session.expires_at) < currentTimeInSeconds) {
+			if (Number(session.expires_at) < currentTime) {
 				// Clear the expired session from cache
 				await kv.delete(cacheKey);
 				return null;
@@ -45,7 +45,7 @@ export async function startSession(userId: string): Promise<string> {
 }
 
 function getSessionCacheKey(sessionId: string): string[] {
-	return ["session", sessionId];
+	return [PrimaryKeyType.SESSION, sessionId];
 }
 
 function ttlToMilliseconds(ttl: number): number {

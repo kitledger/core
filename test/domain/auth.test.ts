@@ -2,8 +2,13 @@ import { factory, makeApiToken, makeSession, makeUser } from "../../src/services
 import { type User } from "../../src/services/database/schema.ts";
 import { assert } from "@std/assert";
 import { type NewSuperUser, createSuperUser, getUserKey, getUserEmailKey } from "../../src/domain/auth/users.ts";
-import { kv } from "../../src/services/database/kv.ts";
+import { kv, PrimaryKeyType } from "../../src/services/database/kv.ts";
 import { SYSTEM_ADMIN_PERMISSION, getSystemPermissionKey } from "../../src/domain/auth/permission.ts";
+import { assembleSessionJwtPayload, assembleApiTokenJwtPayload, verifyToken, signToken } from "../../src/domain/auth/jwt.ts";
+import { startSession, getSessionUserId } from "../../src/domain/auth/session.ts";
+import { generate } from "@std/uuid/unstable-v7";
+import { createToken, getTokenUserId } from "../../src/domain/auth/token.ts";
+import { hashPassword } from "../../src/domain/auth/utils.ts";
 
 Deno.test("User factory creates valid User objects", () => {
 	const users = factory(makeUser, 5);
@@ -68,4 +73,72 @@ Deno.test("createSuperUser returns a valid NewSuperUser object", async () => {
 	const systemPermissionFromDbRes = await kv.get(getSystemPermissionKey(newSuperUser.id));
 	const systemPermissionFromDb = systemPermissionFromDbRes.value as string[] | null;
 	assert(systemPermissionFromDb?.includes(SYSTEM_ADMIN_PERMISSION));
+});
+
+Deno.test("assembleSessionJwtPayload creates a valid JWT payload", () => {
+	const sessionId = "test-session-id";
+	const payload = assembleSessionJwtPayload(sessionId);
+	assert(payload.jti === sessionId);
+	assert(payload.token_type === "SESSION");
+
+	const apiTokenPayload = assembleApiTokenJwtPayload("test-api-token-id");
+	assert(apiTokenPayload.jti === "test-api-token-id");
+	assert(apiTokenPayload.token_type === "API");
+});
+
+Deno.test("verifyToken and signToken work correctly", async () => {
+	const sampleJTI = generate();
+	const payload = { jti: sampleJTI, token_type: "TEST" };
+	const token = await signToken(payload);
+	assert(typeof token === "string" && token.length > 0);
+
+	const verifiedPayload = await verifyToken(token);
+	assert(verifiedPayload.jti === payload.jti);
+	assert(verifiedPayload.token_type === payload.token_type);
+
+	// Test with an invalid token
+	try {
+		const invalidToken = generate();
+		await verifyToken(invalidToken);
+		assert(false, "Expected verifyToken to throw an error for invalid token");
+	} catch (error) {
+		assert(error instanceof Error);
+		assert(error.message === "Invalid or expired token.");
+	}
+});
+
+Deno.test("startSession creates a valid session and retrieves user ID", async () => {
+	const userId = generate();
+	const sessionId = await startSession(userId);
+	assert(typeof sessionId === "string" && sessionId.length > 0);
+
+	const retrievedUserId = await getSessionUserId(sessionId);
+	assert(retrievedUserId === userId);
+
+	// Test with an expired session
+	const expiredSessionId = generate();
+	await kv.set([PrimaryKeyType.SESSION, expiredSessionId], { user_id: userId, expires_at: Date.now() - 1000 }, { expireIn: 0 });
+	const expiredUserId = await getSessionUserId(expiredSessionId);
+	console.log("Expired session user ID:", expiredUserId);
+	assert(expiredUserId === null);
+});
+
+Deno.test("createToken and getTokenUserId work correctly", async () => {
+	const userId = generate();
+	const tokenId = await createToken(userId, "Test Token");
+	assert(typeof tokenId === "string" && tokenId.length > 0);
+	const retrievedUserId = await getTokenUserId(tokenId);
+	assert(retrievedUserId === userId);
+	// Test with a non-existent token
+	const nonExistentTokenId = generate();
+	const nonExistentUserId = await getTokenUserId(nonExistentTokenId);
+	assert(nonExistentUserId === null);
+});
+
+Deno.test("hashPassword generates a valid hash", async () => {
+	const password = "securePassword123";
+	const hashedPassword = await hashPassword(password);
+	assert(typeof hashedPassword === "string" && hashedPassword.length > 0);
+	// Check if the hash is a valid argon2 hash (basic check)
+	assert(hashedPassword.startsWith("$argon2id$"));
 });
