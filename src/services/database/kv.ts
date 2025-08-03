@@ -37,7 +37,7 @@ export const kv = kv_store;
  * Specially when the key has a parameter that needs to match a property of a type.
  */
 export function getKeyPart<T>(property: keyof T): string {
-  return String(property);
+	return String(property);
 }
 
 export enum PrimaryKeyType {

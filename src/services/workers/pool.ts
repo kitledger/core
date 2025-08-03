@@ -32,7 +32,7 @@ class WorkerPool {
 	private taskQueue: Task[] = [];
 	private activeTasks = new Map<string, Task>();
 	private isClosing = false;
-	private readonly options: typeof workerConfig;
+	public readonly options: typeof workerConfig;
 
 	constructor(private workerPath: string) {
 		this.options = workerConfig;

@@ -1,7 +1,7 @@
-import { kv, getKeyPart, PrimaryKeyType } from "../../services/database/kv.ts";
+import { getKeyPart, kv, PrimaryKeyType } from "../../services/database/kv.ts";
 import { randomBytes } from "node:crypto";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { SYSTEM_ADMIN_PERMISSION, getSystemPermissionKey } from "./permission.ts";
+import { getSystemPermissionKey, SYSTEM_ADMIN_PERMISSION } from "./permission.ts";
 import { createToken } from "./token.ts";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt.ts";
 import { workerPool } from "../../services/workers/pool.ts";
@@ -18,7 +18,7 @@ export function getUserKey(userId: string): [string, string] {
 }
 
 export function getUserEmailKey(email: string): [string, string, string] {
-	return [PrimaryKeyType.USER, getKeyPart<User>('email'), email];
+	return [PrimaryKeyType.USER, getKeyPart<User>("email"), email];
 }
 
 export async function createSuperUser(
