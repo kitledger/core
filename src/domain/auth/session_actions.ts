@@ -1,7 +1,7 @@
 import { kv, PrimaryKeyType } from "../../services/database/kv.ts";
 import { sessionConfig } from "../../config.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { type Session } from "../../services/database/schema.ts";
+import { type Session } from "./schema.ts";
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const cacheKey = getSessionCacheKey(sessionId);

@@ -5,16 +5,6 @@ export type ApiToken = {
 	revoked_at?: Date | null | undefined;
 };
 
-export type EntityModel = {
-	id: string;
-	ref_id: string;
-	name: string;
-	alt_id?: string | null | undefined;
-	active?: boolean | undefined;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
-
 export type PermissionAssignment = {
 	id: string;
 	permission_id: string;
@@ -49,27 +39,6 @@ export type SystemPermission = {
 	id: string;
 	permission: string;
 	user_id: string;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
-
-export type TransactionModel = {
-	id: string;
-	ref_id: string;
-	name: string;
-	alt_id?: string | null | undefined;
-	active?: boolean | undefined;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
-
-export type UnitModel = {
-	id: string;
-	ref_id: string;
-	name: string;
-	alt_id?: string | null | undefined;
-	active?: boolean | undefined;
-	base_unit_id?: string | null | undefined;
 	created_at?: Date | undefined;
 	updated_at?: Date | null | undefined;
 };

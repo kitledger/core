@@ -1,7 +1,7 @@
 import { createMiddleware } from "@hono/hono/factory";
-import { TokenType, verifyToken } from "../../../domain/auth/jwt.ts";
-import { getSessionUserId } from "../../../domain/auth/session.ts";
-import { getTokenUserId } from "../../../domain/auth/token.ts";
+import { TokenType, verifyToken } from "../../../domain/auth/jwt_actions.ts";
+import { getSessionUserId } from "../../../domain/auth/session_actions.ts";
+import { getTokenUserId } from "../../../domain/auth/token_actions.ts";
 
 export const auth = createMiddleware(async (c, next) => {
 	const raw_token = c.req.header("Authorization")?.replace("Bearer ", "");

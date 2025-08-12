@@ -1,5 +1,5 @@
-import { createSuperUser } from "./domain/auth/users.ts";
-import { startSession } from "./domain/auth/session.ts";
+import { createSuperUser } from "./domain/auth/user_actions.ts";
+import { startSession } from "./domain/auth/session_actions.ts";
 
 type Command = {
 	name: string;

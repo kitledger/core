@@ -1,12 +1,12 @@
 import { getKeyPart, kv, PrimaryKeyType } from "../../services/database/kv.ts";
 import { randomBytes } from "node:crypto";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { getSystemPermissionKey, SYSTEM_ADMIN_PERMISSION } from "./permission.ts";
-import { createToken } from "./token.ts";
-import { assembleApiTokenJwtPayload, signToken } from "./jwt.ts";
+import { getSystemPermissionKey, SYSTEM_ADMIN_PERMISSION } from "./permission_actions.ts";
+import { createToken } from "./token_actions.ts";
+import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.ts";
 import { workerPool } from "../../services/workers/pool.ts";
 import { availableWorkerTasks } from "../../services/workers/worker.ts";
-import { type User } from "../../services/database/schema.ts";
+import { type User } from "./schema.ts";
 
 export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
 	password: string;

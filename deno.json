@@ -27,6 +27,6 @@
 		"dev": "deno run -A --unstable-kv --watch --env-file ./src/main.ts",
 		"format": "deno fmt",
 		"test": "deno test --env-file -A --unstable-kv",
-		"typecheck": "deno check src/**/*.ts"
+		"typecheck": "deno check src/**/*.ts test/**/*.ts"
 	}
 }

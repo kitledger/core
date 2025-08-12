@@ -1,17 +1,18 @@
-import { factory, makeApiToken, makeSession, makeUser } from "../../src/services/database/factory.ts";
-import { type User } from "../../src/services/database/schema.ts";
+import { ApiTokenFactory, SessionFactory, UserFactory } from "../../src/domain/auth/factories.ts";
+import { type User } from "../../src/domain/auth/schema.ts";
 import { assert } from "@std/assert";
-import { type NewSuperUser, createSuperUser, getUserKey, getUserEmailKey } from "../../src/domain/auth/users.ts";
+import { type NewSuperUser, createSuperUser, getUserKey, getUserEmailKey } from "../../src/domain/auth/user_actions.ts";
 import { kv, PrimaryKeyType } from "../../src/services/database/kv.ts";
-import { SYSTEM_ADMIN_PERMISSION, getSystemPermissionKey } from "../../src/domain/auth/permission.ts";
-import { assembleSessionJwtPayload, assembleApiTokenJwtPayload, verifyToken, signToken } from "../../src/domain/auth/jwt.ts";
-import { startSession, getSessionUserId } from "../../src/domain/auth/session.ts";
+import { SYSTEM_ADMIN_PERMISSION, getSystemPermissionKey } from "../../src/domain/auth/permission_actions.ts";
+import { assembleSessionJwtPayload, assembleApiTokenJwtPayload, verifyToken, signToken } from "../../src/domain/auth/jwt_actions.ts";
+import { startSession, getSessionUserId } from "../../src/domain/auth/session_actions.ts";
 import { generate } from "@std/uuid/unstable-v7";
-import { createToken, getTokenUserId } from "../../src/domain/auth/token.ts";
+import { createToken, getTokenUserId } from "../../src/domain/auth/token_actions.ts";
 import { hashPassword } from "../../src/domain/auth/utils.ts";
 
 Deno.test("User factory creates valid User objects", () => {
-	const users = factory(makeUser, 5);
+	const factory = new UserFactory();
+	const users = factory.make(5);
 	assert(users.length === 5);
 	users.forEach(user => {
 		assert(typeof user.id === "string");
@@ -22,7 +23,8 @@ Deno.test("User factory creates valid User objects", () => {
 });
 
 Deno.test("Session factory creates valid Session objects", () => {
-	const sessions = factory(makeSession, 3);
+	const factory = new SessionFactory();
+	const sessions = factory.make(3);
 	assert(sessions.length === 3);
 	sessions.forEach(session => {
 		assert(typeof session.user_id === "string");
@@ -31,7 +33,8 @@ Deno.test("Session factory creates valid Session objects", () => {
 });
 
 Deno.test("ApiToken factory creates valid ApiToken objects", () => {
-	const tokens = factory(makeApiToken, 4);
+	const factory = new ApiTokenFactory();
+	const tokens = factory.make(4);
 	assert(tokens.length === 4);
 	tokens.forEach(token => {
 		assert(typeof token.id === "string");
@@ -42,7 +45,8 @@ Deno.test("ApiToken factory creates valid ApiToken objects", () => {
 });
 
 Deno.test("createSuperUser returns a valid NewSuperUser object", async () => {
-	const fakeUser = factory(makeUser, 1)[0];
+	const factory = new UserFactory();
+	const fakeUser = factory.make(1)[0];
 	const newSuperUser: NewSuperUser | null = await createSuperUser(
 		fakeUser.first_name,
 		fakeUser.last_name,

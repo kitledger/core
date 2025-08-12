@@ -1,6 +1,6 @@
 import { kv } from "../../services/database/kv.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { type ApiToken } from "../../services/database/schema.ts";
+import { type ApiToken } from "./schema.ts";
 
 export async function getTokenUserId(tokenId: string): Promise<string | null> {
 	const result = await kv.get(["api_token", tokenId]);
