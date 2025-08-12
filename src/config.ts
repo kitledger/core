@@ -1,4 +1,5 @@
 import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
+import { availableParallelism } from "@poolifier/poolifier-web-worker";
 
 /*
  * 1) Define the types
@@ -96,7 +97,7 @@ const sessionTtl = parseInt(Deno.env.get("KL_SESSION_TTL") || "3600"); // 1 hour
 /**
  * Worker pool configuration values and defaults.
  */
-const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency - 1)) || 1;
+const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency)) || 1;
 const workerTaskTimeout = parseInt(Deno.env.get("KL_WORKER_TASK_TIMEOUT") || "5000"); // Default to 5 seconds
 const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
 	? parseInt(String(Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")))

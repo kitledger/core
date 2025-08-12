@@ -28,10 +28,7 @@ export async function createSuperUser(
 			let passwordHash = null;
 
 			try {
-				passwordHash = await workerPool.runTask(
-					availableWorkerTasks.HASH_PASSWORD,
-					password,
-				);
+				passwordHash = await workerPool.execute(password, availableWorkerTasks.HASH_PASSWORD);
 			} catch (error) {
 				console.error("Error hashing password:", error);
 				passwordHash = null;

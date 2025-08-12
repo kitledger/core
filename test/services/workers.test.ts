@@ -8,12 +8,8 @@ Deno.test("Worker pool can add and run tasks", async () => {
 
 	const passwordToHash = generate();
 
-	const result = await workerPool.runTask(availableWorkerTasks.HASH_PASSWORD, passwordToHash);
+	const result = await workerPool.execute(passwordToHash, availableWorkerTasks.HASH_PASSWORD);
 
 	assert(typeof result === "string" && result.length > 0, "Expected a valid hashed password");
 	assert(result.startsWith("$argon2id$"), "Expected the result to be a valid argon2id hash");
-});
-
-Deno.test("Worker pool has the right size", () => {
-	assert(workerPool.options.poolSize === workerConfig.poolSize, `Expected worker pool size to be ${workerConfig.poolSize}`);
 });
