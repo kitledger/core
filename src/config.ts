@@ -10,6 +10,13 @@ type AuthConfig = {
 	jwtAlgorithm: AlgorithmTypes;
 };
 
+type CacheConfig = {
+	addresses: {
+		host: string;
+		port: number;
+	}[];
+};
+
 type CorsConfig = {
 	origin: string | string[];
 	allowMethods?: string[];
@@ -19,9 +26,10 @@ type CorsConfig = {
 	exposeHeaders?: string[];
 };
 
-type KvConfig = {
-	path: string;
-	local_db_name: string;
+type DbConfig = {
+	url: string;
+	ssl: boolean;
+	max: number;
 };
 
 type ServerConfig = {
@@ -31,7 +39,6 @@ type ServerConfig = {
 
 type SessionConfig = {
 	ttl: number;
-	maxLifetime: number;
 };
 
 type WorkerConfig = {
@@ -57,6 +64,15 @@ const pastSecretsString = Deno.env.get("KL_AUTH_PAST_SECRETS");
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 
 /**
+ * Cache configuration values and defaults.
+ */
+const valkeyAddressesEnv = Deno.env.get("KL_VALKEY_ADDRESSES") || "localhost:6379";
+const valkeyAddresses: CacheConfig["addresses"] = valkeyAddressesEnv.split(",").map((address) => {
+	const [host, port] = address.split(":");
+	return { host: host, port: parseInt(port) || 6379 };
+});
+
+/**
  * CORS configuration values and defaults.
  */
 const corsDefaultHeaders = ["Content-Type", "Authorization", "X-Requested-With"];
@@ -76,14 +92,6 @@ const corsMaxAge = parseInt(Deno.env.get("KL_CORS_MAX_AGE") || "86400");
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
 const sessionTtl = parseInt(Deno.env.get("KL_SESSION_TTL") || "3600"); // 1 hour default
-const sessionMaxLifetime = parseInt(Deno.env.get("KL_SESSION_MAX_LIFETIME") || "604800"); // Default to 1 week.
-
-// Error out if session TTL is greater than max lifetime or if either is not set.
-if (sessionTtl > sessionMaxLifetime || sessionTtl <= 0 || sessionMaxLifetime <= 0) {
-	throw new Error(
-		"KL_SESSION_MAX_LIFETIME value in seconds must be greater than KL_SESSION_TTL value in seconds, and both must be positive integers.",
-	);
-}
 
 /**
  * Worker pool configuration values and defaults.
@@ -109,13 +117,21 @@ export const authConfig: AuthConfig = {
 };
 
 /**
- * Export pre-assembled configuration values for the key-value store.
+ * Export pre-assembled configuration values for the cache.
  * Values are a mix of environment variables and defaults.
- * Value can be a local path or a remote URL.
  */
-export const kvConfig: KvConfig = {
-	path: Deno.env.get("KL_KV_PATH") || "./data",
-	local_db_name: Deno.env.get("KL_KV_LOCAL_DB_NAME") || "kitledger.db",
+export const cacheConfig: CacheConfig = {
+	addresses: valkeyAddresses,
+};
+
+/**
+ * Export pre-assembled configuration values for the database.
+ * Values are a mix of environment variables and defaults.
+ */
+export const dbConfig: DbConfig = {
+	url: Deno.env.get("KL_POSTGRES_URL") || "postgres://localhost:5432/kitledger",
+	ssl: Deno.env.get("KL_POSTGRES_SSL") === "true",
+	max: parseInt(Deno.env.get("KL_POSTGRES_MAX_CONNECTIONS") || "10"),
 };
 
 /**
@@ -140,7 +156,6 @@ export const serverConfig: ServerConfig = {
  */
 export const sessionConfig: SessionConfig = {
 	ttl: sessionTtl,
-	maxLifetime: sessionMaxLifetime,
 };
 
 /**

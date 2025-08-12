@@ -1,14 +1,6 @@
 import { faker } from "@faker-js/faker";
-import {
-	ApiToken,
-	Permission,
-	PermissionAssignment,
-	Role,
-	Session,
-	SystemPermission,
-	User,
-	UserRole,
-} from "./schema.ts";
+import { generate as v7 } from "@std/uuid/unstable-v7";
+import { ApiToken, Permission, PermissionAssignment, Role, SystemPermission, User, UserRole } from "./schema.ts";
 import { BaseFactory } from "../base/base_factory.ts";
 
 export class ApiTokenFactory extends BaseFactory<ApiToken> {
@@ -35,7 +27,7 @@ export class RoleFactory extends BaseFactory<Role> {
 	}
 }
 
-export class SessionFactory extends BaseFactory<Session> {
+export class SessionFactory extends BaseFactory<string> {
 	constructor() {
 		super(makeSession);
 	}
@@ -91,10 +83,7 @@ const makeRole = (): Role => ({
 	updated_at: faker.date.recent(),
 });
 
-const makeSession = (): Session => ({
-	user_id: faker.string.uuid(),
-	expires_at: faker.date.future().getTime(),
-});
+const makeSession = (): string => (v7());
 
 const makeSystemPermission = (): SystemPermission => ({
 	id: faker.string.uuid(),

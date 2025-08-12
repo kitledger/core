@@ -1,9 +1,5 @@
-export type EntityModel = {
-	id: string;
-	ref_id: string;
-	name: string;
-	alt_id?: string | null | undefined;
-	active?: boolean | undefined;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
+import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import { entity_models } from "../../services/database/schema.ts";
+
+export type EntityModelInsert = InferInsertModel<typeof entity_models>;
+export type EntityModel = InferSelectModel<typeof entity_models>;

@@ -1,5 +1,6 @@
+import { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import * as v from "@valibot/valibot";
-import { BaseMetaProperty } from "../base/base_schema.ts";
+import { accounts } from "../../services/database/schema.ts";
 
 export enum BalanceType {
 	DEBIT = "debit",
@@ -20,16 +21,5 @@ export const AccountCreateSchema = v.object({
 	updated_at: v.optional(v.nullable(v.date())),
 });
 
-export type Account = {
-	id: string;
-	ref_id: string;
-	alt_id?: string | null | undefined;
-	balance_type: BalanceType;
-	ledger_id: string;
-	parent_id?: string | null | undefined;
-	name: string;
-	meta: BaseMetaProperty;
-	active: boolean;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-}
+export type AccountInsert = InferInsertModel<typeof accounts>;
+export type Account = InferSelectModel<typeof accounts>;

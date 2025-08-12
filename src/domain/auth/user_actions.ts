@@ -1,89 +1,93 @@
-import { getKeyPart, kv, PrimaryKeyType } from "../../services/database/kv.ts";
+import { db } from "../../services/database/db.ts";
 import { randomBytes } from "node:crypto";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { getSystemPermissionKey, SYSTEM_ADMIN_PERMISSION } from "./permission_actions.ts";
+import { SYSTEM_ADMIN_PERMISSION } from "./permission_actions.ts";
 import { createToken } from "./token_actions.ts";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.ts";
 import { workerPool } from "../../services/workers/pool.ts";
 import { availableWorkerTasks } from "../../services/workers/worker.ts";
 import { type User } from "./schema.ts";
+import { system_permissions, users } from "../../services/database/schema.ts";
 
 export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
 	password: string;
 	api_token: string;
 };
 
-export function getUserKey(userId: string): [string, string] {
-	return [PrimaryKeyType.USER, userId];
-}
-
-export function getUserEmailKey(email: string): [string, string, string] {
-	return [PrimaryKeyType.USER, getKeyPart<User>("email"), email];
-}
-
 export async function createSuperUser(
 	firstName: string,
 	lastName: string,
 	email: string,
 ): Promise<NewSuperUser | null> {
-	const userId = v7();
-	let passwordHash = null;
+	const newSuperUser: NewSuperUser | null = await db.transaction(async (tx) => {
+		try {
+			/**
+			 * generate a random password.
+			 */
+			const password = randomBytes(20).toString("hex");
+			let passwordHash = null;
 
-	try {
-		const password = randomBytes(20).toString("hex");
+			try {
+				passwordHash = await workerPool.runTask(
+					availableWorkerTasks.HASH_PASSWORD,
+					password,
+				);
+			} catch (error) {
+				console.error("Error hashing password:", error);
+				passwordHash = null;
+			}
 
-		passwordHash = await workerPool.runTask(
-			availableWorkerTasks.HASH_PASSWORD,
-			password,
-		);
-		if (!passwordHash) {
-			throw new Error("Failed to hash password");
-		}
+			if (!passwordHash) {
+				throw new Error("Failed to hash password");
+			}
 
-		const tokenName = `${firstName} ${lastName} Super User Token`.slice(0, 64);
-		const apiToken = await createToken(userId, tokenName);
+			const userId = v7();
+			const newUser = await tx
+				.insert(users)
+				.values({
+					id: userId,
+					first_name: firstName,
+					last_name: lastName,
+					email: email,
+					password_hash: passwordHash as string,
+				})
+				.returning();
 
-		if (!apiToken) {
-			console.error("Failed to create API token for super user");
-		}
+			await tx.insert(system_permissions).values({
+				id: v7(),
+				user_id: newUser[0].id,
+				permission: SYSTEM_ADMIN_PERMISSION,
+			});
 
-		const newUser: User = {
-			id: userId,
-			first_name: firstName,
-			last_name: lastName,
-			email: email,
-			password_hash: passwordHash as string,
-		};
-
-		/**
-		 * Assemble SuperUser object that is returned to the caller.
-		 * It includes the password and API token, which are not stored in the database.
-		 * The password is used for the initial login, and the API token is used for API.
-		 * These credentials are only meant to be shown once.
-		 */
-		const newSuperUser: NewSuperUser = {
-			id: newUser.id,
-			first_name: newUser.first_name,
-			last_name: newUser.last_name,
-			email: newUser.email,
-			password: password,
-			api_token: await signToken(assembleApiTokenJwtPayload(apiToken)),
-		};
-
-		const res = await kv.atomic()
-			.set(getUserKey(newUser.id), newUser)
-			.set(getUserEmailKey(email), userId)
-			.set(getSystemPermissionKey(newUser.id), [SYSTEM_ADMIN_PERMISSION])
-			.commit();
-
-		if (!res.ok) {
-			console.error("Failed to create super user in database");
+			return {
+				id: newUser[0].id,
+				first_name: firstName,
+				last_name: lastName,
+				email: email,
+				password: password,
+				api_token: "",
+			};
+		} catch (error) {
+			console.error("Error creating super user:", error);
+			tx.rollback();
 			return null;
 		}
+	});
 
-		return newSuperUser;
-	} catch (error) {
-		console.error("Error creating super user:", error);
+	// Create API token for the new super user, using the encapsulated function.
+
+	if (!newSuperUser) {
 		return null;
 	}
+
+	const tokenName = `${firstName} ${lastName} Super User Token`.slice(0, 64);
+	const apiToken = await createToken(newSuperUser.id, tokenName);
+
+	if (!apiToken) {
+		console.error("Failed to create API token for super user");
+	}
+
+	newSuperUser.api_token = await signToken(assembleApiTokenJwtPayload(apiToken));
+
+	return newSuperUser;
 }

@@ -1,62 +1,33 @@
-export type ApiToken = {
-	id: string;
-	user_id: string;
-	name: string;
-	revoked_at?: Date | null | undefined;
-};
+import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import {
+	api_tokens,
+	permission_assignments,
+	permissions,
+	roles,
+	system_permissions,
+	user_roles,
+	users,
+} from "../../services/database/schema.ts";
 
-export type PermissionAssignment = {
-	id: string;
-	permission_id: string;
-	user_id?: string | null | undefined;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-	role_id?: string | null | undefined;
-};
+export const SessionCacheKeyPrefix = "kl_session:";
 
-export type Permission = {
-	id: string;
-	name: string;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-	description?: string | null | undefined;
-};
+export type ApiTokenInsert = InferInsertModel<typeof api_tokens>;
+export type ApiToken = InferSelectModel<typeof api_tokens>;
 
-export type Role = {
-	id: string;
-	name: string;
-	description?: string | null | undefined;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
+export type PermissionAssignmentInsert = InferInsertModel<typeof permission_assignments>;
+export type PermissionAssignment = InferSelectModel<typeof permission_assignments>;
 
-export type Session = {
-	user_id: string;
-	expires_at: number | string;
-};
+export type PermissionInsert = InferInsertModel<typeof permissions>;
+export type Permission = InferSelectModel<typeof permissions>;
 
-export type SystemPermission = {
-	id: string;
-	permission: string;
-	user_id: string;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
+export type RoleInsert = InferInsertModel<typeof roles>;
+export type Role = InferSelectModel<typeof roles>;
 
-export type User = {
-	id: string;
-	first_name: string;
-	last_name: string;
-	email: string;
-	password_hash: string;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
+export type SystemPermissionInsert = InferInsertModel<typeof system_permissions>;
+export type SystemPermission = InferSelectModel<typeof system_permissions>;
 
-export type UserRole = {
-	id: string;
-	user_id: string;
-	role_id: string;
-	created_at?: Date | undefined;
-	updated_at?: Date | null | undefined;
-};
+export type UserInsert = InferInsertModel<typeof users>;
+export type User = InferSelectModel<typeof users>;
+
+export type UserRoleInsert = InferInsertModel<typeof user_roles>;
+export type UserRole = InferSelectModel<typeof user_roles>;
