@@ -6,9 +6,9 @@ export enum availableWorkerTasks {
 }
 
 const tasks = {
-	[availableWorkerTasks.HASH_PASSWORD]: (data: string | undefined) => {
+	[availableWorkerTasks.HASH_PASSWORD]: async (data: string | undefined) => {
 		if (data) {
-			return hashPassword(data);
+			return await hashPassword(data);
 		}
 	},
 };

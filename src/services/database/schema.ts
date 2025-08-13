@@ -1,7 +1,7 @@
 import { boolean, index, jsonb, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { timestamps } from "./helpers.ts";
-import { BalanceType } from "../../domain/ledger/schema.ts";
+import { BalanceType } from "../../domain/ledger/types.ts";
 import { BaseMetaProperty } from "../../domain/base/base_schema.ts";
 
 /**
@@ -157,6 +157,17 @@ export const accounts = pgTable("accounts", {
 	parent_id: uuid("parent_id"),
 	name: varchar("name", { length: 255 }).notNull(),
 	meta: jsonb("meta").$type<BaseMetaProperty>(),
+	active: boolean("active").default(true).notNull(),
+	...timestamps,
+});
+
+export const ledgers = pgTable("ledgers", {
+	id: uuid("id").primaryKey(),
+	ref_id: varchar("ref_id", { length: 64 }).notNull().unique(),
+	alt_id: varchar("alt_id", { length: 64 }).unique(),
+	name: varchar("name", { length: 64 }).notNull(),
+	description: varchar("description", { length: 255 }),
+	unit_type_id: uuid("unit_type_id").notNull(),
 	active: boolean("active").default(true).notNull(),
 	...timestamps,
 });

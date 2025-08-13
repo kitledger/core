@@ -1,5 +1,4 @@
 import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
-import { availableParallelism } from "@poolifier/poolifier-web-worker";
 
 /*
  * 1) Define the types

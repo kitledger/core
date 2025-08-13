@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { ApiToken, Permission, PermissionAssignment, Role, SystemPermission, User, UserRole } from "./schema.ts";
+import { ApiToken, Permission, PermissionAssignment, Role, SystemPermission, User, UserRole } from "./types.ts";
 import { BaseFactory } from "../base/base_factory.ts";
 
 export class ApiTokenFactory extends BaseFactory<ApiToken> {

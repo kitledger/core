@@ -2,7 +2,6 @@ import { workerPool } from "../../src/services/workers/pool.ts";
 import { availableWorkerTasks } from "../../src/services/workers/worker.ts";
 import { assert } from "@std/assert";
 import { generate } from "@std/uuid/unstable-v7";
-import { workerConfig } from "../../src/config.ts";
 
 Deno.test("Worker pool can add and run tasks", async () => {
 

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { TransactionModel } from "./schema.ts";
+import { TransactionModel } from "./types.ts";
 import { BaseFactory } from "../base/base_factory.ts";
 
 export class TransactionFactory extends BaseFactory<TransactionModel> {

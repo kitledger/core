@@ -1,7 +1,7 @@
 import { cache } from "../../services/cache/cache.ts";
 import { sessionConfig } from "../../config.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { SessionCacheKeyPrefix } from "./schema.ts";
+import { SessionCacheKeyPrefix } from "./types.ts";
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const cacheKey = getSessionCacheKey(sessionId);

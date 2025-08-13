@@ -6,7 +6,7 @@ import { createToken } from "./token_actions.ts";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.ts";
 import { workerPool } from "../../services/workers/pool.ts";
 import { availableWorkerTasks } from "../../services/workers/worker.ts";
-import { type User } from "./schema.ts";
+import { type User } from "./types.ts";
 import { system_permissions, users } from "../../services/database/schema.ts";
 
 export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
