@@ -4,7 +4,6 @@ import { InferOutput } from "@valibot/valibot";
 import * as v from "@valibot/valibot";
 
 export const UnitModelCreateSchema = v.object({
-	id: v.pipe(v.string(), v.uuid()),
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
 	alt_id: v.nullable(v.pipe(v.string(), v.maxLength(64))),
 	name: v.string(),

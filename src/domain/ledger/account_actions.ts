@@ -1,9 +1,10 @@
-import { AccountCreateSchema, AccountCreateData, AccountInsert } from "./types.ts";
+import { Account, AccountCreateData, AccountCreateSchema, AccountInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
 import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
 import { accounts } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
+import { generate as v7 } from "@std/uuid/unstable-v7";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.accounts.findMany({
@@ -13,7 +14,7 @@ async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	return results.length > 0;
 }
 
-async function altIdAlreadyExists(altId: string|null): Promise<boolean> {
+async function altIdAlreadyExists(altId: string | null): Promise<boolean> {
 	if (!altId) {
 		return false;
 	}
@@ -28,16 +29,18 @@ async function altIdAlreadyExists(altId: string|null): Promise<boolean> {
  * Finds the parent account by ID or ref_id or alt_id.
  * Returns the ID of the parent account if found, otherwise returns null.
  */
-async function findParentAccountId(parentId: string|null): Promise<string | null> {
+async function findParentAccountId(parentId: string | null): Promise<string | null> {
 	if (!parentId) {
 		return null;
 	}
 	const parent = await db.query.accounts.findFirst({
-		where: or(
-			eq(accounts.id, parentId),
-			eq(accounts.ref_id, parentId),
-			eq(accounts.alt_id, parentId),
-			eq(accounts.active, true)
+		where: and(
+			or(
+				eq(accounts.id, parentId),
+				eq(accounts.ref_id, parentId),
+				eq(accounts.alt_id, parentId),
+			),
+			eq(accounts.active, true),
 		),
 		columns: { id: true },
 	});
@@ -46,20 +49,22 @@ async function findParentAccountId(parentId: string|null): Promise<string | null
 
 async function findLedgerId(ledgerId: string): Promise<string | null> {
 	const ledger = await db.query.accounts.findFirst({
-		where: or(
-			eq(accounts.id, ledgerId),
-			eq(accounts.ref_id, ledgerId),
-			eq(accounts.alt_id, ledgerId),
-			eq(accounts.active, true)
+		where: and(
+			or(
+				eq(accounts.id, ledgerId),
+				eq(accounts.ref_id, ledgerId),
+				eq(accounts.alt_id, ledgerId),
+			),
+			eq(accounts.active, true),
 		),
 		columns: { id: true },
 	});
 	return ledger ? ledger.id : null;
 }
 
-export async function validateAccountCreate(
+async function validateAccountCreate(
 	data: AccountCreateData,
-): Promise<ValidationResult<AccountInsert>> {
+): Promise<ValidationResult<AccountCreateData>> {
 	const result = v.safeParse(AccountCreateSchema, data);
 	let success = result.success;
 
@@ -113,4 +118,33 @@ export async function validateAccountCreate(
 	}
 
 	return { success, data: result.output, errors: errors };
+}
+
+export async function createAccount(data: AccountCreateData): Promise<Account | ValidationResult<AccountCreateData>> {
+	const validation = await validateAccountCreate(data);
+
+	if (!validation.success || !validation.data) {
+		return {
+			success: false,
+			data: data,
+			errors: validation.errors,
+		};
+	}
+
+	const insert_data: AccountInsert = {
+		id: v7(),
+		...validation.data,
+	};
+
+	const result = await db.insert(accounts).values(insert_data).returning();
+
+	return result.length > 0 ? result[0] : {
+		success: false,
+		data: data,
+		errors: [{
+			type: "data",
+			path: null,
+			message: "Failed to create account.",
+		}],
+	};
 }

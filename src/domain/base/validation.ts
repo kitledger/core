@@ -2,7 +2,7 @@ import { type BaseIssue } from "@valibot/valibot";
 
 export type ValidationError = {
 	type: "structure" | "data";
-	path: string;
+	path: string | null;
 	message: string;
 };
 

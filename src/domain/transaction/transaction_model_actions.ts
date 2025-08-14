@@ -1,14 +1,19 @@
-import { UnitModel, UnitModelCreateData, UnitModelCreateSchema, UnitModelInsert } from "./types.ts";
+import {
+	TransactionModel,
+	TransactionModelCreateData,
+	TransactionModelCreateSchema,
+	TransactionModelInsert,
+} from "./types.ts";
 import * as v from "@valibot/valibot";
 import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
-import { unit_models } from "../../services/database/schema.ts";
+import { transaction_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
-	const results = await db.query.unit_models.findMany({
-		where: eq(unit_models.ref_id, refId),
+	const results = await db.query.transaction_models.findMany({
+		where: eq(transaction_models.ref_id, refId),
 		columns: { id: true },
 	});
 	return results.length > 0;
@@ -18,15 +23,17 @@ async function altIdAlreadyExists(altId: string | null): Promise<boolean> {
 	if (!altId) {
 		return false;
 	}
-	const results = await db.query.unit_models.findMany({
-		where: eq(unit_models.alt_id, altId),
+	const results = await db.query.transaction_models.findMany({
+		where: eq(transaction_models.alt_id, altId),
 		columns: { id: true },
 	});
 	return results.length > 0;
 }
 
-async function validateUnitModelCreate(data: UnitModelCreateData): Promise<ValidationResult<UnitModelCreateData>> {
-	const result = v.safeParse(UnitModelCreateSchema, data);
+async function validateTransactionModelCreate(
+	data: TransactionModelCreateData,
+): Promise<ValidationResult<TransactionModelCreateData>> {
+	const result = v.safeParse(TransactionModelCreateSchema, data);
 	let success = result.success;
 
 	if (!result.success) {
@@ -68,10 +75,10 @@ async function validateUnitModelCreate(data: UnitModelCreateData): Promise<Valid
 	};
 }
 
-export async function createUnitModel(
-	data: UnitModelCreateData,
-): Promise<UnitModel | ValidationResult<UnitModelCreateData>> {
-	const validation = await validateUnitModelCreate(data);
+export async function createTransactionModel(
+	data: TransactionModelCreateData,
+): Promise<TransactionModel | ValidationResult<TransactionModelCreateData>> {
+	const validation = await validateTransactionModelCreate(data);
 
 	if (!validation.success || !validation.data) {
 		return {
@@ -81,20 +88,20 @@ export async function createUnitModel(
 		};
 	}
 
-	const insert_data: UnitModelInsert = {
+	const insert_data: TransactionModelInsert = {
 		id: v7(),
 		...validation.data,
 	};
 
-	const result = await db.insert(unit_models).values(insert_data).returning();
+	const result = await db.insert(transaction_models).values(insert_data).returning();
 
 	return result.length > 0 ? result[0] : {
 		success: false,
-		data: validation.data,
+		data: data,
 		errors: [{
 			type: "data",
-			path: null,
-			message: "Failed to create unit model.",
+			"path": null,
+			message: "Failed to create entity model.",
 		}],
 	};
 }

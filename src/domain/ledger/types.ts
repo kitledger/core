@@ -9,7 +9,6 @@ export enum BalanceType {
 }
 
 export const AccountCreateSchema = v.object({
-	id: v.pipe(v.string(), v.uuid()),
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
 	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
 	balance_type: v.enum(BalanceType),
@@ -27,7 +26,6 @@ export type Account = InferSelectModel<typeof accounts>;
 export type AccountCreateData = InferOutput<typeof AccountCreateSchema>;
 
 export const LedgerCreateSchema = v.object({
-	id: v.pipe(v.string(), v.uuid()),
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
 	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
 	name: v.string(),
