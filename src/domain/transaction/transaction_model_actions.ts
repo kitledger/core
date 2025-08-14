@@ -47,7 +47,7 @@ async function validateTransactionModelCreate(
 
 	const [refIdError, altIdError] = await Promise.all([
 		refIdAlreadyExists(data.ref_id),
-		altIdAlreadyExists(data.alt_id),
+		altIdAlreadyExists(data.alt_id ?? null),
 	]);
 
 	if (refIdError) {

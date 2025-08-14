@@ -19,3 +19,9 @@ export type ValidationResult<T> = {
 	data?: T;
 	errors?: ValidationError[];
 };
+
+export function isValidationResult<T extends object, U>(
+	result: T | ValidationResult<U>,
+): result is ValidationResult<U> {
+	return "success" in result;
+}

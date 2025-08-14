@@ -47,6 +47,7 @@ export async function createSuperUser(
 					last_name: lastName,
 					email: email,
 					password_hash: passwordHash as string,
+					created_at: new Date(),
 				})
 				.returning();
 
