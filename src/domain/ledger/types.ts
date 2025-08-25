@@ -16,7 +16,7 @@ export const AccountCreateSchema = v.object({
 	parent_id: v.optional(v.nullable(v.string())),
 	name: v.string(),
 	meta: v.record(v.string(), v.union([v.string(), v.number(), v.date()])),
-	active: v.boolean(),
+	active: v.nullish(v.boolean(), true),
 	created_at: v.optional(v.date()),
 	updated_at: v.optional(v.nullable(v.date())),
 });
@@ -31,7 +31,7 @@ export const LedgerCreateSchema = v.object({
 	name: v.string(),
 	description: v.nullable(v.string()),
 	unit_type_id: v.string(),
-	active: v.boolean(),
+	active: v.nullish(v.boolean(), true),
 	created_at: v.optional(v.date()),
 	updated_at: v.optional(v.nullable(v.date())),
 });

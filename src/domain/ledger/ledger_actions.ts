@@ -3,7 +3,7 @@ import * as v from "@valibot/valibot";
 import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { ledgers, unit_models } from "../../services/database/schema.ts";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
@@ -29,7 +29,7 @@ async function findUnitModelId(unitTypeId: string): Promise<string | null> {
 	const unitModel = await db.query.unit_models.findFirst({
 		where: and(
 			or(
-				eq(unit_models.id, unitTypeId),
+				eq(sql`${unit_models.id}::text`, unitTypeId),
 				eq(unit_models.ref_id, unitTypeId),
 				eq(unit_models.alt_id, unitTypeId),
 			),
@@ -53,7 +53,7 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 
 	const errors: ValidationError[] = [];
 
-	const [refIdError, altIdError, unitModelError] = await Promise.all([
+	const [refIdError, altIdError, unitModelId] = await Promise.all([
 		refIdAlreadyExists(data.ref_id),
 		altIdAlreadyExists(data.alt_id ?? null),
 		findUnitModelId(data.unit_type_id),
@@ -77,7 +77,12 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 		});
 	}
 
-	if (!unitModelError) {
+	if(unitModelId)
+	{
+		result.output.unit_type_id = unitModelId;
+	}
+
+	else {
 		success = false;
 		errors.push({
 			type: "data",
@@ -104,12 +109,12 @@ export async function createLedger(data: LedgerCreateData): Promise<Ledger | Val
 		};
 	}
 
-	const insert_data: LedgerInsert = {
+	const insertData: LedgerInsert = {
 		id: v7(),
 		...validation.data,
 	};
 
-	const result = await db.insert(ledgers).values(insert_data).returning();
+	const result = await db.insert(ledgers).values(insertData).returning();
 
 	return result.length > 0 ? result[0] : {
 		success: false,

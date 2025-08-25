@@ -33,6 +33,20 @@ CREATE TABLE "entity_models" (
 	CONSTRAINT "entity_models_alt_id_unique" UNIQUE("alt_id")
 );
 --> statement-breakpoint
+CREATE TABLE "ledgers" (
+	"id" uuid PRIMARY KEY NOT NULL,
+	"ref_id" varchar(64) NOT NULL,
+	"alt_id" varchar(64),
+	"name" varchar(64) NOT NULL,
+	"description" varchar(255),
+	"unit_type_id" uuid NOT NULL,
+	"active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp,
+	CONSTRAINT "ledgers_ref_id_unique" UNIQUE("ref_id"),
+	CONSTRAINT "ledgers_alt_id_unique" UNIQUE("alt_id")
+);
+--> statement-breakpoint
 CREATE TABLE "permission_assignments" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"permission_id" uuid NOT NULL,

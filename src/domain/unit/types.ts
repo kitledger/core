@@ -7,6 +7,7 @@ export const UnitModelCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
 	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
 	name: v.string(),
+	active: v.nullish(v.boolean(), true),
 	created_at: v.optional(v.date()),
 	updated_at: v.optional(v.nullable(v.date())),
 });
