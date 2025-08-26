@@ -1,5 +1,5 @@
 {
-  "id": "5fa3d4d2-bb35-4064-87aa-ab98865603e6",
+  "id": "d33c2c61-264b-49bf-9c73-920ace87c0ff",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -46,7 +46,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
@@ -191,7 +191,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
@@ -650,7 +650,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
@@ -722,7 +722,7 @@
         },
         "name": {
           "name": "name",
-          "type": "varchar(255)",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
@@ -866,19 +866,19 @@
         },
         "first_name": {
           "name": "first_name",
-          "type": "text",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
         "last_name": {
           "name": "last_name",
-          "type": "text",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
         "email": {
           "name": "email",
-          "type": "text",
+          "type": "varchar(64)",
           "primaryKey": false,
           "notNull": true
         },
