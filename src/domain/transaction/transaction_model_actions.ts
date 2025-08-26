@@ -97,7 +97,7 @@ export async function createTransactionModel(
 
 	return result.length > 0 ? result[0] : {
 		success: false,
-		data: data,
+		data: validation.data,
 		errors: [{
 			type: "data",
 			"path": null,

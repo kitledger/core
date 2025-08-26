@@ -5,7 +5,7 @@ import * as v from "@valibot/valibot";
 
 export const UnitModelCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
-	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
+	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64)), null),
 	name: v.string(),
 	active: v.nullish(v.boolean(), true),
 	created_at: v.optional(v.date()),

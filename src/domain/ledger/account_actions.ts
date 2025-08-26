@@ -1,9 +1,9 @@
 import { Account, AccountCreateData, AccountCreateSchema, AccountInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
 import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
-import { accounts } from "../../services/database/schema.ts";
+import { accounts, ledgers } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
@@ -29,33 +29,33 @@ async function altIdAlreadyExists(altId: string | null): Promise<boolean> {
  * Finds the parent account by ID or ref_id or alt_id.
  * Returns the ID of the parent account if found, otherwise returns null.
  */
-async function findParentAccountId(parentId: string | null): Promise<string | null> {
+async function findParentAccount(parentId: string, ledgerId: string): Promise<Account | null> {
 	if (!parentId) {
 		return null;
 	}
 	const parent = await db.query.accounts.findFirst({
 		where: and(
 			or(
-				eq(accounts.id, parentId),
+				eq(sql`${accounts.id}::text`, parentId),
 				eq(accounts.ref_id, parentId),
 				eq(accounts.alt_id, parentId),
 			),
+			eq(accounts.ledger_id, ledgerId),
 			eq(accounts.active, true),
 		),
-		columns: { id: true },
 	});
-	return parent ? parent.id : null;
+	return parent ? parent : null;
 }
 
 async function findLedgerId(ledgerId: string): Promise<string | null> {
-	const ledger = await db.query.accounts.findFirst({
+	const ledger = await db.query.ledgers.findFirst({
 		where: and(
 			or(
-				eq(accounts.id, ledgerId),
-				eq(accounts.ref_id, ledgerId),
-				eq(accounts.alt_id, ledgerId),
+				eq(sql`${ledgers.id}::text`, ledgerId),
+				eq(ledgers.ref_id, ledgerId),
+				eq(ledgers.alt_id, ledgerId),
 			),
-			eq(accounts.active, true),
+			eq(ledgers.active, true),
 		),
 		columns: { id: true },
 	});
@@ -74,10 +74,9 @@ async function validateAccountCreate(
 
 	const errors: ValidationError[] = [];
 
-	const [refIdError, altIdError, parentId, ledgerId] = await Promise.all([
+	const [refIdError, altIdError, ledgerId] = await Promise.all([
 		refIdAlreadyExists(result.output.ref_id),
 		altIdAlreadyExists(result.output.alt_id ?? null),
-		findParentAccountId(result.output.parent_id ?? null),
 		findLedgerId(result.output.ledger_id),
 	]);
 
@@ -99,22 +98,37 @@ async function validateAccountCreate(
 		});
 	}
 
-	if (result.output.parent_id && !parentId) {
-		success = false;
-		errors.push({
-			type: "data",
-			path: "parent_id",
-			message: "Invalid parent account ID.",
-		});
+	if(ledgerId)
+	{
+		result.output.ledger_id = ledgerId;
 	}
 
-	if (!ledgerId) {
+	else {
 		success = false;
 		errors.push({
 			type: "data",
 			path: "ledger_id",
 			message: "Invalid ledger ID.",
 		});
+	}
+
+	if(result.output.parent_id)
+	{
+		const parentAccount = await findParentAccount(result.output.parent_id, result.output.ledger_id);
+		if (parentAccount)
+		{
+			result.output.parent_id = result.output.parent_id ? parentAccount.id : null;
+			result.output.balance_type = parentAccount.balance_type;
+		}
+
+		else {
+			success = false;
+			errors.push({
+				type: "data",
+				path: "parent_id",
+				message: "Invalid parent account ID.",
+			});
+		}
 	}
 
 	return { success, data: result.output, errors: errors };
@@ -131,12 +145,12 @@ export async function createAccount(data: AccountCreateData): Promise<Account | 
 		};
 	}
 
-	const insert_data: AccountInsert = {
+	const insertData: AccountInsert = {
 		id: v7(),
 		...validation.data,
 	};
 
-	const result = await db.insert(accounts).values(insert_data).returning();
+	const result = await db.insert(accounts).values(insertData).returning();
 
 	return result.length > 0 ? result[0] : {
 		success: false,

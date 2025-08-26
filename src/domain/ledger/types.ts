@@ -10,12 +10,12 @@ export enum BalanceType {
 
 export const AccountCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
-	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
+	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64)), null),
 	balance_type: v.enum(BalanceType),
 	ledger_id: v.string(),
 	parent_id: v.optional(v.nullable(v.string())),
 	name: v.string(),
-	meta: v.record(v.string(), v.union([v.string(), v.number(), v.date()])),
+	meta: v.nullish(v.record(v.string(), v.union([v.string(), v.number(), v.date()])), {}),
 	active: v.nullish(v.boolean(), true),
 	created_at: v.optional(v.date()),
 	updated_at: v.optional(v.nullable(v.date())),
@@ -27,7 +27,7 @@ export type AccountCreateData = InferOutput<typeof AccountCreateSchema>;
 
 export const LedgerCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
-	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64))),
+	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64)), null),
 	name: v.string(),
 	description: v.nullable(v.string()),
 	unit_type_id: v.string(),
