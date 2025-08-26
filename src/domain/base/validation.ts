@@ -14,14 +14,25 @@ export function parseValibotIssues<T>(issues: BaseIssue<T>[]): ValidationError[]
 	}));
 }
 
+export type ValidationSuccess<T> = {
+	success: true;
+	data: T;
+};
+
 export type ValidationResult<T> = {
 	success: boolean;
 	data?: T;
 	errors?: ValidationError[];
 };
 
-export function isValidationResult<T extends object, U>(
+export type ValidationFailure<T> = {
+	success: false,
+	data?:T;
+	errors?: ValidationError[];
+}
+
+export function isValidationFailure<T extends object, U>(
 	result: T | ValidationResult<U>,
 ): result is ValidationResult<U> {
-	return "success" in result;
+	return "errors" in result;
 }

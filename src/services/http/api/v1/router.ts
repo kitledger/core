@@ -5,7 +5,7 @@ import { Hono } from "@hono/hono";
 import { createUnitModel } from "../../../../domain/unit/unit_model_actions.ts";
 import { UnitModelCreateData } from "../../../../domain/unit/types.ts";
 import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
-import { isValidationResult } from "../../../../domain/base/validation.ts";
+import { isValidationFailure } from "../../../../domain/base/validation.ts";
 import { createLedger } from "../../../../domain/ledger/ledger_actions.ts";
 import { LedgerCreateData } from "../../../../domain/ledger/types.ts";
 import { createAccount } from "../../../../domain/ledger/account_actions.ts";
@@ -28,12 +28,12 @@ router.post("/accounts", async (c) => {
 		const data = await c.req.json() as AccountCreateData;
 		const account = await createAccount(data);
 
-		if (isValidationResult(account)) {
+		if (isValidationFailure(account)) {
 			const status: ContentfulStatusCode = account.errors?.some((e) => e.type === "structure") ? 422 : 400;
 			return c.json(account, status);
 		}
 
-		return c.json({ data: { account: account } }, 201);
+		return c.json({ data: { account: account.data } }, 201);
 	}
 	catch (error) {
 		console.error(error);
@@ -46,12 +46,12 @@ router.post("/entity-models", async (c) => {
 		const data = await c.req.json() as EntityModelCreateData;
 		const entityModel = await createEntityModel(data);
 
-		if (isValidationResult(entityModel)) {
+		if (isValidationFailure(entityModel)) {
 			const status: ContentfulStatusCode = entityModel.errors?.some((e) => e.type === "structure") ? 422 : 400;
 			return c.json(entityModel, status);
 		}
 
-		return c.json({ data: { entity_model: entityModel } }, 201);
+		return c.json({ data: { entity_model: entityModel.data } }, 201);
 	}
 	catch (error) {
 		console.error(error);
@@ -64,12 +64,12 @@ router.post("/ledgers", async (c) => {
 		const data = await c.req.json() as LedgerCreateData;
 		const ledger = await createLedger(data);
 
-		if (isValidationResult(ledger)) {
+		if (isValidationFailure(ledger)) {
 			const status: ContentfulStatusCode = ledger.errors?.some((e) => e.type === "structure") ? 422 : 400;
 			return c.json(ledger, status);
 		}
 
-		return c.json({ data: { ledger: ledger } }, 201);
+		return c.json({ data: { ledger: ledger.data } }, 201);
 	}
 	catch (error) {
 		console.error(error);
@@ -82,14 +82,14 @@ router.post("/transaction-models", async (c) => {
 		const data = await c.req.json() as TransactionModelCreateData;
 		const transactionModel = await createTransactionModel(data);
 
-		if (isValidationResult(transactionModel)) {
+		if (isValidationFailure(transactionModel)) {
 			const status: ContentfulStatusCode = transactionModel.errors?.some((e) => e.type === "structure")
 				? 422
 				: 400;
 			return c.json(transactionModel, status);
 		}
 
-		return c.json({ data: { transaction_model: transactionModel } }, 201);
+		return c.json({ data: { transaction_model: transactionModel.data } }, 201);
 	}
 	catch (error) {
 		console.error(error);
@@ -102,12 +102,12 @@ router.post("/unit-models", async (c) => {
 		const data = await c.req.json() as UnitModelCreateData;
 		const unitModel = await createUnitModel(data);
 
-		if (isValidationResult(unitModel)) {
+		if (isValidationFailure(unitModel)) {
 			const status: ContentfulStatusCode = unitModel.errors?.some((e) => e.type === "structure") ? 422 : 400;
 			return c.json(unitModel, status);
 		}
 
-		return c.json({ data: { unit_model: unitModel } }, 201);
+		return c.json({ data: { unit_model: unitModel.data } }, 201);
 	}
 	catch (error) {
 		console.error(error);

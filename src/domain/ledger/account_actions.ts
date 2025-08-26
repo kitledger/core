@@ -1,6 +1,6 @@
 import { Account, AccountCreateData, AccountCreateSchema, AccountInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
+import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
 import { accounts, ledgers } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
 import { and, eq, or, sql } from "drizzle-orm";
@@ -129,7 +129,7 @@ async function validateAccountCreate(
 	return { success, data: result.output, errors: errors };
 }
 
-export async function createAccount(data: AccountCreateData): Promise<Account | ValidationResult<AccountCreateData>> {
+export async function createAccount(data: AccountCreateData): Promise<ValidationSuccess<Account> | ValidationFailure<AccountCreateData>> {
 	const validation = await validateAccountCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -147,13 +147,20 @@ export async function createAccount(data: AccountCreateData): Promise<Account | 
 
 	const result = await db.insert(accounts).values(insertData).returning();
 
-	return result.length > 0 ? result[0] : {
-		success: false,
-		data: data,
-		errors: [{
-			type: "data",
-			path: null,
-			message: "Failed to create account.",
-		}],
-	};
+	if(result.length === 0) {
+		return {
+			success: false,
+			data: validation.data,
+			errors: [{
+				type: "data",
+				path: null,
+				message: "Failed to create account.",
+			}],
+		};
+	}
+
+	return {
+		success: true,
+		data: result[0],
+	}
 }

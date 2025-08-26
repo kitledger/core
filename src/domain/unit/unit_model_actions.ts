@@ -1,6 +1,6 @@
 import { UnitModel, UnitModelCreateData, UnitModelCreateSchema, UnitModelInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
+import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { unit_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -70,7 +70,7 @@ async function validateUnitModelCreate(data: UnitModelCreateData): Promise<Valid
 
 export async function createUnitModel(
 	data: UnitModelCreateData,
-): Promise<UnitModel | ValidationResult<UnitModelCreateData>> {
+): Promise<ValidationSuccess<UnitModel> | ValidationFailure<UnitModelCreateData>> {
 	const validation = await validateUnitModelCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -88,13 +88,20 @@ export async function createUnitModel(
 
 	const result = await db.insert(unit_models).values(insert_data).returning();
 
-	return result.length > 0 ? result[0] : {
-		success: false,
-		data: validation.data,
-		errors: [{
-			type: "data",
-			path: null,
-			message: "Failed to create unit model.",
-		}],
+	if(result.length === 0) {
+		return {
+			success: false,
+			data: validation.data,
+			errors: [{
+				type: "data",
+				path: null,
+				message: "Failed to create unit model.",
+			}],
+		};
+	}
+
+	return {
+		success: true,
+		data: result[0],
 	};
 }

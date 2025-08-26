@@ -5,7 +5,7 @@ import {
 	TransactionModelInsert,
 } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
+import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { transaction_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -77,7 +77,7 @@ async function validateTransactionModelCreate(
 
 export async function createTransactionModel(
 	data: TransactionModelCreateData,
-): Promise<TransactionModel | ValidationResult<TransactionModelCreateData>> {
+): Promise<ValidationSuccess<TransactionModel> | ValidationFailure<TransactionModelCreateData>> {
 	const validation = await validateTransactionModelCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -95,13 +95,20 @@ export async function createTransactionModel(
 
 	const result = await db.insert(transaction_models).values(insert_data).returning();
 
-	return result.length > 0 ? result[0] : {
-		success: false,
-		data: validation.data,
-		errors: [{
-			type: "data",
-			"path": null,
-			message: "Failed to create entity model.",
-		}],
-	};
+	if(result.length === 0) {
+		return {
+			success: false,
+			data: validation.data,
+			errors: [{
+				type: "data",
+				path: null,
+				message: "Failed to create transaction model.",
+			}],
+		};
+	}
+
+	return {
+		success: true,
+		data: result[0],
+	}
 }

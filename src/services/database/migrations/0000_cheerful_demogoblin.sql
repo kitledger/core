@@ -39,7 +39,7 @@ CREATE TABLE "ledgers" (
 	"alt_id" varchar(64),
 	"name" varchar(64) NOT NULL,
 	"description" varchar(255),
-	"unit_type_id" uuid NOT NULL,
+	"unit_model_id" uuid NOT NULL,
 	"active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp,

@@ -1,6 +1,6 @@
 import { Ledger, LedgerCreateData, LedgerCreateSchema, LedgerInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
+import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { ledgers, unit_models } from "../../services/database/schema.ts";
 import { and, eq, or, sql } from "drizzle-orm";
@@ -56,7 +56,7 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 	const [refIdError, altIdError, unitModelId] = await Promise.all([
 		refIdAlreadyExists(data.ref_id),
 		altIdAlreadyExists(data.alt_id ?? null),
-		findUnitModelId(data.unit_type_id),
+		findUnitModelId(data.unit_model_id),
 	]);
 
 	if (refIdError) {
@@ -78,13 +78,13 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 	}
 
 	if (unitModelId) {
-		result.output.unit_type_id = unitModelId;
+		result.output.unit_model_id = unitModelId;
 	}
 	else {
 		success = false;
 		errors.push({
 			type: "data",
-			path: "unit_type_id",
+			path: "unit_model_id",
 			message: "Unit type ID does not exist or is inactive.",
 		});
 	}
@@ -96,7 +96,7 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 	};
 }
 
-export async function createLedger(data: LedgerCreateData): Promise<Ledger | ValidationResult<LedgerCreateData>> {
+export async function createLedger(data: LedgerCreateData): Promise<ValidationSuccess<Ledger> | ValidationFailure<LedgerCreateData>> {
 	const validation = await validateLedgerCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -114,13 +114,20 @@ export async function createLedger(data: LedgerCreateData): Promise<Ledger | Val
 
 	const result = await db.insert(ledgers).values(insertData).returning();
 
-	return result.length > 0 ? result[0] : {
-		success: false,
-		data: data,
-		errors: [{
-			type: "data",
-			path: null,
-			message: "Failed to create ledger.",
-		}],
+	if(result.length === 0) {
+		return {
+			success: false,
+			data: validation.data,
+			errors: [{
+				type: "data",
+				path: null,
+				message: "Failed to create ledger.",
+			}],
+		};
+	}
+
+	return {
+		success: true,
+		data: result[0],
 	};
 }

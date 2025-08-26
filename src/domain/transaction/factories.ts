@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { TransactionModel } from "./types.ts";
 import { BaseFactory } from "../base/base_factory.ts";
 
-export class TransactionFactory extends BaseFactory<TransactionModel> {
+export class TransactionModelFactory extends BaseFactory<TransactionModel> {
 	constructor() {
 		super(makeTransactionModel);
 	}

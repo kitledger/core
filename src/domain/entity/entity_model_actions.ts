@@ -1,6 +1,6 @@
 import { EntityModel, EntityModelCreateData, EntityModelCreateSchema, EntityModelInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationResult } from "../base/validation.ts";
+import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { entity_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -72,7 +72,7 @@ async function validateEntityModelCreate(
 
 export async function createEntityModel(
 	data: EntityModelCreateData,
-): Promise<EntityModel | ValidationResult<EntityModelCreateData>> {
+): Promise<ValidationSuccess<EntityModel> | ValidationFailure<EntityModelCreateData>> {
 	const validation = await validateEntityModelCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -90,13 +90,20 @@ export async function createEntityModel(
 
 	const result = await db.insert(entity_models).values(insert_data).returning();
 
-	return result.length > 0 ? result[0] : {
-		success: false,
-		data: validation.data,
-		errors: [{
-			type: "data",
-			path: null,
-			message: "Failed to create entity model.",
-		}],
+	if(result.length === 0) {
+		return {
+			success: false,
+			data: validation.data,
+			errors: [{
+				type: "data",
+				path: null,
+				message: "Failed to create entity model.",
+			}],
+		};
+	}
+
+	return {
+		success: true,
+		data: result[0],
 	};
 }
