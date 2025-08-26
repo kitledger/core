@@ -13,7 +13,8 @@ export async function getTokenUserId(tokenId: string): Promise<string | null> {
 
 	if (token) {
 		return token.user_id;
-	} else {
+	}
+	else {
 		return null;
 	}
 }

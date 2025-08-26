@@ -34,7 +34,8 @@ router.post("/accounts", async (c) => {
 		}
 
 		return c.json({ data: { account: account } }, 201);
-	} catch (error) {
+	}
+	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}
@@ -51,7 +52,8 @@ router.post("/entity-models", async (c) => {
 		}
 
 		return c.json({ data: { entity_model: entityModel } }, 201);
-	} catch (error) {
+	}
+	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}
@@ -68,7 +70,8 @@ router.post("/ledgers", async (c) => {
 		}
 
 		return c.json({ data: { ledger: ledger } }, 201);
-	} catch (error) {
+	}
+	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}
@@ -80,12 +83,15 @@ router.post("/transaction-models", async (c) => {
 		const transactionModel = await createTransactionModel(data);
 
 		if (isValidationResult(transactionModel)) {
-			const status: ContentfulStatusCode = transactionModel.errors?.some((e) => e.type === "structure") ? 422 : 400;
+			const status: ContentfulStatusCode = transactionModel.errors?.some((e) => e.type === "structure")
+				? 422
+				: 400;
 			return c.json(transactionModel, status);
 		}
 
 		return c.json({ data: { transaction_model: transactionModel } }, 201);
-	} catch (error) {
+	}
+	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}
@@ -93,7 +99,7 @@ router.post("/transaction-models", async (c) => {
 
 router.post("/unit-models", async (c) => {
 	try {
-		const data = await c.req.json() as UnitModelCreateData; // Better typing via json()
+		const data = await c.req.json() as UnitModelCreateData;
 		const unitModel = await createUnitModel(data);
 
 		if (isValidationResult(unitModel)) {
@@ -101,8 +107,9 @@ router.post("/unit-models", async (c) => {
 			return c.json(unitModel, status);
 		}
 
-		return c.json({ data: {unit_model: unitModel} }, 201);
-	} catch (error) {
+		return c.json({ data: { unit_model: unitModel } }, 201);
+	}
+	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}

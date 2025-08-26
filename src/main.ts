@@ -13,6 +13,7 @@ if (args.length === 0 || args[0] === "serve") {
 		{ port: serverConfig.port },
 		server.fetch,
 	);
-} else {
+}
+else {
 	await execute(args);
 }

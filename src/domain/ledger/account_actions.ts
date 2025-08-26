@@ -98,11 +98,9 @@ async function validateAccountCreate(
 		});
 	}
 
-	if(ledgerId)
-	{
+	if (ledgerId) {
 		result.output.ledger_id = ledgerId;
 	}
-
 	else {
 		success = false;
 		errors.push({
@@ -112,15 +110,12 @@ async function validateAccountCreate(
 		});
 	}
 
-	if(result.output.parent_id)
-	{
+	if (result.output.parent_id) {
 		const parentAccount = await findParentAccount(result.output.parent_id, result.output.ledger_id);
-		if (parentAccount)
-		{
+		if (parentAccount) {
 			result.output.parent_id = result.output.parent_id ? parentAccount.id : null;
 			result.output.balance_type = parentAccount.balance_type;
 		}
-
 		else {
 			success = false;
 			errors.push({

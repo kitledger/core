@@ -80,7 +80,8 @@ class CacheClient {
 			});
 
 			return valueObject as T;
-		} else {
+		}
+		else {
 			return null;
 		}
 	}

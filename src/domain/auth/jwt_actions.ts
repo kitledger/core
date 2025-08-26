@@ -13,7 +13,8 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 	try {
 		const decoded = await verify(token, currentSecret, authConfig.jwtAlgorithm);
 		return decoded;
-	} catch (currentSecretError) {
+	}
+	catch (currentSecretError) {
 		const pastSecrets = authConfig.pastSecrets || [];
 
 		if (pastSecrets.length > 0) {
@@ -23,7 +24,8 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 						try {
 							const decoded = await verify(token, pastSecret, authConfig.jwtAlgorithm);
 							return decoded;
-						} catch (err) {
+						}
+						catch (err) {
 							console.warn(
 								`Failed to verify token with past secrets (${
 									err instanceof Error ? err.message : String(err)
@@ -34,7 +36,8 @@ export async function verifyToken(token: string): Promise<JWTPayload> {
 					}),
 				);
 				return decodedFromPast;
-			} catch (aggregateError) {
+			}
+			catch (aggregateError) {
 				console.warn("All past secret verifications failed:", (aggregateError as AggregateError).errors);
 			}
 		}
@@ -50,7 +53,8 @@ export async function signToken(payload: JWTPayload): Promise<string> {
 	try {
 		const token = await sign(payload, currentSecret, authConfig.jwtAlgorithm);
 		return token;
-	} catch (error) {
+	}
+	catch (error) {
 		console.error("Failed to sign token:", error);
 		throw new Error("Token signing failed.");
 	}

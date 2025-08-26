@@ -77,11 +77,9 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 		});
 	}
 
-	if(unitModelId)
-	{
+	if (unitModelId) {
 		result.output.unit_type_id = unitModelId;
 	}
-
 	else {
 		success = false;
 		errors.push({

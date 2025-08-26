@@ -51,7 +51,8 @@ export const auth = createMiddleware(async (c, next) => {
 				throw new Error("Invalid token type.");
 			}
 		}
-	} catch (error) {
+	}
+	catch (error) {
 		console.error("Token verification failed:", error);
 
 		// Try to get the error message from the error object, otherwise use a generic message.

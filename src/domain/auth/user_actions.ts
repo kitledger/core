@@ -29,7 +29,8 @@ export async function createSuperUser(
 
 			try {
 				passwordHash = await workerPool.execute(password, availableWorkerTasks.HASH_PASSWORD);
-			} catch (error) {
+			}
+			catch (error) {
 				console.error("Error hashing password:", error);
 				passwordHash = null;
 			}
@@ -65,7 +66,8 @@ export async function createSuperUser(
 				password: password,
 				api_token: "",
 			};
-		} catch (error) {
+		}
+		catch (error) {
 			console.error("Error creating super user:", error);
 			tx.rollback();
 			return null;
