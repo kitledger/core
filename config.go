@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -57,7 +58,7 @@ type sessionConfig struct {
 /**
 * Authentication config
  */
-func loadConfig() *AppConfig {
+func loadConfig() (*AppConfig, error) {
 
 	err := godotenv.Load()
 	if err != nil {
@@ -71,7 +72,7 @@ func loadConfig() *AppConfig {
 	authSecret := os.Getenv("KL_AUTH_SECRET")
 
 	if authSecret == "" {
-		panic("KL_AUTH_SECRET environment variable is required")
+		return nil, errors.New("KL_AUTH_SECRET environment variable is required")
 	}
 
 	pastSecretsString := os.Getenv("KL_AUTH_PAST_SECRETS")
@@ -83,10 +84,8 @@ func loadConfig() *AppConfig {
 	/**
 	* CORS config
 	 */
-	// Start with the default headers.
 	allHeaders := []string{"Content-Type", "Authorization", "X-Requested-With"}
 
-	// If the environment variable is set, append its values to the list.
 	if envHeadersStr := os.Getenv("KL_CORS_ALLOWED_HEADERS"); envHeadersStr != "" {
 		envHeaders := strings.Split(envHeadersStr, ",")
 		allHeaders = append(allHeaders, envHeaders...)
@@ -132,7 +131,7 @@ func loadConfig() *AppConfig {
 	 */
 	dbUrl := os.Getenv("KL_POSTGRES_URL")
 	if dbUrl == "" {
-		panic("KL_POSTGRES_URL environment variable is required")
+		return nil, errors.New("KL_POSTGRES_URL environment variable is required")
 	}
 
 	dbSsl := os.Getenv("KL_POSTGRES_SSL") == "true"
@@ -197,7 +196,7 @@ func loadConfig() *AppConfig {
 		},
 	}
 
-	return appConfig
+	return appConfig, nil
 }
 
 var (
@@ -205,10 +204,15 @@ var (
 	once   sync.Once
 )
 
-func GetConfig() *AppConfig {
+func GetConfig() (*AppConfig, error) {
+	var configError error
 	once.Do(func() {
-		config = loadConfig()
+		config, err := loadConfig()
+		if err != nil {
+			log.Fatalf("Error loading config: %v", err)
+			configError = err
+		}
 		log.Printf("Configuration loaded: %+v\n", config)
 	})
-	return config
+	return config, configError
 }

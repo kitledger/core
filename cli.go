@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+
+	"github.com/kitledger/kitledger/internal/domain/auth"
 )
 
 func ExecuteCommand(args []string) {
@@ -11,9 +13,9 @@ func ExecuteCommand(args []string) {
 	case "db:migrate":
 		log.Println("Running database migrations...")
 	case "session:start":
-		log.Println("Starting a new session...")
-	case "user:create_root":
-		log.Println("Creating root user...")
+		log.Println(auth.StartSession())
+	case "user:root":
+		log.Println(auth.CreateRootUser())
 
 	default:
 		log.Println("Unknown command:", args[0])
