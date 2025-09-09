@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"errors"
@@ -58,7 +58,7 @@ type sessionConfig struct {
 /**
 * Authentication config
  */
-func loadConfig() (*AppConfig, error) {
+func load() (*AppConfig, error) {
 
 	err := godotenv.Load()
 	if err != nil {
@@ -201,13 +201,14 @@ func loadConfig() (*AppConfig, error) {
 
 var (
 	config *AppConfig
+	err	error
 	once   sync.Once
 )
 
-func GetConfig() (*AppConfig, error) {
+func Get() (*AppConfig, error) {
 	var configError error
 	once.Do(func() {
-		config, err := loadConfig()
+		config, err = load()
 		if err != nil {
 			log.Fatalf("Error loading config: %v", err)
 			configError = err
