@@ -24,6 +24,9 @@ func StartServer() {
 	// Prepare the API v1 router
 	apiV1Router := GetApiV1Router()
 
+	// Chain Auth Middleware to Api V1 Router
+	apiV1Router = Auth(apiV1Router)
+
 	// Declare routes
 	mainRouter.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello, World!"))
