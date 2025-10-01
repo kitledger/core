@@ -31,7 +31,7 @@
 		"compile": "deno compile --output ./bin/kitledger --include ./src/services/database/migrations -A ./src/main.ts",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev": "deno run -A --watch --env-file ./src/main.ts",
+		"dev": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts",
 		"format": "deno fmt",
 		"test": "deno test --env-file -A",
 		"typecheck": "deno check src/**/*.ts test/**/*.ts"
