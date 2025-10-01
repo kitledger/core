@@ -1,27 +1,23 @@
 import { initializeConcurrency, acquireSlot, releaseSlot } from './concurrency_limiter.ts';
-import { KitApi, ApiShape, WorkerToHostMessage, HostToWorkerMessage, ExecutionResultPayload } from './shared.ts';
+import { ApiShape, WorkerToHostMessage, HostToWorkerMessage, ExecutionResultPayload } from './shared.ts';
+import { kitApiImplementation } from '../api/api.ts';
 import { workerConfig } from "../../../../config.ts";
 
+/**
+ * Initializes the concurrency limiter with the configured pool size.
+ */
 initializeConcurrency(workerConfig.poolSize);
+
+/**
+ * The URL of the worker script, constructed relative to this module.
+ */
 const workerURL = new URL('./worker.ts', import.meta.url);
 
-const kitApiImplementation: KitApi = {
-    billing: {
-        invoices: {
-            create: async (data) => {
-                console.log(`HOST: Fulfilling billing.invoices.create with`, data);
-                return { invoiceId: `inv_${crypto.randomUUID()}`, status: 'created' };
-            },
-        },
-    },
-    utils: {
-        log: async (...args) => {
-            console.log('[User Script Log]:', ...args);
-            return 'logged';
-        },
-    },
-};
-
+/**
+ * Serializes the nested structure of the KitActions API into a searchable object.
+ * @param obj The object to derive the API shape from.
+ * @returns The ApiShape representing the structure of the provided object.
+ */
 function getApiShape<T extends object>(obj: T): ApiShape {
     const shape: ApiShape = {};
     for (const key in obj) {
@@ -37,6 +33,12 @@ function getApiShape<T extends object>(obj: T): ApiShape {
     return shape;
 }
 
+/**
+ * Invokes a method on the KitActions API based on the provided path.
+ * @param path 
+ * @param args 
+ * @returns 
+ */
 async function invokeApiMethod(path: string[], args: unknown[]): Promise<unknown> {
     let current: unknown = kitApiImplementation;
     for (const key of path) {
@@ -52,6 +54,12 @@ async function invokeApiMethod(path: string[], args: unknown[]): Promise<unknown
     return await current(...args);
 }
 
+/**
+ * Sets a timeout for the worker execution, terminating it if it exceeds the specified duration.
+ * @param ms 
+ * @param worker 
+ * @returns 
+ */
 function timeout(ms: number, worker: Worker): Promise<never> {
     return new Promise((_, reject) => setTimeout(() => {
         worker.terminate();
@@ -59,9 +67,19 @@ function timeout(ms: number, worker: Worker): Promise<never> {
     }, ms));
 }
 
+
+/**
+ * executes the provided JavaScript code in a sandboxed worker environment with the given context.
+ * @param code 
+ * @param context 
+ * @returns 
+ */
 export async function executeScript(code: string, context: string): Promise<ExecutionResultPayload> {
     await acquireSlot();
     
+	/**
+	 * Initialize a sandboxed worker with no permissions (Deno specific flag).
+	 */
     const worker = new Worker(workerURL.href, { type: 'module', deno: { permissions: 'none' } });
 
     try {
@@ -100,10 +118,15 @@ export async function executeScript(code: string, context: string): Promise<Exec
         });
 
         return await Promise.race([
+
+			// Return whichever promise settles first: either the execution or the timeout.
+			// TODO: Make the timeout duration dynamic based on script type.
             executionPromise,
             timeout(5000, worker)
         ]);
     } finally {
+		
+		// Ensure the worker is terminated and the slot is released after execution.
         worker.terminate();
         releaseSlot();
     }

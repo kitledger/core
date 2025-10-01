@@ -1,5 +1,14 @@
-import { KitApi, ApiShape, HostToWorkerMessage, WorkerToHostMessage } from './shared.ts';
+import { ApiShape, HostToWorkerMessage, WorkerToHostMessage } from './shared.ts';
+import { KitApi } from "../api/types.ts";
 
+/**
+ * Assembles the communication proxy for the KitApi based on the provided shape.
+ * This proxy sends requests to the host and handles responses asynchronously.
+ * @param shape 
+ * @param port 
+ * @param path 
+ * @returns 
+ */
 function createKitProxy<T extends object>(shape: ApiShape, port: MessagePort, path: string[] = []): T {
     const kit: { [key: string]: unknown } = {};
 
@@ -33,6 +42,11 @@ function createKitProxy<T extends object>(shape: ApiShape, port: MessagePort, pa
     return kit as T;
 }
 
+/**
+ * Flexible worker message handler that sets up the KitApi proxy and executes user-provided code.
+ * @param event 
+ * @returns 
+ */
 self.onmessage = async (event: MessageEvent<{ code: string; context: string; apiShape: ApiShape }>) => {
     const port = event.ports[0];
     if (!port) {
