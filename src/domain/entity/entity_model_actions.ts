@@ -1,6 +1,12 @@
 import { EntityModel, EntityModelCreateData, EntityModelCreateSchema, EntityModelInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
+import {
+	parseValibotIssues,
+	ValidationError,
+	ValidationFailure,
+	ValidationResult,
+	ValidationSuccess,
+} from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { entity_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -90,7 +96,7 @@ export async function createEntityModel(
 
 	const result = await db.insert(entity_models).values(insert_data).returning();
 
-	if(result.length === 0) {
+	if (result.length === 0) {
 		return {
 			success: false,
 			data: validation.data,

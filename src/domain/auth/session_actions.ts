@@ -16,7 +16,7 @@ export async function getSessionUserId(sessionId: string): Promise<string | null
 
 export async function startSession(userId: string): Promise<string> {
 	const sessionId = v7();
-	
+
 	await db.insert(sessions).values({
 		id: sessionId,
 		user_id: userId,

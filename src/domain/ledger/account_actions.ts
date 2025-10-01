@@ -1,6 +1,12 @@
 import { Account, AccountCreateData, AccountCreateSchema, AccountInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
+import {
+	parseValibotIssues,
+	ValidationError,
+	ValidationFailure,
+	ValidationResult,
+	ValidationSuccess,
+} from "../base/validation.ts";
 import { accounts, ledgers } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
 import { and, eq, or, sql } from "drizzle-orm";
@@ -129,7 +135,9 @@ async function validateAccountCreate(
 	return { success, data: result.output, errors: errors };
 }
 
-export async function createAccount(data: AccountCreateData): Promise<ValidationSuccess<Account> | ValidationFailure<AccountCreateData>> {
+export async function createAccount(
+	data: AccountCreateData,
+): Promise<ValidationSuccess<Account> | ValidationFailure<AccountCreateData>> {
 	const validation = await validateAccountCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -147,7 +155,7 @@ export async function createAccount(data: AccountCreateData): Promise<Validation
 
 	const result = await db.insert(accounts).values(insertData).returning();
 
-	if(result.length === 0) {
+	if (result.length === 0) {
 		return {
 			success: false,
 			data: validation.data,
@@ -162,5 +170,5 @@ export async function createAccount(data: AccountCreateData): Promise<Validation
 	return {
 		success: true,
 		data: result[0],
-	}
+	};
 }

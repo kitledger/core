@@ -26,10 +26,10 @@ export type ValidationResult<T> = {
 };
 
 export type ValidationFailure<T> = {
-	success: false,
-	data?:T;
+	success: false;
+	data?: T;
 	errors?: ValidationError[];
-}
+};
 
 export function isValidationFailure<T extends object, U>(
 	result: T | ValidationResult<U>,

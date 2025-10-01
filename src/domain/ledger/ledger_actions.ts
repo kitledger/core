@@ -1,6 +1,12 @@
 import { Ledger, LedgerCreateData, LedgerCreateSchema, LedgerInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
+import {
+	parseValibotIssues,
+	ValidationError,
+	ValidationFailure,
+	ValidationResult,
+	ValidationSuccess,
+} from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { ledgers, unit_models } from "../../services/database/schema.ts";
 import { and, eq, or, sql } from "drizzle-orm";
@@ -96,7 +102,9 @@ async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationR
 	};
 }
 
-export async function createLedger(data: LedgerCreateData): Promise<ValidationSuccess<Ledger> | ValidationFailure<LedgerCreateData>> {
+export async function createLedger(
+	data: LedgerCreateData,
+): Promise<ValidationSuccess<Ledger> | ValidationFailure<LedgerCreateData>> {
 	const validation = await validateLedgerCreate(data);
 
 	if (!validation.success || !validation.data) {
@@ -114,7 +122,7 @@ export async function createLedger(data: LedgerCreateData): Promise<ValidationSu
 
 	const result = await db.insert(ledgers).values(insertData).returning();
 
-	if(result.length === 0) {
+	if (result.length === 0) {
 		return {
 			success: false,
 			data: validation.data,

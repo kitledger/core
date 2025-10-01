@@ -5,7 +5,13 @@ import {
 	TransactionModelInsert,
 } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
+import {
+	parseValibotIssues,
+	ValidationError,
+	ValidationFailure,
+	ValidationResult,
+	ValidationSuccess,
+} from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { transaction_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -95,7 +101,7 @@ export async function createTransactionModel(
 
 	const result = await db.insert(transaction_models).values(insert_data).returning();
 
-	if(result.length === 0) {
+	if (result.length === 0) {
 		return {
 			success: false,
 			data: validation.data,
@@ -110,5 +116,5 @@ export async function createTransactionModel(
 	return {
 		success: true,
 		data: result[0],
-	}
+	};
 }

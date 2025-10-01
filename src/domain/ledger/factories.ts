@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { Ledger, Account } from "./types.ts";
+import { Account, Ledger } from "./types.ts";
 import { BaseFactory } from "../base/base_factory.ts";
 import { BalanceType } from "./types.ts";
 
@@ -28,7 +28,7 @@ const makeLedger = (): Ledger => ({
 	updated_at: faker.date.recent(),
 });
 
-const makeAccount = () : Account => ({
+const makeAccount = (): Account => ({
 	id: v7(),
 	ref_id: v7(),
 	alt_id: v7(),
@@ -39,5 +39,5 @@ const makeAccount = () : Account => ({
 	active: true,
 	created_at: faker.date.past(),
 	updated_at: faker.date.recent(),
-	meta: {}
+	meta: {},
 });

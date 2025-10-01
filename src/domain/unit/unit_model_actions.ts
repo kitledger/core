@@ -1,6 +1,12 @@
 import { UnitModel, UnitModelCreateData, UnitModelCreateSchema, UnitModelInsert } from "./types.ts";
 import * as v from "@valibot/valibot";
-import { parseValibotIssues, ValidationError, ValidationFailure, ValidationResult, ValidationSuccess } from "../base/validation.ts";
+import {
+	parseValibotIssues,
+	ValidationError,
+	ValidationFailure,
+	ValidationResult,
+	ValidationSuccess,
+} from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
 import { unit_models } from "../../services/database/schema.ts";
 import { eq } from "drizzle-orm";
@@ -88,7 +94,7 @@ export async function createUnitModel(
 
 	const result = await db.insert(unit_models).values(insert_data).returning();
 
-	if(result.length === 0) {
+	if (result.length === 0) {
 		return {
 			success: false,
 			data: validation.data,
