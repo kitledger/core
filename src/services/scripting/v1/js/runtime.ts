@@ -1,8 +1,8 @@
 import { initializeConcurrency, acquireSlot, releaseSlot } from './concurrency_limiter.ts';
 import { KitApi, ApiShape, WorkerToHostMessage, HostToWorkerMessage, ExecutionResultPayload } from './shared.ts';
+import { workerConfig } from "../../../../config.ts";
 
-const MAX_CONCURRENT_SCRIPTS = 4;
-initializeConcurrency(MAX_CONCURRENT_SCRIPTS);
+initializeConcurrency(workerConfig.poolSize);
 const workerURL = new URL('./worker.ts', import.meta.url);
 
 const kitApiImplementation: KitApi = {
