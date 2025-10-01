@@ -17,7 +17,7 @@ const migrationsPath = join(fromFileUrl(__dirname), "migrations");
 export async function runMigrations() {
 	await migrate(db, {
 		migrationsFolder: migrationsPath,
-		migrationsTable: "migrations",
+		migrationsTable: "schema_history",
 		migrationsSchema: "public",
 	});
 }

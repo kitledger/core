@@ -10,13 +10,6 @@ type AuthConfig = {
 	jwtAlgorithm: AlgorithmTypes;
 };
 
-type CacheConfig = {
-	addresses: {
-		host: string;
-		port: number;
-	}[];
-};
-
 type CorsConfig = {
 	origin: string | string[];
 	allowMethods?: string[];
@@ -64,15 +57,6 @@ const pastSecretsString = Deno.env.get("KL_AUTH_PAST_SECRETS");
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 
 /**
- * Cache configuration values and defaults.
- */
-const valkeyAddressesEnv = Deno.env.get("KL_VALKEY_ADDRESSES") || "localhost:6379";
-const valkeyAddresses: CacheConfig["addresses"] = valkeyAddressesEnv.split(",").map((address) => {
-	const [host, port] = address.split(":");
-	return { host: host, port: parseInt(port) || 6379 };
-});
-
-/**
  * CORS configuration values and defaults.
  */
 const corsDefaultHeaders = ["Content-Type", "Authorization", "X-Requested-With"];
@@ -114,14 +98,6 @@ export const authConfig: AuthConfig = {
 	secret: authSecret,
 	pastSecrets: pastSecrets,
 	jwtAlgorithm: jwtAlgorithm,
-};
-
-/**
- * Export pre-assembled configuration values for the cache.
- * Values are a mix of environment variables and defaults.
- */
-export const cacheConfig: CacheConfig = {
-	addresses: valkeyAddresses,
 };
 
 /**

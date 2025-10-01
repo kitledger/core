@@ -58,6 +58,15 @@ export const roles = pgTable("roles", {
 	...timestamps,
 });
 
+export const sessions = pgTable("sessions", {
+	id: uuid("id").primaryKey(),
+	user_id: uuid("user_id")
+		.notNull()
+		.references(() => users.id),
+	expires_at: timestamp("expires_at").notNull(),
+	...timestamps,
+});
+
 export const system_permissions = pgTable(
 	"system_permissions",
 	{

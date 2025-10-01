@@ -9,8 +9,6 @@ import {
 	users,
 } from "../../services/database/schema.ts";
 
-export const SessionCacheKeyPrefix = "kl_session:";
-
 export type ApiTokenInsert = InferInsertModel<typeof api_tokens>;
 export type ApiToken = InferSelectModel<typeof api_tokens>;
 

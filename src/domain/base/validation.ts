@@ -1,4 +1,4 @@
-import { type BaseIssue } from "@valibot/valibot";
+import { type BaseIssue, type IssuePathItem } from "@valibot/valibot";
 
 export type ValidationError = {
 	type: "structure" | "data";
@@ -9,7 +9,7 @@ export type ValidationError = {
 export function parseValibotIssues<T>(issues: BaseIssue<T>[]): ValidationError[] {
 	return issues.map((issue) => ({
 		type: "structure",
-		path: issue.path ? issue.path.map((p) => p.key).join(".") : "",
+		path: issue.path ? issue.path.map((p: IssuePathItem) => p.key).join(".") : "",
 		message: issue.message,
 	}));
 }
