@@ -1,5 +1,5 @@
 import { ApiShape, HostToWorkerMessage, WorkerToHostMessage } from './shared.ts';
-import { KitApi } from "../api/types.ts";
+import { KitActions } from "../api/types.ts";
 
 /**
  * Assembles the communication proxy for the KitApi based on the provided shape.
@@ -58,7 +58,7 @@ self.onmessage = async (event: MessageEvent<{ code: string; context: string; api
 
     const { code, context, apiShape } = event.data;
     try {
-        const kit = createKitProxy<KitApi>(apiShape, port);
+        const kit = createKitProxy<KitActions>(apiShape, port);
         const sandboxedFunction = new Function('kit', 'context', `'use strict'; return (async () => { ${code} })();`);
         await sandboxedFunction(kit, context);
         const result: WorkerToHostMessage = {

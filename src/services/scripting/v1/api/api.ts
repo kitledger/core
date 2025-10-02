@@ -1,9 +1,9 @@
-import { KitApi } from './types.ts';
+import { KitActions } from './types.ts';
 
 /**
  * Temporary mock implementation of the KitApi for demonstration purposes.
  */
-export const kitApiImplementation: KitApi = {
+export const kitApiImplementation: KitActions = {
 	billing: {
 		invoices: {
 			create: async (data) => {
