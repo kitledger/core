@@ -1,5 +1,5 @@
 import { ApiShape, HostToWorkerMessage, WorkerToHostMessage } from './shared.ts';
-import { KitActions } from "../api/types.ts";
+import { KitActions } from "@kitledger/sdk";
 
 /**
  * Assembles the communication proxy for the KitApi based on the provided shape.

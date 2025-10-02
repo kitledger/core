@@ -18,6 +18,7 @@
     "jsr:@std/uuid@^1.0.9": "1.0.9",
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
+    "npm:@kitledger/sdk@^0.0.4": "0.0.4",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "22.15.15",
     "npm:@valkey/valkey-glide@^2.0.1": "2.0.1",
@@ -376,6 +377,9 @@
     "@faker-js/faker@9.9.0": {
       "integrity": "sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA=="
     },
+    "@kitledger/sdk@0.0.4": {
+      "integrity": "sha512-rMM37epiQ606aUtjpv4U/eH8JoF0N9uaAi6sEjUEwjMRp0OrUZpgzUCyDPZvUXMknRAahKQ/wikXitvOlxhKTA=="
+    },
     "@napi-rs/wasm-runtime@0.2.12": {
       "integrity": "sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==",
       "dependencies": [
@@ -726,6 +730,7 @@
       "jsr:@std/uuid@^1.0.9",
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
+      "npm:@kitledger/sdk@^0.0.4",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:@valkey/valkey-glide@^2.0.1",
       "npm:drizzle-kit@~0.31.4",

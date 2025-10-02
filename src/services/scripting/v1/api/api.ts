@@ -1,4 +1,4 @@
-import { KitActions } from './types.ts';
+import { KitActions } from "@kitledger/sdk";
 
 /**
  * Temporary mock implementation of the KitApi for demonstration purposes.
