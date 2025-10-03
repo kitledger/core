@@ -1,64 +1,86 @@
+/**
+ * @file This is the host-side script execution engine. It is responsible for
+ * spinning up sandboxed Deno workers, providing them with the necessary API
+ * proxies via Import Maps, and handling their requests securely.
+ */
+
 import { initializeConcurrency, acquireSlot, releaseSlot } from './concurrency_limiter.ts';
-import { ApiShape, WorkerToHostMessage, HostToWorkerMessage, ExecutionResultPayload } from './shared.ts';
-import { kitApiImplementation } from '../api/api.ts';
+import { WorkerToHostMessage, HostToWorkerMessage, ExecutionResultPayload } from './shared.ts';
+import { getApiMethod } from '../api/api.ts';
+import { ACTIONS_DEFINITION } from '@kitledger/actions/__definition';
+import type { ApiMethod } from '@kitledger/actions/__definition';
 import { workerConfig } from "../../../../config.ts";
 
-/**
- * Initializes the concurrency limiter with the configured pool size.
- */
+const scriptTimeout = 30000;
+
+
 initializeConcurrency(workerConfig.poolSize);
 
-/**
- * The URL of the worker script, constructed relative to this module.
- */
 const workerURL = new URL('./worker.ts', import.meta.url);
 
 /**
- * Serializes the nested structure of the KitActions API into a searchable object.
- * @param obj The object to derive the API shape from.
- * @returns The ApiShape representing the structure of the provided object.
+ * Generates the JavaScript source code for a virtual module that exports proxy functions.
+ * @param methods An array of method names for this module (e.g., ['info', 'warn']).
+ * @param moduleName The name of the module (e.g., 'log').
+ * @param portName The variable name of the message port inside the worker.
+ * @returns The JavaScript source code for the proxy module.
  */
-function getApiShape<T extends object>(obj: T): ApiShape {
-    const shape: ApiShape = {};
-    for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-            const value = obj[key];
-            if (typeof value === 'function') {
-                shape[key] = 'function';
-            } else if (typeof value === 'object' && value !== null) {
-                shape[key] = getApiShape(value);
-            }
+function createProxyModule(methods: readonly string[], moduleName: string, portName: string): string {
+    const exports = methods.map(method => `
+        export function ${method}(...args) {
+            return new Promise((resolve, reject) => {
+                const id = crypto.randomUUID();
+                const message = {
+                    type: 'actionRequest',
+                    payload: { id, methodName: '${moduleName}.${method}', args }
+                };
+                const responseHandler = (event) => {
+                    if (event.data.type === 'actionResponse' && event.data.payload.id === id) {
+                        ${portName}.removeEventListener('message', responseHandler);
+                        const { result, error } = event.data.payload;
+                        error ? reject(new Error(error)) : resolve(result);
+                    }
+                };
+                ${portName}.addEventListener('message', responseHandler);
+                ${portName}.postMessage(message);
+            });
         }
-    }
-    return shape;
+    `).join('');
+    return exports;
 }
 
 /**
- * Invokes a method on the KitActions API based on the provided path.
- * @param path 
- * @param args 
- * @returns 
+ * Creates an Import Map to resolve @kitledger/actions modules to virtual code.
+ * @param portName The variable name of the message port inside the worker.
+ * @returns An object representing the JSON structure of an Import Map.
  */
-async function invokeApiMethod(path: string[], args: unknown[]): Promise<unknown> {
-    let current: unknown = kitApiImplementation;
-    for (const key of path) {
-        if (typeof current === 'object' && current !== null && key in current) {
-            current = (current as Record<string, unknown>)[key];
-        } else {
-            throw new Error(`API path not found: ${path.join('.')}`);
-        }
+function createImportMap(portName: string): { imports: Record<string, string> } {
+    const imports: Record<string, string> = {};
+    for (const moduleName in ACTIONS_DEFINITION) {
+        const methods = ACTIONS_DEFINITION[moduleName as keyof typeof ACTIONS_DEFINITION];
+        const moduleSource = createProxyModule(methods, moduleName, portName);
+        imports[`@kitledger/actions/${moduleName}`] = `data:text/javascript,${encodeURIComponent(moduleSource)}`;
     }
-    if (typeof current !== 'function') {
-        throw new Error(`API path does not resolve to a function: ${path.join('.')}`);
-    }
-    return await current(...args);
+    return { imports };
+}
+
+/**
+ * Invokes a method on the host-side API implementation in a type-safe manner.
+ * @param methodName The unique identifier of the method to invoke.
+ * @param args An array of arguments to pass to the method.
+ * @returns The result of the API method call.
+ */
+async function invokeApiMethod(methodName: ApiMethod, args: unknown[]): Promise<unknown> {
+    const method = getApiMethod(methodName);
+    // @ts-ignore - We trust our RPC mechanism to provide the correct arguments.
+    return await method(...args);
 }
 
 /**
  * Sets a timeout for the worker execution, terminating it if it exceeds the specified duration.
- * @param ms 
- * @param worker 
- * @returns 
+ * @param ms The timeout duration in milliseconds.
+ * @param worker The worker instance to monitor.
+ * @returns A promise that rejects if the timeout is exceeded.
  */
 function timeout(ms: number, worker: Worker): Promise<never> {
     return new Promise((_, reject) => setTimeout(() => {
@@ -67,20 +89,25 @@ function timeout(ms: number, worker: Worker): Promise<never> {
     }, ms));
 }
 
-
 /**
- * executes the provided JavaScript code in a sandboxed worker environment with the given context.
- * @param code 
- * @param context 
- * @returns 
+ * Executes the provided user script in a sandboxed Deno worker.
+ * @param code The user-provided TypeScript/JavaScript code to execute.
+ * @param context A stringified JSON object containing the script's execution context.
+ * @returns A promise that resolves with the final status of the script execution.
  */
 export async function executeScript(code: string, context: string): Promise<ExecutionResultPayload> {
     await acquireSlot();
-    
-	/**
-	 * Initialize a sandboxed worker with no permissions (Deno specific flag).
-	 */
-    const worker = new Worker(workerURL.href, { type: 'module', deno: { permissions: 'none' } });
+
+    const importMap = createImportMap('port');
+    const importMapString = JSON.stringify(importMap);
+    const importMapURL = `data:application/json,${encodeURIComponent(importMapString)}`;
+
+    const worker = new Worker(workerURL.href, {
+        type: 'module',
+        deno: {
+            permissions: 'none',
+        }	
+    });
 
     try {
         const executionPromise = new Promise<ExecutionResultPayload>((resolve, reject) => {
@@ -92,7 +119,7 @@ export async function executeScript(code: string, context: string): Promise<Exec
                 switch (message.type) {
                     case 'actionRequest': {
                         try {
-                            const result = await invokeApiMethod(message.payload.path, message.payload.args);
+                            const result = await invokeApiMethod(message.payload.methodName, message.payload.args);
                             const response: HostToWorkerMessage = { type: 'actionResponse', payload: { id: message.payload.id, result } };
                             hostPort.postMessage(response);
                         } catch (e) {
@@ -113,20 +140,15 @@ export async function executeScript(code: string, context: string): Promise<Exec
                 }
             };
 
-            const payload = { code, context, apiShape: getApiShape(kitApiImplementation) };
+            const payload = { code, context };
             worker.postMessage(payload, [channel.port2]);
         });
 
         return await Promise.race([
-
-			// Return whichever promise settles first: either the execution or the timeout.
-			// TODO: Make the timeout duration dynamic based on script type.
             executionPromise,
-            timeout(5000, worker)
+            timeout(scriptTimeout, worker)
         ]);
     } finally {
-		
-		// Ensure the worker is terminated and the slot is released after execution.
         worker.terminate();
         releaseSlot();
     }
