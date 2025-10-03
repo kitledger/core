@@ -1,13 +1,73 @@
 /**
  * @file This script is the entry point for the sandboxed Deno Web Worker.
- * It is responsible for receiving user code and a context object from the host,
- * executing the code, and reporting the result (success or error) back to the host.
- *
- * The worker relies on an Import Map provided by the host during its creation.
- * This map resolves imports from '@kitledger/actions/*' to dynamically generated
- * proxy modules that communicate with the host via a MessagePort for all API calls.
+ * It receives pre-compiled user code and dynamically builds the global `kit`
+ * object which acts as an RPC proxy to the host.
  */
-self.onmessage = async (event: MessageEvent<{ code: string; context: string; }>) => {
+
+import type { WorkerToHostMessage, HostToWorkerMessage } from './shared.ts';
+import type { ApiMethod } from '@kitledger/actions/__definition';
+
+/**
+ * A recursive type for the dynamically constructed proxy object.
+ * It can have any string key, and its value is either another proxy object
+ * or a final RPC function.
+ */
+type RecursiveProxy = {
+    [key: string]: RecursiveProxy | ((...args: unknown[]) => Promise<unknown>);
+};
+
+/**
+ * Dynamically constructs the nested `kit` proxy object in a type-safe way.
+ * @param port The message port for communicating with the host.
+ * @param methodNames An array of available API method names (e.g., 'log.info').
+ * @returns The fully constructed `kit` proxy object.
+ */
+function createKitProxy(port: MessagePort, methodNames: ApiMethod[]): RecursiveProxy {
+    const kit: RecursiveProxy = {};
+    for (const methodName of methodNames) {
+        const path = methodName.split('.');
+        let currentLevel = kit;
+
+        for (let i = 0; i < path.length - 1; i++) {
+            const part = path[i];
+            if (!currentLevel[part]) {
+                currentLevel[part] = {};
+            }
+            currentLevel = currentLevel[part] as RecursiveProxy;
+        }
+
+        const finalPart = path[path.length - 1];
+        currentLevel[finalPart] = (...args: unknown[]): Promise<unknown> => {
+            return new Promise((resolve, reject) => {
+                const id = crypto.randomUUID();
+                const message: WorkerToHostMessage = {
+                    type: 'actionRequest',
+                    payload: { id, methodName, args },
+                };
+
+                const responseHandler = (event: MessageEvent<HostToWorkerMessage>) => {
+                    if (event.data.type === 'actionResponse' && event.data.payload.id === id) {
+                        port.removeEventListener('message', responseHandler);
+                        const { result, error } = event.data.payload;
+                        error ? reject(new Error(error)) : resolve(result);
+                    }
+                };
+                port.addEventListener('message', responseHandler);
+                port.postMessage(message);
+            });
+        };
+    }
+    return kit;
+}
+
+/**
+ * Handles the initial message from the host to set up and execute the script.
+ */
+self.onmessage = async (event: MessageEvent<{
+    code: string;
+    context: string;
+    apiShape: ApiMethod[];
+}>) => {
     const port = event.ports[0];
     if (!port) {
         self.close();
@@ -16,23 +76,22 @@ self.onmessage = async (event: MessageEvent<{ code: string; context: string; }>)
 
     port.start();
 
-    const { code, context } = event.data;
-    try {
-        const sandboxedFunction = new Function('port', 'context', `'use strict'; return (async () => { ${code} })();`);
-        await sandboxedFunction(port, context);
+    const { code, context, apiShape } = event.data;
 
-        const result = {
-            type: 'executionResult',
-            payload: { status: 'success', data: 'completed' },
-        };
-        port.postMessage(result);
+    try {
+        const kit = createKitProxy(port, apiShape);
+        
+        // The execution logic is now much simpler.
+        // We wrap the entire user script in an async function and immediately execute it.
+        const scriptFn = new Function('kit', 'context', `(async () => { ${code} })();`);
+
+        await scriptFn(kit, JSON.parse(context));
+        
+        port.postMessage({ type: 'executionResult', payload: { status: 'success' } });
     } catch (error: unknown) {
-        const result = {
-            type: 'executionResult',
-            payload: { status: 'error', error: (error as Error).message },
-        };
-        port.postMessage(result);
+        port.postMessage({ type: 'executionResult', payload: { status: 'error', error: (error as Error).message } });
     } finally {
         port.close();
+        self.close();
     }
 };
