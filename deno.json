@@ -14,7 +14,7 @@
 	"imports": {
 		"@faker-js/faker": "npm:@faker-js/faker@^9.9.0",
 		"@hono/hono": "jsr:@hono/hono@^4.8.4",
-		"@kitledger/actions": "npm:@kitledger/actions@^0.0.3",
+		"@kitledger/actions": "npm:@kitledger/actions@^0.0.4",
 		"@node-rs/argon2": "npm:@node-rs/argon2@^2.0.2",
 		"@poolifier/poolifier-web-worker": "jsr:@poolifier/poolifier-web-worker@^0.5.8",
 		"@std/assert": "jsr:@std/assert@1",

@@ -11,12 +11,12 @@ await runMigrations();
 // This string represents a user's script that has already been transpiled
 // from TypeScript to plain JavaScript by your CLI.
 const preCompiledUserCode = `
-    await kit.log.info('User script started. Processing event:', context);
+    await kl.log.info('User script started. Processing event:', context);
 
-    const response = await kit.http.get('https://api.mocki.io/v2/57310619/user-data');
-    await kit.log.info('Simulated HTTP call successful. Response body:', response.body);
+    const response = await kl.http.get('https://api.mocki.io/v2/57310619/user-data');
+    await kl.log.info('Simulated HTTP call successful. Response body:', response.body);
 
-    await kit.log.audit('User event processing complete.');
+    await kl.log.audit('User event processing complete.');
 `;
 
 const contextData = JSON.stringify({ eventId: 'evt_simple_456', sourceType: 'test-run' });
