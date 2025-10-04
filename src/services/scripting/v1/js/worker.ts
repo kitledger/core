@@ -23,10 +23,10 @@ type RecursiveProxy = {
  * @returns The fully constructed `kit` proxy object.
  */
 function createKitProxy(port: MessagePort, methodNames: ApiMethod[]): RecursiveProxy {
-    const kit: RecursiveProxy = {};
+    const kl: RecursiveProxy = {};
     for (const methodName of methodNames) {
         const path = methodName.split('.');
-        let currentLevel = kit;
+        let currentLevel = kl;
 
         for (let i = 0; i < path.length - 1; i++) {
             const part = path[i];
@@ -57,7 +57,7 @@ function createKitProxy(port: MessagePort, methodNames: ApiMethod[]): RecursiveP
             });
         };
     }
-    return kit;
+    return kl;
 }
 
 /**
@@ -79,13 +79,13 @@ self.onmessage = async (event: MessageEvent<{
     const { code, context, apiShape } = event.data;
 
     try {
-        const kit = createKitProxy(port, apiShape);
+        const kl = createKitProxy(port, apiShape);
         
         // The execution logic is now much simpler.
         // We wrap the entire user script in an async function and immediately execute it.
-        const scriptFn = new Function('kit', 'context', `(async () => { ${code} })();`);
+        const scriptFn = new Function('kl', 'context', `(async () => { ${code} })();`);
 
-        await scriptFn(kit, JSON.parse(context));
+        await scriptFn(kl, JSON.parse(context));
         
         port.postMessage({ type: 'executionResult', payload: { status: 'success' } });
     } catch (error: unknown) {
