@@ -8,9 +8,10 @@ import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
 import { isValidationFailure } from "../../../../domain/base/validation.ts";
 import { createLedger } from "../../../../domain/ledger/ledger_actions.ts";
 import { LedgerCreateData } from "../../../../domain/ledger/types.ts";
-import { Account } from "../../../../domain/ledger/types.ts";
+import { Account, Ledger } from "../../../../domain/ledger/types.ts";
 import { filterAccounts } from "../../../../domain/ledger/account_repository.ts";
 import { createAccount } from "../../../../domain/ledger/account_actions.ts";
+import { filterLedgers } from "../../../../domain/ledger/ledger_repository.ts";
 import { AccountCreateData } from "../../../../domain/ledger/types.ts";
 import { createEntityModel } from "../../../../domain/entity/entity_model_actions.ts";
 import { EntityModelCreateData } from "../../../../domain/entity/types.ts";
@@ -28,10 +29,10 @@ router.get("/", (c) => {
 
 router.get("/accounts", async (c) => {
 	try {
-		const query = c.req.query();
+		const search_params = c.req.query();
 
-		const structured_query = query.query ? query.query : undefined;
-		const search = query.search ? query.search : undefined;
+		const structured_query = search_params.query ? search_params.query : undefined;
+		const search = search_params.search ? search_params.search : undefined;
 		let getOperationType : GetOperationType = GetOperationType.FILTER;
 
 		if (structured_query) {
@@ -46,7 +47,7 @@ router.get("/accounts", async (c) => {
 
 		switch (getOperationType) {
 			case GetOperationType.FILTER:
-				results = await filterAccounts(query as unknown as Record<string, string | number | boolean>);
+				results = await filterAccounts(search_params);
 				break;
 			case GetOperationType.SEARCH:
 				results = { data: [], limit: 0, offset: 0 };
@@ -58,7 +59,7 @@ router.get("/accounts", async (c) => {
 				results = { data: [], limit: 0, offset: 0 };
 		}
 
-		return c.json({ data: { accounts: results.data }, meta: { limit: results.limit, offset: results.offset } });
+		return c.json(results);
 
 	}
 	catch (error) {
@@ -97,6 +98,47 @@ router.post("/entity-models", async (c) => {
 
 		return c.json({ data: { entity_model: entityModel.data } }, 201);
 	}
+	catch (error) {
+		console.error(error);
+		return c.json({ error: "Internal server error" }, 500);
+	}
+});
+
+router.get("ledgers", async (c) => {
+	try {
+		const search_params = c.req.query();
+
+		const structured_query = search_params.query ? search_params.query : undefined;
+		const search = search_params.search ? search_params.search : undefined;
+		let getOperationType : GetOperationType = GetOperationType.FILTER;
+
+		if (structured_query) {
+			getOperationType = GetOperationType.QUERY;
+		}
+
+		else if (search) {
+			getOperationType = GetOperationType.SEARCH;
+		}
+
+		let results : GetOperationResult<Ledger>;
+
+		switch (getOperationType) {
+			case GetOperationType.FILTER:
+				results = await filterLedgers(search_params);
+				break;
+			case GetOperationType.SEARCH:
+				results = { data: [], limit: 0, offset: 0 };
+				break;
+			case GetOperationType.QUERY:
+				results = { data: [], limit: 0, offset: 0 };
+				break;
+			default:
+				results = { data: [], limit: 0, offset: 0 };
+		}
+
+		return c.json(results);
+	}
+
 	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);

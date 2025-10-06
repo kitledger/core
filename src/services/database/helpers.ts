@@ -20,7 +20,7 @@ export enum GetOperationType {
 /**
  * Parameters for filter operations, including optional limit and offset.
  */
-export type FilterOperationParameters = Record<string, string | number | boolean> & {
+export type FilterOperationParameters = Record<string, string> & {
 	limit?: number;
 	offset?: number;
 };

@@ -11,7 +11,7 @@ import { BalanceType } from "./types.ts";
  * @returns 
  */
 export async function filterAccounts(params: FilterOperationParameters): Promise<GetOperationResult<Account>> {
-	const { limit, offset, ...filters } = params;
+	const { limit = defaultLimit, offset = defaultOffset, ...filters } = params;
 
 	const filterConditions :SQL<unknown>[] = [];
 
@@ -75,12 +75,12 @@ export async function filterAccounts(params: FilterOperationParameters): Promise
 	}
 
 	const results = await db.select().from(accounts).where(and(...filterConditions))
-		.limit(limit ? Math.min(limit, maxLimit) : defaultLimit)
-		.offset(offset ?? defaultOffset);
+		.limit(Math.min(limit, maxLimit))
+		.offset(offset);
 
 	return {
 		data: results,
-		limit: limit,
+		limit: Math.min(limit, maxLimit),
 		offset: offset,
 	}
 }

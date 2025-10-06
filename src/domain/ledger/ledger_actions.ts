@@ -8,9 +8,10 @@ import {
 	ValidationSuccess,
 } from "../base/validation.ts";
 import { db } from "../../services/database/db.ts";
-import { ledgers, unit_models } from "../../services/database/schema.ts";
-import { and, eq, or, sql } from "drizzle-orm";
+import { ledgers } from "../../services/database/schema.ts";
+import { eq } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
+import { findUnitModelId } from "./ledger_repository.ts";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.ledgers.findMany({
@@ -29,21 +30,6 @@ async function altIdAlreadyExists(altId: string | null): Promise<boolean> {
 		columns: { id: true },
 	});
 	return results.length > 0;
-}
-
-async function findUnitModelId(unitTypeId: string): Promise<string | null> {
-	const unitModel = await db.query.unit_models.findFirst({
-		where: and(
-			or(
-				eq(sql`${unit_models.id}::text`, unitTypeId),
-				eq(unit_models.ref_id, unitTypeId),
-				eq(unit_models.alt_id, unitTypeId),
-			),
-			eq(unit_models.active, true),
-		),
-		columns: { id: true },
-	});
-	return unitModel ? unitModel.id : null;
 }
 
 async function validateLedgerCreate(data: LedgerCreateData): Promise<ValidationResult<LedgerCreateData>> {
