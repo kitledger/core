@@ -11,7 +11,7 @@ import { accounts } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
 import { eq } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
-import { findParentAccount, findLedgerId } from "./account_repository.ts";
+import { findLedgerId, findParentAccount } from "./account_repository.ts";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.accounts.findMany({

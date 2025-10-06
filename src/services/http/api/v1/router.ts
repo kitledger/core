@@ -12,12 +12,16 @@ import { Account, Ledger } from "../../../../domain/ledger/types.ts";
 import { filterAccounts } from "../../../../domain/ledger/account_repository.ts";
 import { createAccount } from "../../../../domain/ledger/account_actions.ts";
 import { filterLedgers } from "../../../../domain/ledger/ledger_repository.ts";
+import { filterEntityModels } from "../../../../domain/entity/entity_model_repository.ts";
+import { filterTransactionModels } from "../../../../domain/transaction/transaction_model_repository.ts";
+import { filterUnitModels } from "../../../../domain/unit/unit_model_repository.ts";
 import { AccountCreateData } from "../../../../domain/ledger/types.ts";
 import { createEntityModel } from "../../../../domain/entity/entity_model_actions.ts";
-import { EntityModelCreateData } from "../../../../domain/entity/types.ts";
+import { EntityModel, EntityModelCreateData } from "../../../../domain/entity/types.ts";
 import { createTransactionModel } from "../../../../domain/transaction/transaction_model_actions.ts";
-import { TransactionModelCreateData } from "../../../../domain/transaction/types.ts";
-import { GetOperationType, GetOperationResult } from "../../../database/helpers.ts";
+import { TransactionModel, TransactionModelCreateData } from "../../../../domain/transaction/types.ts";
+import { GetOperationResult, GetOperationType } from "../../../database/helpers.ts";
+import { UnitModel } from "../../../../domain/unit/types.ts";
 
 const router = new Hono();
 
@@ -33,34 +37,32 @@ router.get("/accounts", async (c) => {
 
 		const structured_query = search_params.query ? search_params.query : undefined;
 		const search = search_params.search ? search_params.search : undefined;
-		let getOperationType : GetOperationType = GetOperationType.FILTER;
+		let getOperationType: GetOperationType = GetOperationType.FILTER;
 
 		if (structured_query) {
 			getOperationType = GetOperationType.QUERY;
 		}
-
 		else if (search) {
 			getOperationType = GetOperationType.SEARCH;
 		}
 
-		let results : GetOperationResult<Account>;
+		let results: GetOperationResult<Account>;
 
 		switch (getOperationType) {
 			case GetOperationType.FILTER:
 				results = await filterAccounts(search_params);
 				break;
 			case GetOperationType.SEARCH:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 				break;
 			case GetOperationType.QUERY:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 				break;
 			default:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 		}
 
 		return c.json(results);
-
 	}
 	catch (error) {
 		console.error(error);
@@ -79,6 +81,45 @@ router.post("/accounts", async (c) => {
 		}
 
 		return c.json({ data: { account: account.data } }, 201);
+	}
+	catch (error) {
+		console.error(error);
+		return c.json({ error: "Internal server error" }, 500);
+	}
+});
+
+router.get("/entity-models", async (c) => {
+	try {
+		const search_params = c.req.query();
+
+		const structured_query = search_params.query ? search_params.query : undefined;
+		const search = search_params.search ? search_params.search : undefined;
+		let getOperationType: GetOperationType = GetOperationType.FILTER;
+
+		if (structured_query) {
+			getOperationType = GetOperationType.QUERY;
+		}
+		else if (search) {
+			getOperationType = GetOperationType.SEARCH;
+		}
+
+		let results: GetOperationResult<EntityModel>;
+
+		switch (getOperationType) {
+			case GetOperationType.FILTER:
+				results = await filterEntityModels(search_params);
+				break;
+			case GetOperationType.SEARCH:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			case GetOperationType.QUERY:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			default:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+		}
+
+		return c.json(results);
 	}
 	catch (error) {
 		console.error(error);
@@ -110,35 +151,33 @@ router.get("ledgers", async (c) => {
 
 		const structured_query = search_params.query ? search_params.query : undefined;
 		const search = search_params.search ? search_params.search : undefined;
-		let getOperationType : GetOperationType = GetOperationType.FILTER;
+		let getOperationType: GetOperationType = GetOperationType.FILTER;
 
 		if (structured_query) {
 			getOperationType = GetOperationType.QUERY;
 		}
-
 		else if (search) {
 			getOperationType = GetOperationType.SEARCH;
 		}
 
-		let results : GetOperationResult<Ledger>;
+		let results: GetOperationResult<Ledger>;
 
 		switch (getOperationType) {
 			case GetOperationType.FILTER:
 				results = await filterLedgers(search_params);
 				break;
 			case GetOperationType.SEARCH:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 				break;
 			case GetOperationType.QUERY:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 				break;
 			default:
-				results = { data: [], limit: 0, offset: 0 };
+				results = { data: [], limit: 0, offset: 0, count: 0 };
 		}
 
 		return c.json(results);
 	}
-
 	catch (error) {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
@@ -163,6 +202,45 @@ router.post("/ledgers", async (c) => {
 	}
 });
 
+router.get("/transaction-models", async (c) => {
+	try {
+		const search_params = c.req.query();
+
+		const structured_query = search_params.query ? search_params.query : undefined;
+		const search = search_params.search ? search_params.search : undefined;
+		let getOperationType: GetOperationType = GetOperationType.FILTER;
+
+		if (structured_query) {
+			getOperationType = GetOperationType.QUERY;
+		}
+		else if (search) {
+			getOperationType = GetOperationType.SEARCH;
+		}
+
+		let results: GetOperationResult<TransactionModel>;
+
+		switch (getOperationType) {
+			case GetOperationType.FILTER:
+				results = await filterTransactionModels(search_params);
+				break;
+			case GetOperationType.SEARCH:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			case GetOperationType.QUERY:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			default:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+		}
+
+		return c.json(results);
+	}
+	catch (error) {
+		console.error(error);
+		return c.json({ error: "Internal server error" }, 500);
+	}
+});
+
 router.post("/transaction-models", async (c) => {
 	try {
 		const data = await c.req.json() as TransactionModelCreateData;
@@ -176,6 +254,45 @@ router.post("/transaction-models", async (c) => {
 		}
 
 		return c.json({ data: { transaction_model: transactionModel.data } }, 201);
+	}
+	catch (error) {
+		console.error(error);
+		return c.json({ error: "Internal server error" }, 500);
+	}
+});
+
+router.get("/unit-models", async (c) => {
+	try {
+		const search_params = c.req.query();
+
+		const structured_query = search_params.query ? search_params.query : undefined;
+		const search = search_params.search ? search_params.search : undefined;
+		let getOperationType: GetOperationType = GetOperationType.FILTER;
+
+		if (structured_query) {
+			getOperationType = GetOperationType.QUERY;
+		}
+		else if (search) {
+			getOperationType = GetOperationType.SEARCH;
+		}
+
+		let results: GetOperationResult<UnitModel>;
+
+		switch (getOperationType) {
+			case GetOperationType.FILTER:
+				results = await filterUnitModels(search_params);
+				break;
+			case GetOperationType.SEARCH:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			case GetOperationType.QUERY:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+				break;
+			default:
+				results = { data: [], limit: 0, offset: 0, count: 0 };
+		}
+
+		return c.json(results);
 	}
 	catch (error) {
 		console.error(error);

@@ -19,26 +19,26 @@ const preCompiledUserCode = `
     await kl.log.audit('User event processing complete.');
 `;
 
-const contextData = JSON.stringify({ eventId: 'evt_simple_456', sourceType: 'test-run' });
+const contextData = JSON.stringify({ eventId: "evt_simple_456", sourceType: "test-run" });
 
 console.log("--- Executing Kit Action Script ---");
 // The executeScript call is now simpler, with no entry point.
 const result = await executeScript(preCompiledUserCode, contextData);
-console.log('--- Script Execution Finished ---');
-console.log('Final Result:', result);
+console.log("--- Script Execution Finished ---");
+console.log("Final Result:", result);
 console.log("---------------------------------");
-
 
 // --- Server and CLI Startup Logic ---
 
 const args = Deno.args;
 
 if (args.length === 0 || args[0] === "serve") {
-    console.log(`Server is running on port ${serverConfig.port}`);
-    Deno.serve(
-        { port: serverConfig.port },
-        server.fetch,
-    );
-} else {
-    await execute(args);
+	console.log(`Server is running on port ${serverConfig.port}`);
+	Deno.serve(
+		{ port: serverConfig.port },
+		server.fetch,
+	);
+}
+else {
+	await execute(args);
 }

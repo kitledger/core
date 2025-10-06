@@ -3,8 +3,6 @@ import { sessions } from "../../services/database/schema.ts";
 import { sessionConfig } from "../../config.ts";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
-
-
 export async function startSession(userId: string): Promise<string> {
 	const sessionId = v7();
 

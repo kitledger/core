@@ -30,14 +30,15 @@ export type FilterOperationParameters = Record<string, string> & {
  */
 export type GetOperationResult<T> = {
 	data: T[];
+	count: number;
 	limit?: number;
 	offset?: number;
-}
+};
 
 /**
  * Utility function to parse boolean filter values from strings or booleans to be used in queries and filters.
- * @param value 
- * @returns 
+ * @param value
+ * @returns
  */
 export function parseBooleanFilterValue(value: string | boolean): boolean | null {
 	if (typeof value === "boolean") {
