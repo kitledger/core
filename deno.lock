@@ -18,7 +18,7 @@
     "jsr:@std/uuid@^1.0.9": "1.0.9",
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
-    "npm:@kitledger/actions@^0.0.4": "0.0.4",
+    "npm:@kitledger/actions@^0.0.5": "0.0.5",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "24.2.0",
     "npm:drizzle-kit@*": "0.31.4_esbuild@0.25.8",
@@ -376,8 +376,8 @@
     "@faker-js/faker@9.9.0": {
       "integrity": "sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA=="
     },
-    "@kitledger/actions@0.0.4": {
-      "integrity": "sha512-S8JAlv0cHTiEKlcGN9/HDi1FUn9QZyvECUbogAOXVQ+Hn57p0T/9kjFALiBT7VoweNW6zOkIPLURbdksGyqGVw=="
+    "@kitledger/actions@0.0.5": {
+      "integrity": "sha512-klSP3dQS6s0VaJ5uqE21rJk56iPGc7YstiJZcfYe3f3qSejixy85tPhTWu/VgNu1bJfzwjfUNjthFSlFzy2udQ=="
     },
     "@napi-rs/wasm-runtime@0.2.12": {
       "integrity": "sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==",
@@ -629,7 +629,7 @@
       "jsr:@std/uuid@^1.0.9",
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
-      "npm:@kitledger/actions@^0.0.4",
+      "npm:@kitledger/actions@^0.0.5",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",
       "npm:drizzle-orm@~0.44.2",

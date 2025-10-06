@@ -1,18 +1,9 @@
 import { db } from "../../services/database/db.ts";
 import { sessions } from "../../services/database/schema.ts";
 import { sessionConfig } from "../../config.ts";
-import { and, eq } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
 
-export async function getSessionUserId(sessionId: string): Promise<string | null> {
-	const cache = await db.query.sessions.findFirst({
-		where: and(eq(sessions.id, sessionId)),
-		columns: {
-			user_id: true,
-		},
-	});
-	return cache ? cache.user_id : null;
-}
+
 
 export async function startSession(userId: string): Promise<string> {
 	const sessionId = v7();

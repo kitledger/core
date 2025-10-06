@@ -5,9 +5,10 @@ import { type NewSuperUser, createSuperUser } from "../../src/domain/auth/user_a
 import { db } from "../../src/services/database/db.ts";
 import { SYSTEM_ADMIN_PERMISSION } from "../../src/domain/auth/permission_actions.ts";
 import { assembleSessionJwtPayload, assembleApiTokenJwtPayload, verifyToken, signToken } from "../../src/domain/auth/jwt_actions.ts";
-import { startSession, getSessionUserId } from "../../src/domain/auth/session_actions.ts";
+import { startSession } from "../../src/domain/auth/session_actions.ts";
 import { generate } from "@std/uuid/unstable-v7";
-import { createToken, getTokenUserId } from "../../src/domain/auth/token_actions.ts";
+import { createToken } from "../../src/domain/auth/token_actions.ts";
+import { getSessionUserId, getTokenUserId } from "../../src/domain/auth/user_repository.ts";
 import { hashPassword } from "../../src/domain/auth/utils.ts";
 import { eq } from "drizzle-orm";
 import { describe, it, afterAll } from "@std/testing/bdd";
@@ -124,12 +125,22 @@ describe("Auth Domain Tests", () => {
 	});
 
 	it("startSession creates a valid session and retrieves user ID", async () => {
-		const userId = generate();
-		const sessionId = await startSession(userId);
+		const factory = new UserFactory();
+		const fakeUser = factory.make(1)[0];
+		// TODO: Refactor to use a regular user creation function once available
+		const newSuperUser: NewSuperUser | null = await createSuperUser(
+			fakeUser.first_name,
+			fakeUser.last_name,
+			fakeUser.email,
+		);
+		if (newSuperUser === null) {
+			throw new Error("Failed to create super user for session test");
+		}
+		const sessionId = await startSession(newSuperUser.id);
 		assert(typeof sessionId === "string" && sessionId.length > 0);
 
 		const retrievedUserId = await getSessionUserId(sessionId);
-		assert(retrievedUserId === userId);
+		assert(retrievedUserId === newSuperUser.id);
 	});
 
 	it("createToken and getTokenUserId work correctly", async () => {

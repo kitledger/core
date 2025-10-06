@@ -12,7 +12,7 @@
  */
 
 // --- Public API Types ---
-import type { Entity } from '@kitledger/actions/entity';
+/******import type { Entity } from '@kitledger/actions/entity';
 import type { Transaction, JournalEntry } from '@kitledger/actions/transaction';
 
 // --- Internal Parent App Types (Example with Drizzle) ---
@@ -43,4 +43,4 @@ const publicTransaction: Transaction = internalTransaction;
 declare let internalEntry: InternalJournalEntry;
 const publicEntry: JournalEntry = internalEntry;
 
-use(publicEntity, publicTransaction, publicEntry);
+use(publicEntity, publicTransaction, publicEntry);******/
