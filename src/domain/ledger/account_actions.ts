@@ -7,10 +7,11 @@ import {
 	ValidationResult,
 	ValidationSuccess,
 } from "../base/validation.ts";
-import { accounts, ledgers } from "../../services/database/schema.ts";
+import { accounts } from "../../services/database/schema.ts";
 import { db } from "../../services/database/db.ts";
-import { and, eq, or, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { generate as v7 } from "@std/uuid/unstable-v7";
+import { findParentAccount, findLedgerId } from "./account_repository.ts";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.accounts.findMany({
@@ -29,43 +30,6 @@ async function altIdAlreadyExists(altId: string | null): Promise<boolean> {
 		columns: { id: true },
 	});
 	return results.length > 0;
-}
-
-/**
- * Finds the parent account by ID or ref_id or alt_id.
- * Returns the ID of the parent account if found, otherwise returns null.
- */
-async function findParentAccount(parentId: string, ledgerId: string): Promise<Account | null> {
-	if (!parentId) {
-		return null;
-	}
-	const parent = await db.query.accounts.findFirst({
-		where: and(
-			or(
-				eq(sql`${accounts.id}::text`, parentId),
-				eq(accounts.ref_id, parentId),
-				eq(accounts.alt_id, parentId),
-			),
-			eq(accounts.ledger_id, ledgerId),
-			eq(accounts.active, true),
-		),
-	});
-	return parent ? parent : null;
-}
-
-async function findLedgerId(ledgerId: string): Promise<string | null> {
-	const ledger = await db.query.ledgers.findFirst({
-		where: and(
-			or(
-				eq(sql`${ledgers.id}::text`, ledgerId),
-				eq(ledgers.ref_id, ledgerId),
-				eq(ledgers.alt_id, ledgerId),
-			),
-			eq(ledgers.active, true),
-		),
-		columns: { id: true },
-	});
-	return ledger ? ledger.id : null;
 }
 
 async function validateAccountCreate(

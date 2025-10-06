@@ -8,12 +8,15 @@ import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
 import { isValidationFailure } from "../../../../domain/base/validation.ts";
 import { createLedger } from "../../../../domain/ledger/ledger_actions.ts";
 import { LedgerCreateData } from "../../../../domain/ledger/types.ts";
+import { Account } from "../../../../domain/ledger/types.ts";
+import { filterAccounts } from "../../../../domain/ledger/account_repository.ts";
 import { createAccount } from "../../../../domain/ledger/account_actions.ts";
 import { AccountCreateData } from "../../../../domain/ledger/types.ts";
 import { createEntityModel } from "../../../../domain/entity/entity_model_actions.ts";
 import { EntityModelCreateData } from "../../../../domain/entity/types.ts";
 import { createTransactionModel } from "../../../../domain/transaction/transaction_model_actions.ts";
 import { TransactionModelCreateData } from "../../../../domain/transaction/types.ts";
+import { GetOperationType, GetOperationResult } from "../../../database/helpers.ts";
 
 const router = new Hono();
 
@@ -21,6 +24,47 @@ router.use(cors(serverConfig.cors));
 router.use(auth);
 router.get("/", (c) => {
 	return c.json({ message: "Welcome to the Kitledger API!" });
+});
+
+router.get("/accounts", async (c) => {
+	try {
+		const query = c.req.query();
+
+		const structured_query = query.query ? query.query : undefined;
+		const search = query.search ? query.search : undefined;
+		let getOperationType : GetOperationType = GetOperationType.FILTER;
+
+		if (structured_query) {
+			getOperationType = GetOperationType.QUERY;
+		}
+
+		else if (search) {
+			getOperationType = GetOperationType.SEARCH;
+		}
+
+		let results : GetOperationResult<Account>;
+
+		switch (getOperationType) {
+			case GetOperationType.FILTER:
+				results = await filterAccounts(query as unknown as Record<string, string | number | boolean>);
+				break;
+			case GetOperationType.SEARCH:
+				results = { data: [], limit: 0, offset: 0 };
+				break;
+			case GetOperationType.QUERY:
+				results = { data: [], limit: 0, offset: 0 };
+				break;
+			default:
+				results = { data: [], limit: 0, offset: 0 };
+		}
+
+		return c.json({ data: { accounts: results.data }, meta: { limit: results.limit, offset: results.offset } });
+
+	}
+	catch (error) {
+		console.error(error);
+		return c.json({ error: "Internal server error" }, 500);
+	}
 });
 
 router.post("/accounts", async (c) => {
