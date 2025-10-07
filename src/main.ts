@@ -3,6 +3,9 @@ import server from "./services/http/server.ts";
 import { serverConfig } from "./config.ts";
 import { execute } from "./cli.ts";
 import { executeScript } from "./services/scripting/v1/js/runtime.ts";
+import { executeQuery } from "./services/database/query.ts";
+import { QueryOptions } from "@kitledger/query";
+import { accounts } from "./services/database/schema.ts";
 
 await runMigrations();
 
@@ -27,6 +30,23 @@ const result = await executeScript(preCompiledUserCode, contextData);
 console.log("--- Script Execution Finished ---");
 console.log("Final Result:", result);
 console.log("---------------------------------");
+
+/**
+ * Sample query execution to demonstrate the executeQuery function.
+ */
+const queryParams: QueryOptions = {
+	filters: [],
+	columns: [
+		{ field: "id", label: "account_id" },
+	],
+	sorts: [
+		{ field: "created_at", direction: "desc" },
+	],
+};
+
+const queryResult = await executeQuery<Record<string, string | number | null>>(accounts, queryParams);
+
+console.log("--- Executing Sample Query ---", queryResult);
 
 // --- Server and CLI Startup Logic ---
 

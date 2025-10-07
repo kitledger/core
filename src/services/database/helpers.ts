@@ -1,4 +1,5 @@
 import { timestamp } from "drizzle-orm/pg-core";
+import * as v from "@valibot/valibot";
 
 /**
  * Common database helper for timestamps
@@ -33,7 +34,13 @@ export type GetOperationResult<T> = {
 	count: number;
 	limit?: number;
 	offset?: number;
+	errors?: { field?: string; message: string }[];
 };
+
+export type QueryResultRow = v.InferInput<typeof QueryResultRowSchema>;
+
+export const QueryResultRowSchema = v.record(v.string(), v.union([v.string(), v.number(), v.boolean(), v.date(), v.null()]));
+export const QueryResultSchema = v.array(QueryResultRowSchema);
 
 /**
  * Utility function to parse boolean filter values from strings or booleans to be used in queries and filters.
