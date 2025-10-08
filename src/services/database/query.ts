@@ -1,4 +1,4 @@
-import { Column, FilterGroup, QueryOptions, QueryOptionsSchema, Sort } from "@kitledger/query";
+import { FilterGroup, QueryOptions, QueryOptionsSchema } from "@kitledger/query";
 import { PgTable } from "drizzle-orm/pg-core";
 import { getTableName } from "drizzle-orm";
 import { parseValibotIssues, ValidationResult } from "../../domain/base/validation.ts";
@@ -50,10 +50,7 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 		const limit = Math.min(parsedParams.limit ?? defaultLimit, maxLimit);
 		const offset = parsedParams.offset ?? defaultOffset;
 
-		const { sql, bindings } = knexBuilder(getTableName(table))
-			.select("*")
-			.limit(limit)
-			.offset(offset)
+		const { sql, bindings } = buildQuery(knexBuilder, getTableName(table), params, limit, offset)
 			.toSQL()
 			.toNative();
 
@@ -99,7 +96,7 @@ function applyFilters(queryBuilder: Knex.QueryBuilder, filterGroup: FilterGroup)
 			// If the filter is another group, recurse
 			if ("operator" in filter) {
 				this[method](function () {
-					applyFilters(this, filter);
+					applyFilters(this, { operator: "and", conditions: [filter] });
 				});
 				continue;
 			}
@@ -151,6 +148,8 @@ export function buildQuery(
 	kx: Knex,
 	tableName: string,
 	options: QueryOptions,
+	limit: number,
+	offset: number,
 ): Knex.QueryBuilder {
 	const query = kx(tableName);
 
@@ -183,14 +182,10 @@ export function buildQuery(
 	}
 
 	// 5. Process Limit
-	if (options.limit !== undefined) {
-		query.limit(options.limit);
-	}
+	query.limit(limit);
 
 	// 6. Process Offset
-	if (options.offset !== undefined) {
-		query.offset(options.offset);
-	}
+	query.offset(offset);
 
 	return query;
 }

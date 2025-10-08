@@ -44,7 +44,7 @@ const queryParams: QueryOptions = {
 	],
 };
 
-const queryResult = await executeQuery<Record<string, string | number | null>>(accounts, queryParams);
+const queryResult = await executeQuery(accounts, queryParams);
 
 console.log("--- Executing Sample Query ---", queryResult);
 
