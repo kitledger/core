@@ -1,11 +1,18 @@
-import { QueryOptions, QueryOptionsSchema, Column, FilterGroup, Sort } from "@kitledger/query";
+import { Column, FilterGroup, QueryOptions, QueryOptionsSchema, Sort } from "@kitledger/query";
 import { PgTable } from "drizzle-orm/pg-core";
 import { getTableName } from "drizzle-orm";
 import { parseValibotIssues, ValidationResult } from "../../domain/base/validation.ts";
 import { db } from "./db.ts";
-import { GetOperationResult, QueryResultSchema, QueryResultRow, defaultLimit, defaultOffset, maxLimit } from "./helpers.ts";
+import {
+	defaultLimit,
+	defaultOffset,
+	GetOperationResult,
+	maxLimit,
+	QueryResultRow,
+	QueryResultSchema,
+} from "./helpers.ts";
 import * as v from "@valibot/valibot";
-import knex from "knex";
+import knex, { Knex } from "knex";
 
 function validateQueryParams(params: QueryOptions): ValidationResult<QueryOptions> {
 	const result = v.safeParse(QueryOptionsSchema, params);
@@ -44,12 +51,12 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 		const offset = parsedParams.offset ?? defaultOffset;
 
 		const { sql, bindings } = knexBuilder(getTableName(table))
-			.select('*')
+			.select("*")
 			.limit(limit)
 			.offset(offset)
 			.toSQL()
 			.toNative();
-		
+
 		console.log("Executing query:", sql, bindings);
 
 		const queryResult = await db.$client.unsafe(sql, bindings as string[]);
@@ -67,7 +74,7 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 			data: parsedQueryResult.output,
 			count: parsedQueryResult.output.length ?? 0,
 			offset: offset,
-			limit: limit
+			limit: limit,
 		};
 	}
 	catch (error) {
@@ -81,18 +88,109 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 	}
 }
 
-export async function applyColumns(queryBuilder: knex.Knex.QueryBuilder, columns?: Column[]) :Promise<knex.Knex.QueryBuilder> {
-	return queryBuilder.select('id', 'name');
+// Recursive helper to process filter groups
+function applyFilters(queryBuilder: Knex.QueryBuilder, filterGroup: FilterGroup) {
+	// Use a nested 'where' to group conditions with parentheses, e.g., WHERE ( ... )
+	queryBuilder.where(function () {
+		for (const filter of filterGroup.conditions) {
+			// Determine the chaining method (.where or .orWhere)
+			const method = filterGroup.operator === "or" ? "orWhere" : "where";
+
+			// If the filter is another group, recurse
+			if ("operator" in filter) {
+				this[method](function () {
+					applyFilters(this, filter);
+				});
+				continue;
+			}
+
+			// Apply the specific filter condition
+			const { field, operator, value } = filter;
+			switch (operator) {
+				case "in": {
+					const caseMethod = operator === "or" ? "orWhereIn" : "whereIn";
+					this[caseMethod](field, value);
+					break;
+				}
+
+				case "not in": {
+					const caseMethod = operator === "or" ? "orWhereNotIn" : "whereNotIn";
+					this[caseMethod](field, value);
+					break;
+				}
+
+				case "is null": {
+					const caseMethod = operator === "or" ? "orWhereNull" : "whereNull";
+					this[caseMethod](field);
+					break;
+				}
+
+				case "is not null": {
+					const caseMethod = operator === "or" ? "orWhereNotNull" : "whereNotNull";
+					this[caseMethod](field);
+					break;
+				}
+				// Handles =, !=, >, <, etc.
+				default: {
+					this[method](field, operator, value);
+					break;
+				}
+			}
+		}
+	});
 }
 
-export async function applyFilters(queryBuilder: knex.Knex.QueryBuilder, filters: FilterGroup[]): Promise<knex.Knex.QueryBuilder> {
-	return queryBuilder.whereILike('name', '%money%');
-}
+/**
+ * Builds a Knex query object from a QueryOptions configuration.
+ * @param kx - The Knex instance.
+ * @param tableName - The name of the table to query.
+ * @param options - The QueryOptions object.
+ * @returns A Knex QueryBuilder instance.
+ */
+export function buildQuery(
+	kx: Knex,
+	tableName: string,
+	options: QueryOptions,
+): Knex.QueryBuilder {
+	const query = kx(tableName);
 
-export async function applyGroupBy(queryBuilder: knex.Knex.QueryBuilder, groupBy?: string[]): Promise<knex.Knex.QueryBuilder> {
-	return queryBuilder.groupBy('name');
-}
+	// 1. Process Columns (SELECT)
+	const selections = options.columns.map((col) => {
+		if (typeof col === "string") {
+			return col;
+		}
+		if ("func" in col) {
+			// Use knex.raw for aggregate functions to prevent SQL injection
+			return kx.raw(`${col.func.toUpperCase()}(??) as ??`, [col.field, col.label]);
+		}
+		// Handle aliasing
+		return col.label ? `${col.field} as ${col.label}` : col.field;
+	});
+	query.select(selections);
 
-export async function applySorts(queryBuilder: knex.Knex.QueryBuilder, sorts?: Sort[]): Promise<knex.Knex.QueryBuilder> {
-	return queryBuilder.orderBy('name', 'asc');
+	// 2. Process Filters (WHERE)
+	options.filters.forEach((group) => applyFilters(query, group));
+
+	// 3. Process Group By
+	if (options.groupBy?.length) {
+		query.groupBy(options.groupBy);
+	}
+
+	// 4. Process Sorts (ORDER BY)
+	if (options.sorts?.length) {
+		// Knex's orderBy can take an array of objects directly
+		query.orderBy(options.sorts.map((s) => ({ column: s.field, order: s.direction })));
+	}
+
+	// 5. Process Limit
+	if (options.limit !== undefined) {
+		query.limit(options.limit);
+	}
+
+	// 6. Process Offset
+	if (options.offset !== undefined) {
+		query.offset(options.offset);
+	}
+
+	return query;
 }

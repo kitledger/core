@@ -56,12 +56,12 @@ export const QueryResultRowSchema = v.record(
 						v.number(),
 						v.boolean(),
 						v.date(),
-						v.null()
-					]
-				)
-			)
-		]
-	)
+						v.null(),
+					],
+				),
+			),
+		],
+	),
 );
 
 export const QueryResultSchema = v.array(QueryResultRowSchema);
