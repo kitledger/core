@@ -39,7 +39,31 @@ export type GetOperationResult<T> = {
 
 export type QueryResultRow = v.InferInput<typeof QueryResultRowSchema>;
 
-export const QueryResultRowSchema = v.record(v.string(), v.union([v.string(), v.number(), v.boolean(), v.date(), v.null()]));
+export const QueryResultRowSchema = v.record(
+	v.string(),
+	v.union(
+		[
+			v.string(),
+			v.number(),
+			v.boolean(),
+			v.date(),
+			v.null(),
+			v.record(
+				v.string(),
+				v.union(
+					[
+						v.string(),
+						v.number(),
+						v.boolean(),
+						v.date(),
+						v.null()
+					]
+				)
+			)
+		]
+	)
+);
+
 export const QueryResultSchema = v.array(QueryResultRowSchema);
 
 /**

@@ -1,4 +1,4 @@
-import { QueryOptions, QueryOptionsSchema } from "@kitledger/query";
+import { QueryOptions, QueryOptionsSchema, Column, FilterGroup, Sort } from "@kitledger/query";
 import { PgTable } from "drizzle-orm/pg-core";
 import { getTableName } from "drizzle-orm";
 import { parseValibotIssues, ValidationResult } from "../../domain/base/validation.ts";
@@ -44,18 +44,22 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 		const offset = parsedParams.offset ?? defaultOffset;
 
 		const { sql, bindings } = knexBuilder(getTableName(table))
-			.select("id", "name")
-			.whereILike('name', '%money%')
+			.select('*')
 			.limit(limit)
 			.offset(offset)
 			.toSQL()
 			.toNative();
+		
+		console.log("Executing query:", sql, bindings);
 
 		const queryResult = await db.$client.unsafe(sql, bindings as string[]);
+
+		console.log("Query result:", queryResult);
 
 		const parsedQueryResult = v.safeParse(QueryResultSchema, queryResult);
 
 		if (!parsedQueryResult.success) {
+			console.error("Failed to parse query result", parsedQueryResult.issues);
 			throw new Error("Failed to parse query result");
 		}
 
@@ -75,4 +79,20 @@ export async function executeQuery(table: PgTable, params: QueryOptions): Promis
 			errors: [{ message: error instanceof Error ? error.message : "Query execution error" }],
 		};
 	}
+}
+
+export async function applyColumns(queryBuilder: knex.Knex.QueryBuilder, columns?: Column[]) :Promise<knex.Knex.QueryBuilder> {
+	return queryBuilder.select('id', 'name');
+}
+
+export async function applyFilters(queryBuilder: knex.Knex.QueryBuilder, filters: FilterGroup[]): Promise<knex.Knex.QueryBuilder> {
+	return queryBuilder.whereILike('name', '%money%');
+}
+
+export async function applyGroupBy(queryBuilder: knex.Knex.QueryBuilder, groupBy?: string[]): Promise<knex.Knex.QueryBuilder> {
+	return queryBuilder.groupBy('name');
+}
+
+export async function applySorts(queryBuilder: knex.Knex.QueryBuilder, sorts?: Sort[]): Promise<knex.Knex.QueryBuilder> {
+	return queryBuilder.orderBy('name', 'asc');
 }
