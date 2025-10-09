@@ -19,7 +19,7 @@
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
     "npm:@kitledger/actions@^0.0.6": "0.0.6",
-    "npm:@kitledger/query@^0.0.5": "0.0.5_valibot@1.1.0",
+    "npm:@kitledger/query@^0.0.6": "0.0.6_valibot@1.1.0",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "24.2.0",
     "npm:drizzle-kit@*": "0.31.4_esbuild@0.25.8",
@@ -388,8 +388,8 @@
     "@kitledger/query@0.0.2": {
       "integrity": "sha512-o7JJ4lTY8EwTv+RQwH8kA2fYUkvo0tJTM+1beQi1NidYI0e5dFudhbHryAGucCfiX7ihNH/j2inVyT2in6/UXg=="
     },
-    "@kitledger/query@0.0.5_valibot@1.1.0": {
-      "integrity": "sha512-RqMVE5vUsEU7cFo+p0I13p9uCJyP6BFXMrIi6VNxGxJngqxNY8mxU9FrfU0W/MZ1l4feoOg2nT9XAOhw4hhqEw==",
+    "@kitledger/query@0.0.6_valibot@1.1.0": {
+      "integrity": "sha512-F0TOFYXii+Epl0SQ+MjyAkIK5+NgjFzpBWr/sBQI43vTiOh6dl5tKY3Kqr/Q4Jr6fUQeFIe0FxglKjzUzN5iog==",
       "dependencies": [
         "valibot"
       ]
@@ -841,7 +841,7 @@
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
       "npm:@kitledger/actions@^0.0.6",
-      "npm:@kitledger/query@^0.0.5",
+      "npm:@kitledger/query@^0.0.6",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",
       "npm:drizzle-orm@~0.44.2",

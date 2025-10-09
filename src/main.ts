@@ -4,7 +4,7 @@ import { serverConfig } from "./config.ts";
 import { execute } from "./cli.ts";
 import { executeScript } from "./services/scripting/v1/js/runtime.ts";
 import { executeQuery } from "./services/database/query.ts";
-import { QueryOptions } from "@kitledger/query";
+import { Query } from "@kitledger/query";
 import { accounts } from "./services/database/schema.ts";
 
 await runMigrations();
@@ -34,13 +34,13 @@ console.log("---------------------------------");
 /**
  * Sample query execution to demonstrate the executeQuery function.
  */
-const queryParams: QueryOptions = {
-	filters: [],
-	columns: [
-		{ field: "id", label: "account_id" },
+const queryParams: Query = {
+	select: [
+		{ column: "id", as: "account_id" },
 	],
-	sorts: [
-		{ field: "created_at", direction: "desc" },
+	where: [],
+	orderBy: [
+		{ column: "created_at", direction: "desc" },
 	],
 };
 
