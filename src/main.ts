@@ -36,9 +36,17 @@ console.log("---------------------------------");
  * Sample query execution to demonstrate the executeQuery function.
  */
 const queryParams: Query = {
+	joins: [
+		{
+			type: "left",
+			table: "accounts" as "parent",
+			onLeft: "accounts.parent_id",
+			onRight: "parent.id",
+		}
+	],
 	select: [
 		{ column: "id", as: "account_id" },
-		{ column: "parent_id" as "parent" },
+		{ column: "parent.id" as "parent_id" },
 	],
 	where: [
 		{

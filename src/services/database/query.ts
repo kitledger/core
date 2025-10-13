@@ -175,7 +175,30 @@ export function buildQuery(
 ): Knex.QueryBuilder {
     const query = kx(tableName);
 
-    // 1. Process Columns (SELECT)
+	// 1. Process Joins
+    if (options.joins?.length) {
+        options.joins.forEach((join) => {
+            // Handle table aliasing (e.g., 'users as u')
+            const tableToJoin = join.as ? `${join.table} as ${join.as}` : join.table;
+
+            switch (join.type) {
+                case "inner":
+                    query.innerJoin(tableToJoin, join.onLeft, join.onRight);
+                    break;
+                case "left":
+                    query.leftJoin(tableToJoin, join.onLeft, join.onRight);
+                    break;
+                case "right":
+                    query.rightJoin(tableToJoin, join.onLeft, join.onRight);
+                    break;
+                case "full_outer":
+                    query.fullOuterJoin(tableToJoin, join.onLeft, join.onRight);
+                    break;
+            }
+        });
+    }
+
+    // 2. Process Columns (SELECT)
     const selections = options.select.map((col) => {
         if (typeof col === "string") {
             return col;
@@ -189,24 +212,24 @@ export function buildQuery(
     });
     query.select(selections);
 
-    // 2. Process Filters (WHERE), starting with depth 1
+    // 3. Process Filters (WHERE), starting with depth 1
     options.where.forEach((group) => applyFilters(query, group, 1));
 
-    // 3. Process Group By
+    // 4. Process Group By
     if (options.groupBy?.length) {
         query.groupBy(options.groupBy);
     }
 
-    // 4. Process Sorts (ORDER BY)
+    // 5. Process Sorts (ORDER BY)
     if (options.orderBy?.length) {
         // Knex's orderBy can take an array of objects directly
         query.orderBy(options.orderBy.map((s) => ({ column: s.column, order: s.direction })));
     }
 
-    // 5. Process Limit
+    // 6. Process Limit
     query.limit(limit);
 
-    // 6. Process Offset
+    // 7. Process Offset
     query.offset(offset);
 
     return query;
