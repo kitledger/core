@@ -173,9 +173,44 @@ export function buildQuery(
     limit: number,
     offset: number,
 ): Knex.QueryBuilder {
-    const query = kx(tableName);
+    
+	let query: Knex.QueryBuilder;
+    let fromClause: string = tableName;
 
-	// 1. Process Joins
+	// 1. Process Recursive CTE (now with hardcoded conventions)
+    if (options.recursive) {
+        // Hardcoded conventions for simplicity
+        const cteName = "hierarchy";
+        const parentKey = "id";
+        const childKey = "parent_id";
+
+        fromClause = cteName; // The rest of the query will select FROM the CTE result.
+
+        const { direction, startWith } = options.recursive;
+
+        // Build the "anchor" query that finds the starting records.
+        const anchorBuilder = kx.from(tableName).where(qb => applyFilters(qb, startWith, 1));
+        const { sql: anchorSql, bindings: anchorBindings } = anchorBuilder.toSQL().toNative();
+
+        // Determine the join direction based on 'ancestors' or 'descendants'
+        const [joinFrom, joinTo] = direction === 'ancestors'
+            ? [`t."${parentKey}"`, `h."${childKey}"`] // To find a parent, match table's PK to hierarchy's FK
+            : [`t."${childKey}"`, `h."${parentKey}"`]; // To find children, match table's FK to hierarchy's PK
+
+        const cteBodySql = `
+            (${anchorSql})
+            UNION ALL
+            SELECT t.*
+            FROM "${tableName}" AS t
+            JOIN "${cteName}" AS h ON ${joinFrom} = ${joinTo}
+        `;
+
+        query = kx.withRecursive(cteName, kx.raw(cteBodySql, anchorBindings)).from(fromClause);
+    } else {
+        query = kx(fromClause);
+    }
+
+	// 2. Process Joins
     if (options.joins?.length) {
         options.joins.forEach((join) => {
             // Handle table aliasing (e.g., 'users as u')
@@ -198,7 +233,7 @@ export function buildQuery(
         });
     }
 
-    // 2. Process Columns (SELECT)
+    // 3. Process Columns (SELECT)
     const selections = options.select.map((col) => {
         if (typeof col === "string") {
             return col;
@@ -212,24 +247,24 @@ export function buildQuery(
     });
     query.select(selections);
 
-    // 3. Process Filters (WHERE), starting with depth 1
+    // 4. Process Filters (WHERE), starting with depth 1
     options.where.forEach((group) => applyFilters(query, group, 1));
 
-    // 4. Process Group By
+    // 5. Process Group By
     if (options.groupBy?.length) {
         query.groupBy(options.groupBy);
     }
 
-    // 5. Process Sorts (ORDER BY)
+    // 6. Process Sorts (ORDER BY)
     if (options.orderBy?.length) {
         // Knex's orderBy can take an array of objects directly
         query.orderBy(options.orderBy.map((s) => ({ column: s.column, order: s.direction })));
     }
 
-    // 6. Process Limit
+    // 7. Process Limit
     query.limit(limit);
 
-    // 7. Process Offset
+    // 8. Process Offset
     query.offset(offset);
 
     return query;

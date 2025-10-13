@@ -19,7 +19,7 @@
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
     "npm:@kitledger/actions@^0.0.6": "0.0.6",
-    "npm:@kitledger/query@^0.0.9": "0.0.9_valibot@1.1.0",
+    "npm:@kitledger/query@^0.0.10": "0.0.10_valibot@1.1.0",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "24.2.0",
     "npm:drizzle-kit@*": "0.31.4_esbuild@0.25.8",
@@ -385,14 +385,14 @@
         "@kitledger/query@0.0.2"
       ]
     },
-    "@kitledger/query@0.0.2": {
-      "integrity": "sha512-o7JJ4lTY8EwTv+RQwH8kA2fYUkvo0tJTM+1beQi1NidYI0e5dFudhbHryAGucCfiX7ihNH/j2inVyT2in6/UXg=="
-    },
-    "@kitledger/query@0.0.9_valibot@1.1.0": {
-      "integrity": "sha512-Lekr4plVdgw//lO3bCgIHHN67mn0prZxWu3aDfhivA3dgngexoD9ErsmTJ4PRer4dunjGne1BBxAeRkSHm/6Nw==",
+    "@kitledger/query@0.0.10_valibot@1.1.0": {
+      "integrity": "sha512-lTSS45wBcfvhAK7fBLWQCXuw3esgf3bdGaKWi3WLlEcNpQzxJqfQ0D9ld0TbgT+wDJmdrtRe9qELukcgtzNspA==",
       "dependencies": [
         "valibot"
       ]
+    },
+    "@kitledger/query@0.0.2": {
+      "integrity": "sha512-o7JJ4lTY8EwTv+RQwH8kA2fYUkvo0tJTM+1beQi1NidYI0e5dFudhbHryAGucCfiX7ihNH/j2inVyT2in6/UXg=="
     },
     "@napi-rs/wasm-runtime@0.2.12": {
       "integrity": "sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==",
@@ -841,7 +841,7 @@
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
       "npm:@kitledger/actions@^0.0.6",
-      "npm:@kitledger/query@^0.0.9",
+      "npm:@kitledger/query@^0.0.10",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",
       "npm:drizzle-orm@~0.44.2",
