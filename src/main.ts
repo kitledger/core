@@ -6,6 +6,7 @@ import { executeScript } from "./services/scripting/v1/js/runtime.ts";
 import { executeQuery } from "./services/database/query.ts";
 import { Query } from "@kitledger/query";
 import { accounts } from "./services/database/schema.ts";
+import { connect } from "node:http2";
 
 await runMigrations();
 
@@ -37,8 +38,16 @@ console.log("---------------------------------");
 const queryParams: Query = {
 	select: [
 		{ column: "id", as: "account_id" },
+		{ column: "parent_id" as "parent" },
 	],
-	where: [],
+	where: [
+		{
+			connector: "and",
+			conditions: [
+				{ column: "parent_id", operator: "not_empty", value: true },
+			],
+		}
+	],
 	orderBy: [
 		{ column: "created_at", direction: "desc" },
 	],
