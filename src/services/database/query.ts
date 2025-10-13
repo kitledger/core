@@ -91,45 +91,46 @@ function applyFilters(queryBuilder: Knex.QueryBuilder, filterGroup: ConditionGro
 	queryBuilder.where(function () {
 		for (const filter of filterGroup.conditions) {
 			// Determine the chaining method (.where or .orWhere)
-			const method = filterGroup.operator === "or" ? "orWhere" : "where";
+			const connector = filterGroup.connector;
+			const method = filterGroup.connector === "or" ? "orWhere" : "where";
 
 			// If the filter is another group, recurse
-			if ("operator" in filter) {
+			if ("connector" in filter) {
 				this[method](function () {
-					applyFilters(this, { operator: "and", conditions: [filter] });
+					applyFilters(this, { connector: "and", conditions: [filter] });
 				});
 				continue;
 			}
 
 			// Apply the specific filter condition
-			const { field, operator, value } = filter;
+			const { column, operator, value } = filter;
 			switch (operator) {
 				case "in": {
-					const caseMethod = operator === "or" ? "orWhereIn" : "whereIn";
-					this[caseMethod](field, value);
+					const caseMethod = connector === "or" ? "orWhereIn" : "whereIn";
+					this[caseMethod](column, value);
 					break;
 				}
 
-				case "not in": {
-					const caseMethod = operator === "or" ? "orWhereNotIn" : "whereNotIn";
-					this[caseMethod](field, value);
+				case "not_in": {
+					const caseMethod = connector === "or" ? "orWhereNotIn" : "whereNotIn";
+					this[caseMethod](column, value);
 					break;
 				}
 
-				case "is null": {
-					const caseMethod = operator === "or" ? "orWhereNull" : "whereNull";
-					this[caseMethod](field);
+				case "empty": {
+					const caseMethod = connector === "or" ? "orWhereNull" : "whereNull";
+					this[caseMethod](column);
 					break;
 				}
 
-				case "is not null": {
-					const caseMethod = operator === "or" ? "orWhereNotNull" : "whereNotNull";
-					this[caseMethod](field);
+				case "not_empty": {
+					const caseMethod = connector === "or" ? "orWhereNotNull" : "whereNotNull";
+					this[caseMethod](column);
 					break;
 				}
 				// Handles =, !=, >, <, etc.
 				default: {
-					this[method](field, operator, value);
+					this[method](column, operator, value);
 					break;
 				}
 			}
