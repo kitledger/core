@@ -5,9 +5,9 @@
 
 import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
 import { ExecutionResultPayload, WorkerToHostMessage } from "./shared.ts";
-import { apiMethodMap, getApiMethod } from "../api/methods.ts";
+import { apiMethodMap, getApiMethod } from "./api/methods.ts";
 import type { ApiMethod } from "@kitledger/actions/__definition";
-import { workerConfig } from "../../../../config.ts";
+import { workerConfig } from "../../config.ts";
 
 initializeConcurrency(workerConfig.poolSize);
 
