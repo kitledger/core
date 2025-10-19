@@ -2,6 +2,13 @@ import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_l
 import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
 import { workerConfig } from "../../config.ts";
 
+/**
+ * Toggles the concurrency model.
+ * - true: (Smart) Releases the slot during host-side I/O.
+ * - false: (Simple) Holds the slot for the entire script execution.
+ */
+const USE_SMART_CONCURRENCY = true;
+
 const apiMethodMap: Record<Method, (payload: unknown) => unknown> = {
 	"UNIT_MODEL.CREATE": (payload: unknown) => {
 		console.log("[User Script | API]: UNIT_MODEL.CREATE called with:", payload);
@@ -65,43 +72,60 @@ export async function executeScript(code: string, context: string): Promise<Exec
 				const message = event.data;
 				switch (message.type) {
 					case "ACTION_REQUEST": {
-						releaseSlotOnce();
 
-						let result: unknown;
-						let error: string | undefined;
+						/**
+						 * If SMART CONCURRENCY FAILS, remove the if statement and only leave the "Simple Concurrency Logic" block.
+						 */
 
-						try {
-							result = await invokeApiMethod(message.payload.method, message.payload.payload);
-						} catch (e) {
-							error = (e as Error).message;
-						}
-
-						if (terminatedFlag.value) {
-							return;
-						}
-
-						await acquireSlot();
-						slotHeld = true;
-
-						if (terminatedFlag.value) {
+						if (USE_SMART_CONCURRENCY) {
+							// --- Smart Concurrency Logic ---
 							releaseSlotOnce();
-							return;
-						}
+							let result: unknown;
+							let error: string | undefined;
 
-						try {
-							if (error) {
-								hostPort.postMessage({
-									type: "ACTION_RESPONSE",
-									payload: { id: message.payload.id, error },
-								} as HostToWorkerMessage<unknown>);
-							} else {
+							try {
+								result = await invokeApiMethod(message.payload.method, message.payload.payload);
+							} catch (e) {
+								error = (e as Error).message;
+							}
+
+							if (terminatedFlag.value) return;
+							await acquireSlot();
+							slotHeld = true;
+							if (terminatedFlag.value) {
+								releaseSlotOnce();
+								return;
+							}
+
+							try {
+								if (error) {
+									hostPort.postMessage({
+										type: "ACTION_RESPONSE",
+										payload: { id: message.payload.id, error },
+									} as HostToWorkerMessage<unknown>);
+								} else {
+									hostPort.postMessage({
+										type: "ACTION_RESPONSE",
+										payload: { id: message.payload.id, result },
+									} as HostToWorkerMessage<unknown>);
+								}
+							} catch (_postError) {
+								releaseSlotOnce();
+							}
+						} else {
+							// --- Simple Concurrency Logic ---
+							try {
+								const result = await invokeApiMethod(message.payload.method, message.payload.payload);
 								hostPort.postMessage({
 									type: "ACTION_RESPONSE",
 									payload: { id: message.payload.id, result },
 								} as HostToWorkerMessage<unknown>);
+							} catch (e) {
+								hostPort.postMessage({
+									type: "ACTION_RESPONSE",
+									payload: { id: message.payload.id, error: (e as Error).message },
+								} as HostToWorkerMessage<unknown>);
 							}
-						} catch (_postError) {
-							releaseSlotOnce();
 						}
 						break;
 					}
