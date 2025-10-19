@@ -1,30 +1,35 @@
-/**
- * @file This is the host-side script execution engine. It launches a static
- * worker and sends it pre-compiled user code to be executed in a sandbox.
- */
-
 import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
-import { ExecutionResultPayload, WorkerToHostMessage } from "./shared.ts";
-import { apiMethodMap, getApiMethod } from "./api/methods.ts";
-import type { ApiMethod } from "@kitledger/actions/__definition";
+import type { ApiMethod, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "./shared.ts";
 import { workerConfig } from "../../config.ts";
+
+// --- Host-Side API Implementation ---
+
+const apiMethodMap: Record<ApiMethod, (...args: unknown[]) => unknown> = {
+	"UNIT_MODEL.CREATE": (...args: unknown[]) => {
+		console.log("[User Script | API]: UNIT_MODEL.CREATE called with:", ...args);
+		// Placeholder: Return a simple success or ID
+		return { id: `um_${crypto.randomUUID()}`, status: "created" };
+	},
+};
+
+function getApiMethod(methodName: ApiMethod): (...args: unknown[]) => unknown {
+	const method = apiMethodMap[methodName];
+	if (!method) {
+		throw new Error(`Unknown API method: ${methodName}`);
+	}
+	return method;
+}
+// --- End of Host-Side API ---
 
 initializeConcurrency(workerConfig.poolSize);
 
 const workerURL = new URL("./worker.ts", import.meta.url);
 
-/**
- * Invokes a method on the host-side API implementation.
- */
 async function invokeApiMethod(methodName: ApiMethod, args: unknown[]): Promise<unknown> {
 	const method = getApiMethod(methodName);
-	// @ts-ignore - We trust our RPC mechanism to provide the correct arguments.
 	return await method(...args);
 }
 
-/**
- * Sets a timeout for the worker execution.
- */
 function timeout(ms: number, worker: Worker): Promise<never> {
 	return new Promise((_, reject) =>
 		setTimeout(() => {
@@ -34,13 +39,6 @@ function timeout(ms: number, worker: Worker): Promise<never> {
 	);
 }
 
-/**
- * Executes a pre-compiled user script in a sandboxed Deno worker.
- * @param code The pre-compiled JavaScript code to execute.
- * @param context A stringified JSON object containing the script's execution context.
- * @param entryPoint The name of the exported function to execute.
- * @returns A promise that resolves with the final status of the script execution.
- */
 export async function executeScript(code: string, context: string): Promise<ExecutionResultPayload> {
 	await acquireSlot();
 	const worker = new Worker(workerURL.href, { type: "module", deno: { permissions: "none" } });
@@ -59,13 +57,12 @@ export async function executeScript(code: string, context: string): Promise<Exec
 							hostPort.postMessage({
 								type: "actionResponse",
 								payload: { id: message.payload.id, result },
-							});
-						}
-						catch (e) {
+							} as HostToWorkerMessage); // MODIFIED: Added assertion
+						} catch (e) {
 							hostPort.postMessage({
 								type: "actionResponse",
 								payload: { id: message.payload.id, error: (e as Error).message },
-							});
+							} as HostToWorkerMessage); // MODMODIFIED: Added assertion
 						}
 						break;
 					}
@@ -78,8 +75,7 @@ export async function executeScript(code: string, context: string): Promise<Exec
 				}
 			};
 
-			const apiShape = Object.keys(apiMethodMap);
-			const payload = { code, context, apiShape };
+			const payload = { code, context };
 			worker.postMessage(payload, [channel.port2]);
 		});
 
@@ -87,8 +83,7 @@ export async function executeScript(code: string, context: string): Promise<Exec
 			executionPromise,
 			timeout(5000, worker),
 		]);
-	}
-	finally {
+	} finally {
 		worker.terminate();
 		releaseSlot();
 	}

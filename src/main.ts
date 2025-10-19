@@ -3,29 +3,58 @@ import server from "./services/http/server.ts";
 import { serverConfig } from "./config.ts";
 import { execute } from "./cli.ts";
 import { executeScript } from "./services/scripting/runtime.ts";
-import { executeQuery } from "./services/database/query.ts";
-import { Query } from "@kitledger/query";
-import { accounts } from "./services/database/schema.ts";
 
 await runMigrations();
 
 // --- Test Script Execution ---
 
-// This string represents a user's script that has already been transpiled
-// from TypeScript to plain JavaScript by your CLI.
 const preCompiledUserCode = `
-    await kl.log.info('User script started. Processing event:', context);
+    // --- Bundled @kitledger/api Library ---
+    const __kit_rpc = (methodName, args) => {
+        return new Promise((resolve, reject) => {
+            const id = crypto.randomUUID();
+            
+            const payload = { id, methodName, args };
+            
+            const responseHandler = (event) => {
+                if (event.data && 
+                    event.data.type === "actionResponse" && 
+                    event.data.payload.id === id) 
+                {
+                    self.removeEventListener("message", responseHandler);
+                    const { result, error } = event.data.payload;
+                    error ? reject(new Error(error)) : resolve(result);
+                }
+            };
+            
+            self.addEventListener("message", responseHandler);
+            self.postMessage({ type: "actionRequest", payload });
+        });
+    };
 
-    const response = await kl.http.get('https://api.mocki.io/v2/57310619/user-data');
-    await kl.log.info('Simulated HTTP call successful. Response body:', response.body);
+    const unit_model = {
+        create: (...args) => __kit_rpc('UNIT_MODEL.CREATE', args),
+    };
+    // --- End of Bundled Library ---
 
-    await kl.log.audit('User event processing complete.');
+
+    // --- User's Script ---
+    console.log('User script started. Context:', context);
+
+    const newData = {
+        name: 'Kilogram',
+        type: 'MASS',
+        symbol: 'kg',
+    };
+
+    const result = await unit_model.create(newData);
+
+    console.log('API call finished. Result:', result);
 `;
 
-const contextData = JSON.stringify({ eventId: "evt_simple_456", sourceType: "test-run" });
+const contextData = JSON.stringify({ eventId: "evt_unit_model_test_789" });
 
-console.log("--- Executing Kit Action Script ---");
-// The executeScript call is now simpler, with no entry point.
+console.log("--- Executing Kit Action Script (Simplified) ---");
 const result = await executeScript(preCompiledUserCode, contextData);
 console.log("--- Script Execution Finished ---");
 console.log("Final Result:", result);
@@ -41,7 +70,6 @@ if (args.length === 0 || args[0] === "serve") {
 		{ port: serverConfig.port },
 		server.fetch,
 	);
-}
-else {
+} else {
 	await execute(args);
 }
