@@ -10,15 +10,15 @@ await runMigrations();
 
 const preCompiledUserCode = `
     // --- Bundled @kitledger/api Library ---
-    const __kit_rpc = (methodName, args) => {
+    const __kit_rpc = (method, data) => {
         return new Promise((resolve, reject) => {
             const id = crypto.randomUUID();
             
-            const payload = { id, methodName, args };
+            const payload = { id, method, payload: data };
             
             const responseHandler = (event) => {
                 if (event.data && 
-                    event.data.type === "actionResponse" && 
+                    event.data.type === "ACTION_RESPONSE" && 
                     event.data.payload.id === id) 
                 {
                     self.removeEventListener("message", responseHandler);
@@ -28,12 +28,12 @@ const preCompiledUserCode = `
             };
             
             self.addEventListener("message", responseHandler);
-            self.postMessage({ type: "actionRequest", payload });
+            self.postMessage({ type: "ACTION_REQUEST", payload });
         });
     };
 
     const unit_model = {
-        create: (...args) => __kit_rpc('UNIT_MODEL.CREATE', args),
+        create: (data) => __kit_rpc('UNIT_MODEL.CREATE', data),
     };
     // --- End of Bundled Library ---
 
@@ -52,9 +52,9 @@ const preCompiledUserCode = `
     console.log('API call finished. Result:', result);
 `;
 
-const contextData = JSON.stringify({ eventId: "evt_unit_model_test_789" });
+const contextData = JSON.stringify({ eventId: "evt_concurrency_test_001" });
 
-console.log("--- Executing Kit Action Script (Simplified) ---");
+console.log("--- Executing Kit Action Script (Concurrency Model) ---");
 const result = await executeScript(preCompiledUserCode, contextData);
 console.log("--- Script Execution Finished ---");
 console.log("Final Result:", result);

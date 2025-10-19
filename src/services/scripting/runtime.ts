@@ -48,23 +48,23 @@ export async function executeScript(code: string, context: string): Promise<Exec
 			const channel = new MessageChannel();
 			const hostPort = channel.port1;
 
-			hostPort.onmessage = async (event: MessageEvent<WorkerToHostMessage<typeof context>>) => {
+			hostPort.onmessage = async (event: MessageEvent<WorkerToHostMessage<unknown>>) => {
 				const message = event.data;
 				switch (message.type) {
+					
 					case "ACTION_REQUEST": {
 						try {
-							// TODO: FIX THE TYPE OF THE PAYLOAD FOR INCOMING HOST SCRIPT CALLS.
 							const result = await invokeApiMethod(message.payload.method, message.payload.payload);
 							
 							hostPort.postMessage({
 								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, result },
-							} as HostToWorkerMessage<typeof context>); // MODIFIED: Added assertion
+							} as HostToWorkerMessage<unknown>);
 						} catch (e) {
 							hostPort.postMessage({
 								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, error: (e as Error).message },
-							} as HostToWorkerMessage<typeof context>); // MODMODIFIED: Added assertion
+							} as HostToWorkerMessage<unknown>);
 						}
 						break;
 					}
@@ -77,6 +77,10 @@ export async function executeScript(code: string, context: string): Promise<Exec
 				}
 			};
 
+			hostPort.onmessageerror = (err) => {
+				reject(new Error(`MessagePort error: ${err.data}`));
+			};
+
 			const payload = { code, context };
 			worker.postMessage(payload, [channel.port2]);
 		});
@@ -87,6 +91,6 @@ export async function executeScript(code: string, context: string): Promise<Exec
 		]);
 	} finally {
 		worker.terminate();
-		releaseSlot();
+		releaseSlot(); // Slot is released
 	}
 }

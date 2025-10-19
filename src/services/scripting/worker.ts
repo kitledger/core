@@ -1,4 +1,4 @@
-import type { HostToWorkerMessage, WorkerToHostMessage } from "./shared.ts";
+import type { HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
 
 self.onmessage = async (
 	event: MessageEvent<{
@@ -18,7 +18,7 @@ self.onmessage = async (
 
 	const listeners = new Map<string, Set<EventListener>>();
 
-	self.postMessage = (message: WorkerToHostMessage) => {
+	self.postMessage = (message: WorkerToHostMessage<unknown>) => {
 		try {
 			port.postMessage(message);
 		} catch (e) {
@@ -51,7 +51,7 @@ self.onmessage = async (
 		}
 	};
 
-	port.onmessage = (event: MessageEvent<HostToWorkerMessage>) => {
+	port.onmessage = (event: MessageEvent<HostToWorkerMessage<unknown>>) => {
 		const set = listeners.get("message");
 		if (set) {
 			set.forEach((listener) => {
@@ -68,11 +68,11 @@ self.onmessage = async (
 		const scriptFn = new Function("context", `(async () => { ${code} })();`);
 		await scriptFn(JSON.parse(context));
 
-		port.postMessage({ type: "executionResult", payload: { status: "success" } });
+		port.postMessage({ type: "EXECUTION_RESULT", payload: { status: "SUCCESS" } });
 	} catch (error: unknown) {
 		port.postMessage({
-			type: "executionResult",
-			payload: { status: "error", error: (error as Error).message },
+			type: "EXECUTION_RESULT",
+			payload: { status: "ERROR", error: (error as Error).message },
 		});
 	} finally {
 		port.close();
