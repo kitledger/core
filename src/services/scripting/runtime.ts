@@ -2,12 +2,9 @@ import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_l
 import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
 import { workerConfig } from "../../config.ts";
 
-// --- Host-Side API Implementation ---
-
 const apiMethodMap: Record<Method, (payload: unknown) => unknown> = {
 	"UNIT_MODEL.CREATE": (payload: unknown) => {
 		console.log("[User Script | API]: UNIT_MODEL.CREATE called with:", payload);
-		// Placeholder: Return a simple success or ID
 		return { id: `um_${crypto.randomUUID()}`, status: "created" };
 	},
 };
@@ -19,7 +16,6 @@ function getApiMethod(methodName: Method): (payload: unknown) => unknown {
 	}
 	return method;
 }
-// --- End of Host-Side API ---
 
 initializeConcurrency(workerConfig.poolSize);
 
@@ -30,9 +26,14 @@ async function invokeApiMethod(methodName: Method, payload: unknown): Promise<un
 	return await method(payload);
 }
 
-function timeout(ms: number, worker: Worker): Promise<never> {
+function timeout(
+	ms: number,
+	worker: Worker,
+	terminatedFlag: { value: boolean },
+): Promise<never> {
 	return new Promise((_, reject) =>
 		setTimeout(() => {
+			terminatedFlag.value = true;
 			worker.terminate();
 			reject(new Error(`Script execution timed out after ${ms}ms`));
 		}, ms)
@@ -41,7 +42,17 @@ function timeout(ms: number, worker: Worker): Promise<never> {
 
 export async function executeScript(code: string, context: string): Promise<ExecutionResultPayload> {
 	await acquireSlot();
+	let slotHeld = true;
 	const worker = new Worker(workerURL.href, { type: "module", deno: { permissions: "none" } });
+
+	const terminatedFlag = { value: false };
+
+	const releaseSlotOnce = () => {
+		if (slotHeld) {
+			releaseSlot();
+			slotHeld = false;
+		}
+	};
 
 	try {
 		const executionPromise = new Promise<ExecutionResultPayload>((resolve, reject) => {
@@ -49,22 +60,48 @@ export async function executeScript(code: string, context: string): Promise<Exec
 			const hostPort = channel.port1;
 
 			hostPort.onmessage = async (event: MessageEvent<WorkerToHostMessage<unknown>>) => {
+				if (terminatedFlag.value) return;
+
 				const message = event.data;
 				switch (message.type) {
-					
 					case "ACTION_REQUEST": {
+						releaseSlotOnce();
+
+						let result: unknown;
+						let error: string | undefined;
+
 						try {
-							const result = await invokeApiMethod(message.payload.method, message.payload.payload);
-							
-							hostPort.postMessage({
-								type: "ACTION_RESPONSE",
-								payload: { id: message.payload.id, result },
-							} as HostToWorkerMessage<unknown>);
+							result = await invokeApiMethod(message.payload.method, message.payload.payload);
 						} catch (e) {
-							hostPort.postMessage({
-								type: "ACTION_RESPONSE",
-								payload: { id: message.payload.id, error: (e as Error).message },
-							} as HostToWorkerMessage<unknown>);
+							error = (e as Error).message;
+						}
+
+						if (terminatedFlag.value) {
+							return;
+						}
+
+						await acquireSlot();
+						slotHeld = true;
+
+						if (terminatedFlag.value) {
+							releaseSlotOnce();
+							return;
+						}
+
+						try {
+							if (error) {
+								hostPort.postMessage({
+									type: "ACTION_RESPONSE",
+									payload: { id: message.payload.id, error },
+								} as HostToWorkerMessage<unknown>);
+							} else {
+								hostPort.postMessage({
+									type: "ACTION_RESPONSE",
+									payload: { id: message.payload.id, result },
+								} as HostToWorkerMessage<unknown>);
+							}
+						} catch (_postError) {
+							releaseSlotOnce();
 						}
 						break;
 					}
@@ -78,7 +115,9 @@ export async function executeScript(code: string, context: string): Promise<Exec
 			};
 
 			hostPort.onmessageerror = (err) => {
-				reject(new Error(`MessagePort error: ${err.data}`));
+				if (!terminatedFlag.value) {
+					reject(new Error(`MessagePort error: ${err.data}`));
+				}
 			};
 
 			const payload = { code, context };
@@ -87,10 +126,11 @@ export async function executeScript(code: string, context: string): Promise<Exec
 
 		return await Promise.race([
 			executionPromise,
-			timeout(5000, worker),
+			timeout(5000, worker, terminatedFlag),
 		]);
 	} finally {
+		terminatedFlag.value = true;
 		worker.terminate();
-		releaseSlot(); // Slot is released
+		releaseSlotOnce();
 	}
 }
