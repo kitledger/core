@@ -1,18 +1,18 @@
 import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
-import type { ApiMethod, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "./shared.ts";
+import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
 import { workerConfig } from "../../config.ts";
 
 // --- Host-Side API Implementation ---
 
-const apiMethodMap: Record<ApiMethod, (...args: unknown[]) => unknown> = {
-	"UNIT_MODEL.CREATE": (...args: unknown[]) => {
-		console.log("[User Script | API]: UNIT_MODEL.CREATE called with:", ...args);
+const apiMethodMap: Record<Method, (payload: unknown) => unknown> = {
+	"UNIT_MODEL.CREATE": (payload: unknown) => {
+		console.log("[User Script | API]: UNIT_MODEL.CREATE called with:", payload);
 		// Placeholder: Return a simple success or ID
 		return { id: `um_${crypto.randomUUID()}`, status: "created" };
 	},
 };
 
-function getApiMethod(methodName: ApiMethod): (...args: unknown[]) => unknown {
+function getApiMethod(methodName: Method): (payload: unknown) => unknown {
 	const method = apiMethodMap[methodName];
 	if (!method) {
 		throw new Error(`Unknown API method: ${methodName}`);
@@ -25,9 +25,9 @@ initializeConcurrency(workerConfig.poolSize);
 
 const workerURL = new URL("./worker.ts", import.meta.url);
 
-async function invokeApiMethod(methodName: ApiMethod, args: unknown[]): Promise<unknown> {
+async function invokeApiMethod(methodName: Method, payload: unknown): Promise<unknown> {
 	const method = getApiMethod(methodName);
-	return await method(...args);
+	return await method(payload);
 }
 
 function timeout(ms: number, worker: Worker): Promise<never> {
@@ -48,27 +48,29 @@ export async function executeScript(code: string, context: string): Promise<Exec
 			const channel = new MessageChannel();
 			const hostPort = channel.port1;
 
-			hostPort.onmessage = async (event: MessageEvent<WorkerToHostMessage>) => {
+			hostPort.onmessage = async (event: MessageEvent<WorkerToHostMessage<typeof context>>) => {
 				const message = event.data;
 				switch (message.type) {
-					case "actionRequest": {
+					case "ACTION_REQUEST": {
 						try {
-							const result = await invokeApiMethod(message.payload.methodName, message.payload.args);
+							// TODO: FIX THE TYPE OF THE PAYLOAD FOR INCOMING HOST SCRIPT CALLS.
+							const result = await invokeApiMethod(message.payload.method, message.payload.payload);
+							
 							hostPort.postMessage({
-								type: "actionResponse",
+								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, result },
-							} as HostToWorkerMessage); // MODIFIED: Added assertion
+							} as HostToWorkerMessage<typeof context>); // MODIFIED: Added assertion
 						} catch (e) {
 							hostPort.postMessage({
-								type: "actionResponse",
+								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, error: (e as Error).message },
-							} as HostToWorkerMessage); // MODMODIFIED: Added assertion
+							} as HostToWorkerMessage<typeof context>); // MODMODIFIED: Added assertion
 						}
 						break;
 					}
-					case "executionResult": {
+					case "EXECUTION_RESULT": {
 						hostPort.close();
-						if (message.payload.status === "success") resolve(message.payload);
+						if (message.payload.status === "SUCCESS") resolve(message.payload);
 						else reject(new Error(message.payload.error ?? "Unknown execution error"));
 						break;
 					}

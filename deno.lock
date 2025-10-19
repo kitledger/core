@@ -18,7 +18,7 @@
     "jsr:@std/uuid@^1.0.9": "1.0.9",
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
-    "npm:@kitledger/actions@^0.0.6": "0.0.6",
+    "npm:@kitledger/actions@^0.0.12": "0.0.12",
     "npm:@kitledger/query@^0.0.10": "0.0.10_valibot@1.1.0",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "24.2.0",
@@ -379,10 +379,11 @@
     "@faker-js/faker@9.9.0": {
       "integrity": "sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA=="
     },
-    "@kitledger/actions@0.0.6": {
-      "integrity": "sha512-gKGCH3MYI1G8Jai+ugfNFMDQrdJpXv9EoRPYiY90Zj4PY7S/UrpDfdEPlndPdPYdST/IiY2Hklc0VPH/6GGpPQ==",
+    "@kitledger/actions@0.0.12": {
+      "integrity": "sha512-PA5ULSKMe3tMVfbDaR6m5dBBoR4TM6HxvpuDyhBQXmEO0RHFVlA275HTz8g1tHrFBemZIO+SDspGjk/Zgg5/cA==",
       "dependencies": [
-        "@kitledger/query@0.0.2"
+        "@kitledger/query@0.0.13_valibot@1.1.0",
+        "@kitledger/sdk"
       ]
     },
     "@kitledger/query@0.0.10_valibot@1.1.0": {
@@ -391,8 +392,14 @@
         "valibot"
       ]
     },
-    "@kitledger/query@0.0.2": {
-      "integrity": "sha512-o7JJ4lTY8EwTv+RQwH8kA2fYUkvo0tJTM+1beQi1NidYI0e5dFudhbHryAGucCfiX7ihNH/j2inVyT2in6/UXg=="
+    "@kitledger/query@0.0.13_valibot@1.1.0": {
+      "integrity": "sha512-DWjuAKxrbdI+BS0o3UEYpw72y3o3brIQ52/FWPu6BBTzbknFnB4VNgoWyUEtc9ANCOeJKTvESh8VZTz+TVdsnQ==",
+      "dependencies": [
+        "valibot"
+      ]
+    },
+    "@kitledger/sdk@0.0.8": {
+      "integrity": "sha512-RvyZG5I1hr1aqkopKaDclNOTR05djnMnXDFC41g3kC+J54xvho5fFtSqOPCttoVtajQJpy6z1TiGAkNxwTjYSA=="
     },
     "@napi-rs/wasm-runtime@0.2.12": {
       "integrity": "sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==",
@@ -840,7 +847,7 @@
       "jsr:@std/uuid@^1.0.9",
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
-      "npm:@kitledger/actions@^0.0.6",
+      "npm:@kitledger/actions@^0.0.12",
       "npm:@kitledger/query@^0.0.10",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",
