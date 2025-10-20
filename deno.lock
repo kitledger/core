@@ -18,7 +18,7 @@
     "jsr:@std/uuid@^1.0.9": "1.0.9",
     "jsr:@valibot/valibot@^1.1.0": "1.1.0",
     "npm:@faker-js/faker@^9.9.0": "9.9.0",
-    "npm:@kitledger/actions@^0.0.12": "0.0.12",
+    "npm:@kitledger/actions@^0.0.14": "0.0.14",
     "npm:@kitledger/query@^0.0.10": "0.0.10_valibot@1.1.0",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
     "npm:@types/node@*": "24.2.0",
@@ -379,8 +379,8 @@
     "@faker-js/faker@9.9.0": {
       "integrity": "sha512-OEl393iCOoo/z8bMezRlJu+GlRGlsKbUAN7jKB6LhnKoqKve5DXRpalbItIIcwnCjs1k/FOPjFzcA6Qn+H+YbA=="
     },
-    "@kitledger/actions@0.0.12": {
-      "integrity": "sha512-PA5ULSKMe3tMVfbDaR6m5dBBoR4TM6HxvpuDyhBQXmEO0RHFVlA275HTz8g1tHrFBemZIO+SDspGjk/Zgg5/cA==",
+    "@kitledger/actions@0.0.14": {
+      "integrity": "sha512-HY8x4A3/10YY8RHprDu+uqEpakM1eNC4IsogYS3MDQobK9xRz/NDcEFd4lxYqnQVG1cDtJYXaY4iMUfAplKnOQ==",
       "dependencies": [
         "@kitledger/query@0.0.13_valibot@1.1.0",
         "@kitledger/sdk"
@@ -398,8 +398,8 @@
         "valibot"
       ]
     },
-    "@kitledger/sdk@0.0.8": {
-      "integrity": "sha512-RvyZG5I1hr1aqkopKaDclNOTR05djnMnXDFC41g3kC+J54xvho5fFtSqOPCttoVtajQJpy6z1TiGAkNxwTjYSA=="
+    "@kitledger/sdk@0.0.9": {
+      "integrity": "sha512-wVnrAT5kURelc8K9uGzu03pZXIStS4TLOsLLV2rQZHISfWxamQvb7zbHOFu2A926YyJ7cMzOz/fiKjk8LLc7lQ=="
     },
     "@napi-rs/wasm-runtime@0.2.12": {
       "integrity": "sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==",
@@ -847,7 +847,7 @@
       "jsr:@std/uuid@^1.0.9",
       "jsr:@valibot/valibot@^1.1.0",
       "npm:@faker-js/faker@^9.9.0",
-      "npm:@kitledger/actions@^0.0.12",
+      "npm:@kitledger/actions@^0.0.14",
       "npm:@kitledger/query@^0.0.10",
       "npm:@node-rs/argon2@^2.0.2",
       "npm:drizzle-kit@~0.31.4",

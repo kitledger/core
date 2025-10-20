@@ -1,12 +1,7 @@
 import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
-import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
+import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/runtime";
 import { workerConfig } from "../../config.ts";
 
-/**
- * Toggles the concurrency model.
- * - true: (Smart) Releases the slot during host-side I/O.
- * - false: (Simple) Holds the slot for the entire script execution.
- */
 const USE_SMART_CONCURRENCY = true;
 
 const apiMethodMap: Record<Method, (payload: unknown) => unknown> = {
@@ -47,7 +42,23 @@ function timeout(
 	);
 }
 
-export async function executeScript(code: string, context: string): Promise<ExecutionResultPayload> {
+/**
+ * Arguments for executing a Kit Action Script.
+ */
+export interface ExecuteScriptArgs {
+	/** The bundled, executable JavaScript code. */
+	code: string;
+	/** A JSON string representing the script's 'input' object. */
+	inputJSON: string;
+	/** The script type, e.g., "ServerEvent", "EndpointRequest". */
+	scriptType: string;
+	/** The specific trigger, e.g., "beforeCreate" or "GET". */
+	trigger?: string;
+	/** The execution timeout in milliseconds. */
+	timeoutMs: number;
+}
+
+export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionResultPayload> {
 	await acquireSlot();
 	let slotHeld = true;
 	const worker = new Worker(workerURL.href, { type: "module", deno: { permissions: "none" } });
@@ -72,11 +83,6 @@ export async function executeScript(code: string, context: string): Promise<Exec
 				const message = event.data;
 				switch (message.type) {
 					case "ACTION_REQUEST": {
-
-						/**
-						 * If SMART CONCURRENCY FAILS, remove the if statement and only leave the "Simple Concurrency Logic" block.
-						 */
-
 						if (USE_SMART_CONCURRENCY) {
 							// --- Smart Concurrency Logic ---
 							releaseSlotOnce();
@@ -144,13 +150,14 @@ export async function executeScript(code: string, context: string): Promise<Exec
 				}
 			};
 
-			const payload = { code, context };
-			worker.postMessage(payload, [channel.port2]);
+			// Pass the full arguments object to the worker
+			worker.postMessage(args, [channel.port2]);
 		});
 
 		return await Promise.race([
 			executionPromise,
-			timeout(5000, worker, terminatedFlag),
+			// Use the dynamic timeout from the args
+			timeout(args.timeoutMs, worker, terminatedFlag),
 		]);
 	} finally {
 		terminatedFlag.value = true;

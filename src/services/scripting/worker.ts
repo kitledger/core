@@ -1,11 +1,7 @@
-import type { HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/_internal";
+import type { HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/runtime";
+import type { ExecuteScriptArgs } from "./runtime.ts";
 
-self.onmessage = async (
-	event: MessageEvent<{
-		code: string;
-		context: string;
-	}>,
-) => {
+self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 	const port = event.ports[0];
 	if (!port) {
 		self.close();
@@ -14,9 +10,9 @@ self.onmessage = async (
 
 	port.start();
 
-	const { code, context } = event.data;
+	const { code, inputJSON, scriptType, trigger } = event.data;
 
-	// --- Sandbox global communication (Unchanged) ---
+	// --- Sandbox global communication ---
 	const listeners = new Map<string, Set<EventListener>>();
 	self.postMessage = (message: WorkerToHostMessage<unknown>) => {
 		try {
@@ -60,14 +56,35 @@ self.onmessage = async (
 
 	try {
 		const dataUrl = `data:text/javascript,${encodeURIComponent(code)}`;
-
 		const module = await import(dataUrl);
 
-		if (!module.default || typeof module.default !== "function") {
-			throw new Error("Script must have a default export function.");
+		if (!module.default) {
+			throw new Error("Script must have a default export.");
 		}
 
-		await module.default(JSON.parse(context));
+		const handler = module.default;
+		const input = JSON.parse(inputJSON);
+
+		if (scriptType === "ServerEvent" || scriptType === "EndpointRequest") {
+			// Object-based handlers
+			if (typeof handler !== "object" || handler === null) {
+				throw new Error(`${scriptType} scripts must export an object.`);
+			}
+
+			const key = trigger?.toLowerCase();
+			if (key && typeof handler[key] === "function") {
+				await handler[key](input);
+			} else if (scriptType === "EndpointRequest") {
+				throw new Error(`Method "${trigger}" not implemented on endpoint.`);
+			}
+			// For ServerEvent, it's fine if the hook isn't implemented (no-op)
+		} else {
+			// Function-based handlers (ScheduledTask, QueuedTask)
+			if (typeof handler !== "function") {
+				throw new Error(`${scriptType} scripts must have a default export function.`);
+			}
+			await handler(input);
+		}
 
 		port.postMessage({ type: "EXECUTION_RESULT", payload: { status: "SUCCESS" } });
 	} catch (error: unknown) {
