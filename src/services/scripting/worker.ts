@@ -17,7 +17,8 @@ self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 	self.postMessage = (message: WorkerToHostMessage<unknown>) => {
 		try {
 			port.postMessage(message);
-		} catch (e) {
+		}
+		catch (e) {
 			console.error("Kitledger worker: Failed to post message to host.", e);
 		}
 	};
@@ -46,7 +47,8 @@ self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 			set.forEach((listener) => {
 				try {
 					listener(event);
-				} catch (e) {
+				}
+				catch (e) {
 					console.error("Kitledger worker: Error in user event listener:", e);
 				}
 			});
@@ -74,11 +76,13 @@ self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 			const key = trigger?.toLowerCase();
 			if (key && typeof handler[key] === "function") {
 				await handler[key](input);
-			} else if (scriptType === "EndpointRequest") {
+			}
+			else if (scriptType === "EndpointRequest") {
 				throw new Error(`Method "${trigger}" not implemented on endpoint.`);
 			}
 			// For ServerEvent, it's fine if the hook isn't implemented (no-op)
-		} else {
+		}
+		else {
 			// Function-based handlers (ScheduledTask, QueuedTask)
 			if (typeof handler !== "function") {
 				throw new Error(`${scriptType} scripts must have a default export function.`);
@@ -87,12 +91,14 @@ self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 		}
 
 		port.postMessage({ type: "EXECUTION_RESULT", payload: { status: "SUCCESS" } });
-	} catch (error: unknown) {
+	}
+	catch (error: unknown) {
 		port.postMessage({
 			type: "EXECUTION_RESULT",
 			payload: { status: "ERROR", error: (error as Error).message },
 		});
-	} finally {
+	}
+	finally {
 		port.close();
 		self.close();
 	}

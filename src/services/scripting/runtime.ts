@@ -1,5 +1,10 @@
 import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
-import type { Method, ExecutionResultPayload, HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/runtime";
+import type {
+	ExecutionResultPayload,
+	HostToWorkerMessage,
+	Method,
+	WorkerToHostMessage,
+} from "@kitledger/actions/runtime";
 import { workerConfig } from "../../config.ts";
 
 const USE_SMART_CONCURRENCY = true;
@@ -91,7 +96,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 
 							try {
 								result = await invokeApiMethod(message.payload.method, message.payload.payload);
-							} catch (e) {
+							}
+							catch (e) {
 								error = (e as Error).message;
 							}
 
@@ -109,16 +115,19 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 										type: "ACTION_RESPONSE",
 										payload: { id: message.payload.id, error },
 									} as HostToWorkerMessage<unknown>);
-								} else {
+								}
+								else {
 									hostPort.postMessage({
 										type: "ACTION_RESPONSE",
 										payload: { id: message.payload.id, result },
 									} as HostToWorkerMessage<unknown>);
 								}
-							} catch (_postError) {
+							}
+							catch (_postError) {
 								releaseSlotOnce();
 							}
-						} else {
+						}
+						else {
 							// --- Simple Concurrency Logic ---
 							try {
 								const result = await invokeApiMethod(message.payload.method, message.payload.payload);
@@ -126,7 +135,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 									type: "ACTION_RESPONSE",
 									payload: { id: message.payload.id, result },
 								} as HostToWorkerMessage<unknown>);
-							} catch (e) {
+							}
+							catch (e) {
 								hostPort.postMessage({
 									type: "ACTION_RESPONSE",
 									payload: { id: message.payload.id, error: (e as Error).message },
@@ -159,7 +169,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 			// Use the dynamic timeout from the args
 			timeout(args.timeoutMs, worker, terminatedFlag),
 		]);
-	} finally {
+	}
+	finally {
 		terminatedFlag.value = true;
 		worker.terminate();
 		releaseSlotOnce();
