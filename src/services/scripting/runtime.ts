@@ -115,7 +115,6 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 			timeout(args.timeoutMs, terminatedFlag),
 		]);
 	} finally {
-		terminatedFlag.value = true;
 		releaseWorker(pooledWorker, terminatedFlag.value);
 	}
 }

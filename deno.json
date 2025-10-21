@@ -1,6 +1,9 @@
 {
 	"compilerOptions": {
-		"lib": ["DOM", "deno.ns", "deno.unstable", "deno.worker"]
+		"lib": ["ES2022", "DOM", "DOM.Iterable", "deno.ns", "deno.unstable", "deno.worker"],
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"jsxImportSourceTypes": "@types/react"
 	},
 	"fmt": {
 		"useTabs": true,
@@ -22,19 +25,24 @@
 		"@std/path": "jsr:@std/path@^1.1.1",
 		"@std/testing": "jsr:@std/testing@^1.0.15",
 		"@std/uuid": "jsr:@std/uuid@^1.0.9",
+		"@types/react": "npm:@types/react@^19.1.13",
+		"@types/react-dom": "npm:@types/react-dom@^19.1.9",
 		"@valibot/valibot": "jsr:@valibot/valibot@^1.1.0",
 		"drizzle-kit": "npm:drizzle-kit@^0.31.4",
 		"drizzle-orm": "npm:drizzle-orm@^0.44.2",
 		"knex": "npm:knex@^3.1.0",
 		"pg": "npm:pg@^8.16.3",
-		"postgres": "npm:postgres@^3.4.7"
+		"postgres": "npm:postgres@^3.4.7",
+		"react": "npm:react@^19.1.1",
+		"react-dom": "npm:react-dom@^19.1.1"
 	},
 	"nodeModulesDir": "auto",
 	"tasks": {
-		"compile": "deno compile --output ./bin/kitledger --include ./src/services/database/migrations -A ./src/main.ts",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts",
+		"dev:client": "deno run -A ./static.ts && deno bundle --watch --platform browser --outdir dist/client src/client/index.html ",
+		"dev:server": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts",
+		"dev": "deno task dev:server & deno task dev:client",
 		"format": "deno fmt",
 		"test": "deno test --env-file -A",
 		"typecheck": "deno check src/**/*.ts test/**/*.ts"

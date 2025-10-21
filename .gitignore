@@ -24,6 +24,7 @@ build/
 dist/
 bin/
 /target
+.vite/
 
 # IDEs
 .idea/
