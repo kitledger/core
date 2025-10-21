@@ -35,13 +35,15 @@ initializePool();
 function timeout(
 	ms: number,
 	terminatedFlag: { value: boolean },
-): Promise<never> {
-	return new Promise((_, reject) =>
-		setTimeout(() => {
+): { promise: Promise<never>; timeoutId: number } {
+	let timeoutId;
+	const promise = new Promise<never>((_, reject) => {
+		timeoutId = setTimeout(() => {
 			terminatedFlag.value = true;
 			reject(new Error(`Script execution timed out after ${ms}ms`));
-		}, ms)
-	);
+		}, ms);
+	});
+	return { promise, timeoutId: timeoutId! };
 }
 
 /**
@@ -66,6 +68,7 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 	pooledWorker.jobsDone++;
 
 	const terminatedFlag = { value: false };
+	let timeoutId: number | undefined;
 
 	try {
 		const executionPromise = new Promise<ExecutionResultPayload>((resolve, reject) => {
@@ -110,11 +113,20 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 			worker.postMessage(args, [channel.port2]);
 		});
 
+		const { promise: timeoutPromise, timeoutId: id } = timeout(
+			args.timeoutMs,
+			terminatedFlag,
+		);
+		timeoutId = id;
+
 		return await Promise.race([
 			executionPromise,
-			timeout(args.timeoutMs, terminatedFlag),
+			timeoutPromise,
 		]);
 	} finally {
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
 		releaseWorker(pooledWorker, terminatedFlag.value);
 	}
 }

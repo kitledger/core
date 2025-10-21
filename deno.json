@@ -44,7 +44,7 @@
 		"dev:server": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts",
 		"dev": "deno task dev:server & deno task dev:client",
 		"format": "deno fmt",
-		"test": "deno test --env-file -A",
+		"test": "deno test --unstable-worker-options --env-file -A",
 		"typecheck": "deno check src/**/*.ts test/**/*.ts"
 	}
 }
