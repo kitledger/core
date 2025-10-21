@@ -100,6 +100,5 @@ self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 	}
 	finally {
 		port.close();
-		self.close();
 	}
 };

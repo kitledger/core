@@ -1,13 +1,14 @@
-import { acquireSlot, initializeConcurrency, releaseSlot } from "./concurrency_limiter.ts";
+import {
+	acquireWorker,
+	initializePool,
+	releaseWorker,
+} from "./concurrency_limiter.ts";
 import type {
 	ExecutionResultPayload,
 	HostToWorkerMessage,
 	Method,
 	WorkerToHostMessage,
 } from "@kitledger/actions/runtime";
-import { workerConfig } from "../../config.ts";
-
-const USE_SMART_CONCURRENCY = true;
 
 const apiMethodMap: Record<Method, (payload: unknown) => unknown> = {
 	"UNIT_MODEL.CREATE": (payload: unknown) => {
@@ -24,24 +25,20 @@ function getApiMethod(methodName: Method): (payload: unknown) => unknown {
 	return method;
 }
 
-initializeConcurrency(workerConfig.poolSize);
-
-const workerURL = new URL("./worker.ts", import.meta.url);
-
 async function invokeApiMethod(methodName: Method, payload: unknown): Promise<unknown> {
 	const method = getApiMethod(methodName);
 	return await method(payload);
 }
 
+initializePool();
+
 function timeout(
 	ms: number,
-	worker: Worker,
 	terminatedFlag: { value: boolean },
 ): Promise<never> {
 	return new Promise((_, reject) =>
 		setTimeout(() => {
 			terminatedFlag.value = true;
-			worker.terminate();
 			reject(new Error(`Script execution timed out after ${ms}ms`));
 		}, ms)
 	);
@@ -64,18 +61,11 @@ export interface ExecuteScriptArgs {
 }
 
 export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionResultPayload> {
-	await acquireSlot();
-	let slotHeld = true;
-	const worker = new Worker(workerURL.href, { type: "module", deno: { permissions: "none" } });
+	const pooledWorker = await acquireWorker();
+	const worker = pooledWorker.worker;
+	pooledWorker.jobsDone++;
 
 	const terminatedFlag = { value: false };
-
-	const releaseSlotOnce = () => {
-		if (slotHeld) {
-			releaseSlot();
-			slotHeld = false;
-		}
-	};
 
 	try {
 		const executionPromise = new Promise<ExecutionResultPayload>((resolve, reject) => {
@@ -88,60 +78,17 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 				const message = event.data;
 				switch (message.type) {
 					case "ACTION_REQUEST": {
-						if (USE_SMART_CONCURRENCY) {
-							// --- Smart Concurrency Logic ---
-							releaseSlotOnce();
-							let result: unknown;
-							let error: string | undefined;
-
-							try {
-								result = await invokeApiMethod(message.payload.method, message.payload.payload);
-							}
-							catch (e) {
-								error = (e as Error).message;
-							}
-
-							if (terminatedFlag.value) return;
-							await acquireSlot();
-							slotHeld = true;
-							if (terminatedFlag.value) {
-								releaseSlotOnce();
-								return;
-							}
-
-							try {
-								if (error) {
-									hostPort.postMessage({
-										type: "ACTION_RESPONSE",
-										payload: { id: message.payload.id, error },
-									} as HostToWorkerMessage<unknown>);
-								}
-								else {
-									hostPort.postMessage({
-										type: "ACTION_RESPONSE",
-										payload: { id: message.payload.id, result },
-									} as HostToWorkerMessage<unknown>);
-								}
-							}
-							catch (_postError) {
-								releaseSlotOnce();
-							}
-						}
-						else {
-							// --- Simple Concurrency Logic ---
-							try {
-								const result = await invokeApiMethod(message.payload.method, message.payload.payload);
-								hostPort.postMessage({
-									type: "ACTION_RESPONSE",
-									payload: { id: message.payload.id, result },
-								} as HostToWorkerMessage<unknown>);
-							}
-							catch (e) {
-								hostPort.postMessage({
-									type: "ACTION_RESPONSE",
-									payload: { id: message.payload.id, error: (e as Error).message },
-								} as HostToWorkerMessage<unknown>);
-							}
+						try {
+							const result = await invokeApiMethod(message.payload.method, message.payload.payload);
+							hostPort.postMessage({
+								type: "ACTION_RESPONSE",
+								payload: { id: message.payload.id, result },
+							} as HostToWorkerMessage<unknown>);
+						} catch (e) {
+							hostPort.postMessage({
+								type: "ACTION_RESPONSE",
+								payload: { id: message.payload.id, error: (e as Error).message },
+							} as HostToWorkerMessage<unknown>);
 						}
 						break;
 					}
@@ -160,19 +107,15 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 				}
 			};
 
-			// Pass the full arguments object to the worker
 			worker.postMessage(args, [channel.port2]);
 		});
 
 		return await Promise.race([
 			executionPromise,
-			// Use the dynamic timeout from the args
-			timeout(args.timeoutMs, worker, terminatedFlag),
+			timeout(args.timeoutMs, terminatedFlag),
 		]);
-	}
-	finally {
+	} finally {
 		terminatedFlag.value = true;
-		worker.terminate();
-		releaseSlotOnce();
+		releaseWorker(pooledWorker, terminatedFlag.value);
 	}
 }
