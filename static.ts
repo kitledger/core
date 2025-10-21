@@ -8,6 +8,21 @@ const STATIC_DIR = join(String(import.meta.dirname), "./src/client/assets");
 const DIST_DIR = join(String(import.meta.dirname), "./dist/client/assets");
 
 /**
+ * Clear out existing dist/client
+ */
+const CLIENT_DIR = join(String(import.meta.dirname), "./dist/client");
+try {
+	await Deno.remove(CLIENT_DIR, { recursive: true });
+} catch (error) {
+	if (error instanceof Deno.errors.NotFound) {
+		// Directory doesn't exist, no action needed
+	} else {
+		console.error("Error removing existing client directory:", error);
+		Deno.exit(1);
+	}
+}
+
+/**
  * Recursively copy a directory and its contents
  */
 async function copyDir(fromDir: string, toDir: string) {

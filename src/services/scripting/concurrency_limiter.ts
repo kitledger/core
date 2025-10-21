@@ -11,8 +11,8 @@ export type PooledWorker = {
 };
 
 const POOL_CONFIG = {
-	min: workerConfig.poolSize, // e.g., 4
-	max: workerConfig.poolSize * 4, // e.g., 16
+	min: workerConfig.poolSize,
+	max: workerConfig.poolSize * 4,
 	recycleAfterJobs: 100,
 };
 
