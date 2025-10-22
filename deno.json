@@ -15,6 +15,7 @@
 		"nextControlFlowPosition": "nextLine"
 	},
 	"imports": {
+		"@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.5",
 		"@faker-js/faker": "npm:@faker-js/faker@^9.9.0",
 		"@hono/hono": "jsr:@hono/hono@^4.8.4",
 		"@kitledger/actions": "npm:@kitledger/actions@^0.0.14",
@@ -28,21 +29,23 @@
 		"@types/react": "npm:@types/react@^19.1.13",
 		"@types/react-dom": "npm:@types/react-dom@^19.1.9",
 		"@valibot/valibot": "jsr:@valibot/valibot@^1.1.0",
+		"@vitejs/plugin-react": "npm:@vitejs/plugin-react@^5.0.2",
 		"drizzle-kit": "npm:drizzle-kit@^0.31.4",
 		"drizzle-orm": "npm:drizzle-orm@^0.44.2",
 		"knex": "npm:knex@^3.1.0",
 		"pg": "npm:pg@^8.16.3",
 		"postgres": "npm:postgres@^3.4.7",
 		"react": "npm:react@^19.1.1",
-		"react-dom": "npm:react-dom@^19.1.1"
+		"react-dom": "npm:react-dom@^19.1.1",
+		"vite": "npm:vite@^7.1.5"
 	},
 	"nodeModulesDir": "auto",
 	"tasks": {
+		"build": "deno run -A npm:vite build",
+		"client:dev": "",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev:client": "deno run -A ./static.ts && deno bundle --watch --platform browser --outdir dist/client src/client/index.html ",
-		"dev:server": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts",
-		"dev": "deno task dev:server & deno task dev:client",
+		"dev": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts & deno run -A npm:vite build --watch",
 		"format": "deno fmt",
 		"test": "deno test --unstable-worker-options --env-file -A",
 		"typecheck": "deno check src/**/*.ts test/**/*.ts"

@@ -15,7 +15,7 @@ export const clientRouter = new Hono();
 clientRouter.get(
 	"/assets/*",
 	serveStatic({
-		root: join(String(import.meta.dirname), "../../../dist/client"),
+		root: join(String(import.meta.dirname), "../../../dist/client/assets"),
 	}),
 );
 
