@@ -1,8 +1,4 @@
-import {
-	acquireWorker,
-	initializePool,
-	releaseWorker,
-} from "./concurrency_limiter.ts";
+import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.ts";
 import type {
 	ExecutionResultPayload,
 	HostToWorkerMessage,
@@ -87,7 +83,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, result },
 							} as HostToWorkerMessage<unknown>);
-						} catch (e) {
+						}
+						catch (e) {
 							hostPort.postMessage({
 								type: "ACTION_RESPONSE",
 								payload: { id: message.payload.id, error: (e as Error).message },
@@ -123,7 +120,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 			executionPromise,
 			timeoutPromise,
 		]);
-	} finally {
+	}
+	finally {
 		if (timeoutId) {
 			clearTimeout(timeoutId);
 		}
