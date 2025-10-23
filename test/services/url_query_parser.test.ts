@@ -27,8 +27,8 @@ function parseAndValidate(params: URLSearchParams): Query {
         }`,
     );
 
-    // 4. Return the parsed (and validated) output
-    return result.output as Query;
+    // 4. THIS IS THE FIX: Return the *original* object, not the transformed one.
+    return query as Query;
 }
 
 describe("URL Query Parser (assembleQueryFromParams)", () => {
