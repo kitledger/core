@@ -27,8 +27,7 @@ function parseAndValidate(params: URLSearchParams): Query {
         }`,
     );
 
-    // 4. THIS IS THE FIX: Return the *original* object, not the transformed one.
-    return query as Query;
+    return result.output as Query;
 }
 
 describe("URL Query Parser (assembleQueryFromParams)", () => {
@@ -121,7 +120,7 @@ describe("URL Query Parser (assembleQueryFromParams)", () => {
     // This test will now pass
     test("should parse 'where' clauses with default 'and' connector", () => {
         const params = new URLSearchParams(
-            "status=eq:active&balance=gt:100&is_admin=eq:true",
+            "status=equal:active&balance=gt:100&is_admin=equal:true",
         );
         const query = parseAndValidate(params);
 
@@ -142,7 +141,7 @@ describe("URL Query Parser (assembleQueryFromParams)", () => {
     // This test will now pass
     test("should parse 'where' clauses with explicit 'or' connector", () => {
         const params = new URLSearchParams(
-            "status=eq:active&balance=gt:100&connector=or",
+            "status=equal:active&balance=gt:100&connector=or",
         );
         const query = parseAndValidate(params);
 

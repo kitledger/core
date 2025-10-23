@@ -5,17 +5,6 @@ const JOIN_TYPES: Set<string> = new Set(["inner", "left", "right", "full_outer"]
 const AGG_FUNCS: Set<string> = new Set(["sum", "avg", "count", "min", "max"]);
 const ORDER_DIRECTIONS: Set<string> = new Set(["asc", "desc"]);
 
-// Map short URL operators to their full schema names
-const OPERATOR_MAP: Record<string, string> = {
-	eq: "equal",
-	neq: "not_equal",
-	gt: "gt",
-	gte: "gtequal",
-	lt: "lt",
-	lte: "ltequal",
-	// All other operators (in, not_in, like, etc.) match their schema name
-};
-
 const RESERVED_PARAMS = new Set([
 	"select",
 	"join",
@@ -127,14 +116,12 @@ function parseWhere(params: URLSearchParams): ConditionGroup[] {
 		const [opStr, valStr = ""] = value.split(/:(.*)/s);
 		let parsedValue = parseValue(valStr);
 
-		const operator = OPERATOR_MAP[opStr] || opStr;
+		const operator = opStr;
 
 		if (operator === "empty" || operator === "not_empty") {
 			parsedValue = true;
 		}
 
-		// We cast here, and let Valibot do the heavy-lifting
-		// validation of all possible operator/value combinations.
 		conditions.push({ column, operator, value: parsedValue } as Condition);
 	}
 
@@ -149,6 +136,7 @@ function parseWhere(params: URLSearchParams): ConditionGroup[] {
 /**
  * Assembles a Kitledger Query object from URLSearchParams.
  * This now returns an object that conforms to the Query type.
+ * @param params - The URLSearchParams to parse.
  */
 export function assembleQueryFromParams(params: URLSearchParams): Query {
 	const limitParam = params.get("limit");
@@ -161,8 +149,8 @@ export function assembleQueryFromParams(params: URLSearchParams): Query {
 	const orders = parseOrderBy(params);
 	const groups = params.getAll("groupBy");
 
-	// Build the query object, *only* adding optional keys if they are not empty.
-	// This matches the v.optional() schema and will pass assertEquals.
+	
+	// Build the query object.
 	const query: Query = {
 		select: selects,
 		where: wheres,
