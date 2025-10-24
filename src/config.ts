@@ -5,6 +5,7 @@ import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
  */
 
 type AuthConfig = {
+	sessionCookieName: string;
 	secret: string;
 	pastSecrets: string[];
 	jwtAlgorithm: AlgorithmTypes;
@@ -49,6 +50,7 @@ type WorkerConfig = {
  */
 const jwtAlgorithm = "HS256" as AlgorithmTypes;
 
+const authSessionCookieName = Deno.env.get("KL_AUTH_SESSION_COOKIE_NAME") || "kitledger_session";
 const authSecret = Deno.env.get("KL_AUTH_SECRET");
 if (!authSecret) {
 	throw new Error("KL_AUTH_SECRET environment variable is not set.");
@@ -95,6 +97,7 @@ const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
  * Values are a mix of environment variables and defaults.
  */
 export const authConfig: AuthConfig = {
+	sessionCookieName: authSessionCookieName,
 	secret: authSecret,
 	pastSecrets: pastSecrets,
 	jwtAlgorithm: jwtAlgorithm,

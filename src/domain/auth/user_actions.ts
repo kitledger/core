@@ -25,10 +25,10 @@ export async function createSuperUser(
 			 * generate a random password.
 			 */
 			const password = randomBytes(20).toString("hex");
-			let passwordHash = null;
+			let passwordHash :string|null = null;
 
 			try {
-				passwordHash = await workerPool.execute(password, availableWorkerTasks.HASH_PASSWORD);
+				passwordHash = await workerPool.execute(password, availableWorkerTasks.HASH_PASSWORD) as string;
 			}
 			catch (error) {
 				console.error("Error hashing password:", error);

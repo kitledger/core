@@ -1,15 +1,20 @@
 import { db } from "../../services/database/db.ts";
-import { api_tokens, sessions } from "../../services/database/schema.ts";
-import { and, eq, isNull } from "drizzle-orm";
+import { api_tokens, sessions, users } from "../../services/database/schema.ts";
+import { and, eq, isNull, gt } from "drizzle-orm";
+import { workerPool } from "../../services/workers/pool.ts";
+import { availableWorkerTasks } from "../../services/workers/worker.ts";
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
-	const cache = await db.query.sessions.findFirst({
-		where: and(eq(sessions.id, sessionId)),
+	const session = await db.query.sessions.findFirst({
+		where: and(
+			eq(sessions.id, sessionId),
+			gt(sessions.expires_at, new Date()),
+		),
 		columns: {
 			user_id: true,
 		},
 	});
-	return cache ? cache.user_id : null;
+	return session ? session.user_id : null;
 }
 
 export async function getTokenUserId(tokenId: string): Promise<string | null> {
@@ -22,6 +27,43 @@ export async function getTokenUserId(tokenId: string): Promise<string | null> {
 
 	if (token) {
 		return token.user_id;
+	}
+	else {
+		return null;
+	}
+}
+
+export async function validateUserCredentials(
+	email: string,
+	password: string,
+): Promise<{id: string, first_name: string, last_name: string, email: string} | null> {
+	const user = await db.query.users.findFirst({
+		where: eq(users.email, email),
+		columns: {
+			id: true,
+			first_name: true,
+			last_name: true,
+			email: true,
+			password_hash: true,
+		},
+	});
+
+	if (!user || !user.password_hash) {
+		return null;
+	}
+
+	const hashedPassword = await workerPool.execute(
+		password,
+		availableWorkerTasks.HASH_PASSWORD,
+	) as string|null;
+
+	if (hashedPassword && hashedPassword === user.password_hash) {
+		return {
+			id: user.id,
+			first_name: user.first_name,
+			last_name: user.last_name,
+			email: user.email,
+		};
 	}
 	else {
 		return null;
