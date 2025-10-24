@@ -76,7 +76,6 @@ export async function filterAccounts(params: FilterOperationParameters): Promise
 
 	// Default to only active accounts if no active filter is provided
 	if (!Object.keys(filters).includes(accounts.active.name)) {
-		console.log("No active filter provided, defaulting to active accounts only.");
 		filterConditions.push(eq(accounts.active, true));
 	}
 
