@@ -1,4 +1,4 @@
-import { hash } from "@node-rs/argon2";
+import { hash, verify } from "@node-rs/argon2";
 
 export function hashPassword(input: string): Promise<string> {
 	const hashOptions = {
@@ -9,4 +9,8 @@ export function hashPassword(input: string): Promise<string> {
 	};
 
 	return hash(input, hashOptions);
+}
+
+export function verifyPassword(hashStr: string, input: string): Promise<boolean> {
+	return verify(hashStr, input);
 }

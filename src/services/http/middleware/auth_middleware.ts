@@ -49,7 +49,7 @@ export const auth = createMiddleware(async (c, next) => {
             const cookieToken = getCookie(c, authConfig.sessionCookieName);
 
             if (!cookieToken) {
-				throw new Error("Invalid or missing session cookie.");
+				return c.json({ error: "Unauthorized" }, 401);
             }
 
             // A cookie MUST be a session token

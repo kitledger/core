@@ -6,10 +6,14 @@ import { serverConfig } from "../../src/config.ts";
 Deno.test("Hono Auth middleware returns 401 for missing token", async () => {
 	const c = {
 		req: {
-			header: () => null,
-		},
+            header: () => null,
+            raw: {
+                headers: new Headers(),
+            },
+        },
 		json: (body: Record<string, string>, status: number) => {
 			assert(status === 401, "Expected status code to be 401");
+			console.log("Body Error:", body.error);
 			assert(body.error === "Unauthorized", "Expected error message to be 'Unauthorized'");
 		},
 		env: {},

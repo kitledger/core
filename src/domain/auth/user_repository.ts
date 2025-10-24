@@ -1,8 +1,7 @@
 import { db } from "../../services/database/db.ts";
 import { api_tokens, sessions, users } from "../../services/database/schema.ts";
 import { and, eq, isNull, gt } from "drizzle-orm";
-import { workerPool } from "../../services/workers/pool.ts";
-import { availableWorkerTasks } from "../../services/workers/worker.ts";
+import { verifyPassword } from "./utils.ts";
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const session = await db.query.sessions.findFirst({
@@ -52,12 +51,9 @@ export async function validateUserCredentials(
 		return null;
 	}
 
-	const hashedPassword = await workerPool.execute(
-		password,
-		availableWorkerTasks.HASH_PASSWORD,
-	) as string|null;
+	const validPassword = await verifyPassword(user.password_hash, password);
 
-	if (hashedPassword && hashedPassword === user.password_hash) {
+	if (validPassword) {
 		return {
 			id: user.id,
 			first_name: user.first_name,
