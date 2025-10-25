@@ -15,16 +15,6 @@ export const clientRouter = new Hono();
 clientRouter.get(
 	"/assets/*",
 	serveStatic({
-		root: join(String(import.meta.dirname), "../../../dist/client/assets"),
-	}),
-);
-
-/**
- * Serve static files coming from the "public" directory in the client app.
- */
-clientRouter.get(
-	"*",
-	serveStatic({
 		root: join(String(import.meta.dirname), "../../../dist/client"),
 	}),
 );
@@ -32,7 +22,14 @@ clientRouter.get(
 /**
  * Serve the client's index.html file.
  */
-/*clientRouter.get("*", async (c) => {
+clientRouter.get("/app/*", async (c) => {
 	const html = await Deno.readTextFile(join(String(import.meta.dirname), "../../../dist/client/index.html"));
 	return c.html(html);
-});*/
+});
+
+/**
+ * Redirect root to /app
+ */
+clientRouter.get("/", (c) => {
+	return c.redirect("/app");
+});

@@ -71,7 +71,7 @@ export const auth = createMiddleware(async (c, next) => {
         }
 
     } catch (error) {
-        console.error("Token verification failed:", error);
+        //console.error("Token verification failed:", error);
         const errorMessage = error instanceof Error ? error.message : "Unauthorized";
         return c.json({ error: errorMessage }, 401);
     }
