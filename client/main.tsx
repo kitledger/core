@@ -1,8 +1,10 @@
+import '@mantine/core/styles.css';
 import "./style.css";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { MantineProvider } from '@mantine/core';
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen.ts";
@@ -26,9 +28,11 @@ if (!rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<RouterProvider router={router} />
-			</QueryClientProvider>
+			<MantineProvider>
+				<QueryClientProvider client={queryClient}>
+					<RouterProvider router={router} />
+				</QueryClientProvider>
+			</MantineProvider>
 		</StrictMode>,
 	);
 }
