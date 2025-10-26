@@ -2,7 +2,7 @@ import { createMiddleware } from "@hono/hono/factory";
 import { getCookie } from "@hono/hono/cookie";
 import { TokenType, verifyToken } from "../../../domain/actions/jwt_actions.ts";
 import { getSessionUserId, getTokenUserId } from "../../../domain/repositories/user_repository.ts";
-import { authConfig } from "../../../config.ts";
+import { sessionConfig } from "../../../config.ts";
 
 export const auth = createMiddleware(async (c, next) => {
 	const headerToken = c.req.header("Authorization")?.replace("Bearer ", "");
@@ -46,7 +46,7 @@ export const auth = createMiddleware(async (c, next) => {
 		}
 		// --- Priority 2: Session Cookie ---
 		else {
-			const cookieToken = getCookie(c, authConfig.sessionCookieName);
+			const cookieToken = getCookie(c, sessionConfig.cookieName);
 
 			if (!cookieToken) {
 				return c.json({ error: "Unauthorized" }, 401);

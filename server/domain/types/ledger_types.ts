@@ -3,8 +3,6 @@ import * as v from "@valibot/valibot";
 import { InferOutput } from "@valibot/valibot";
 import { ledgers } from "../../services/database/schema.ts";
 
-
-
 export const LedgerCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),
 	alt_id: v.nullish(v.pipe(v.string(), v.maxLength(64)), null),

@@ -41,6 +41,7 @@
     "npm:pg@^8.16.3": "8.16.3",
     "npm:postgres@^3.4.7": "3.4.7",
     "npm:react-dom@^19.1.1": "19.2.0_react@19.2.0",
+    "npm:react-toastify@^11.0.5": "11.0.5_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:react@^19.1.1": "19.2.0",
     "npm:tailwindcss@^4.1.15": "4.1.15",
     "npm:vite@*": "7.1.9_@types+node@24.2.0_picomatch@4.0.3",
@@ -1897,6 +1898,14 @@
     "react-refresh@0.17.0": {
       "integrity": "sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ=="
     },
+    "react-toastify@11.0.5_react@19.2.0_react-dom@19.2.0__react@19.2.0": {
+      "integrity": "sha512-EpqHBGvnSTtHYhCPLxML05NLY2ZX0JURbAdNYa6BUkk+amz4wbKBQvoKQAB0ardvSarUBuY4Q4s1sluAzZwkmA==",
+      "dependencies": [
+        "clsx",
+        "react",
+        "react-dom"
+      ]
+    },
     "react@19.2.0": {
       "integrity": "sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ=="
     },
@@ -2157,6 +2166,7 @@
       "npm:pg@^8.16.3",
       "npm:postgres@^3.4.7",
       "npm:react-dom@^19.1.1",
+      "npm:react-toastify@^11.0.5",
       "npm:react@^19.1.1",
       "npm:tailwindcss@^4.1.15",
       "npm:vite@^7.1.5"

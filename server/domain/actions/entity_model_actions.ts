@@ -1,4 +1,9 @@
-import { EntityModel, EntityModelCreateData, EntityModelCreateSchema, EntityModelInsert } from "../types/entity_model_types.ts";
+import {
+	EntityModel,
+	EntityModelCreateData,
+	EntityModelCreateSchema,
+	EntityModelInsert,
+} from "../types/entity_model_types.ts";
 import * as v from "@valibot/valibot";
 import {
 	parseValibotIssues,

@@ -5,7 +5,6 @@ import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
  */
 
 type AuthConfig = {
-	sessionCookieName: string;
 	secret: string;
 	pastSecrets: string[];
 	jwtAlgorithm: AlgorithmTypes;
@@ -32,6 +31,7 @@ type ServerConfig = {
 };
 
 type SessionConfig = {
+	cookieName: string;
 	ttl: number;
 };
 
@@ -50,7 +50,6 @@ type WorkerConfig = {
  */
 const jwtAlgorithm = "HS256" as AlgorithmTypes;
 
-const authSessionCookieName = Deno.env.get("KL_AUTH_SESSION_COOKIE_NAME") || "kitledger_session";
 const authSecret = Deno.env.get("KL_AUTH_SECRET");
 if (!authSecret) {
 	throw new Error("KL_AUTH_SECRET environment variable is not set.");
@@ -77,7 +76,9 @@ const corsMaxAge = parseInt(Deno.env.get("KL_CORS_MAX_AGE") || "86400");
  * Session configuration values and defaults.
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
-const sessionTtl = parseInt(Deno.env.get("KL_SESSION_TTL") || "3600"); // 1 hour default
+const sessionEnvTtl = Deno.env.get("KL_SESSION_TTL");
+const sessionTtl = sessionEnvTtl ? parseInt(sessionEnvTtl) : (60 * 60 * 24); // 1 hour default
+const sessionCookieName = Deno.env.get("KL_SESSION_COOKIE_NAME") || "kitledger_session";
 
 /**
  * Worker pool configuration values and defaults.
@@ -97,7 +98,6 @@ const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
  * Values are a mix of environment variables and defaults.
  */
 export const authConfig: AuthConfig = {
-	sessionCookieName: authSessionCookieName,
 	secret: authSecret,
 	pastSecrets: pastSecrets,
 	jwtAlgorithm: jwtAlgorithm,
@@ -135,6 +135,7 @@ export const serverConfig: ServerConfig = {
  */
 export const sessionConfig: SessionConfig = {
 	ttl: sessionTtl,
+	cookieName: sessionCookieName,
 };
 
 /**

@@ -7,7 +7,7 @@ import { UnitModelCreateData } from "../../../../domain/types/unit_model_types.t
 import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
 import { isValidationFailure } from "../../../../domain/utils/validation.ts";
 import { createLedger } from "../../../../domain/actions/ledger_actions.ts";
-import { LedgerCreateData, Ledger } from "../../../../domain/types/ledger_types.ts";
+import { Ledger, LedgerCreateData } from "../../../../domain/types/ledger_types.ts";
 import { Account, AccountCreateData } from "../../../../domain/types/account_types.ts";
 import { filterAccounts } from "../../../../domain/repositories/account_repository.ts";
 import { createAccount } from "../../../../domain/actions/account_actions.ts";

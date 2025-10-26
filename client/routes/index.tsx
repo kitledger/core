@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
 	component: Index,
@@ -9,10 +9,22 @@ export const Route = createFileRoute("/")({
 	},
 });
 
-function Index() {
+export function Index() {
 	return (
-		<div className="p-2">
-			<h3>Welcome Home!</h3>
+		<div className="min-h-screen bg-background text-foreground font-sans p-4 sm:p-8">
+			<div className="max-w-5xl mx-auto">
+				<main>
+					<div>
+						<Link
+							to="/$app/dashboard"
+							params={{ app: "main" }}
+						>
+							App
+						</Link>
+						<Link to="/accounts/login">Login</Link>
+					</div>
+				</main>
+			</div>
 		</div>
 	);
 }

@@ -1,9 +1,9 @@
 import { Hono } from "@hono/hono";
 import { setCookie } from "@hono/hono/cookie";
-import { authConfig } from "../../../../config.ts";
 import { assembleSessionJwtPayload, signToken } from "../../../../domain/actions/jwt_actions.ts";
 import { validateUserCredentials } from "../../../../domain/repositories/user_repository.ts";
 import { startSession } from "../../../../domain/actions/session_actions.ts";
+import { sessionConfig } from "../../../../config.ts";
 
 const router = new Hono();
 
@@ -21,12 +21,12 @@ router.post("/login", async (c) => {
 		const sessionToken = await signToken(sessionJwtPayload);
 
 		// Set the HttpOnly cookie
-		setCookie(c, authConfig.sessionCookieName, sessionToken, {
+		setCookie(c, sessionConfig.cookieName, sessionToken, {
 			path: "/",
 			secure: true, // Only send over HTTPS (set to false for localhost dev)
 			httpOnly: true, // Cannot be accessed by client-side JS
 			sameSite: "Strict", // Strongest CSRF protection
-			maxAge: 60 * 60 * 24 * 7, // 7 days
+			maxAge: sessionConfig.ttl, // KL_SESSION_TTL in seconds
 		});
 
 		return c.json({
