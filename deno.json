@@ -11,7 +11,7 @@
 		"indentWidth": 4,
 		"semiColons": true,
 		"singleQuote": false,
-		"include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx", "src/**/*.json"],
+		"include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"],
 		"nextControlFlowPosition": "nextLine"
 	},
 	"imports": {
@@ -55,10 +55,10 @@
 		"client:dev": "",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts & deno run -A npm:vite build --watch",
+		"dev": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts & deno run -A npm:vite build --watch",
 		"format": "deno fmt",
-		"start": "deno run -A --watch --env-file --unstable-worker-options ./src/main.ts createSuperUser Alejandro Barrera alebarrera76@gmail.com",
+		"start": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts createSuperUser Alejandro Barrera alebarrera76@gmail.com",
 		"test": "deno test --unstable-worker-options --env-file -A",
-		"typecheck": "deno check src/**/*.ts test/**/*.ts"
+		"typecheck": "deno check server/**/*.ts test/**/*.ts client/**/*.tsx client/**/*.ts"
 	}
 }

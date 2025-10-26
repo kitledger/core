@@ -1,17 +1,22 @@
-import { ApiTokenFactory, SessionFactory, UserFactory } from "../../src/domain/auth/factories.ts";
-import { system_permissions, users } from "../../src/services/database/schema.ts";
+import { ApiTokenFactory, SessionFactory, UserFactory } from "../../server/domain/factories/auth_factories.ts";
+import { system_permissions, users } from "../../server/services/database/schema.ts";
 import { assert } from "@std/assert";
-import { type NewSuperUser, createSuperUser } from "../../src/domain/auth/user_actions.ts";
-import { db } from "../../src/services/database/db.ts";
-import { SYSTEM_ADMIN_PERMISSION } from "../../src/domain/auth/permission_actions.ts";
-import { assembleSessionJwtPayload, assembleApiTokenJwtPayload, verifyToken, signToken } from "../../src/domain/auth/jwt_actions.ts";
-import { startSession } from "../../src/domain/auth/session_actions.ts";
+import { createSuperUser, type NewSuperUser } from "../../server/domain/actions/user_actions.ts";
+import { db } from "../../server/services/database/db.ts";
+import { SYSTEM_ADMIN_PERMISSION } from "../../server/domain/actions/permission_actions.ts";
+import {
+	assembleApiTokenJwtPayload,
+	assembleSessionJwtPayload,
+	signToken,
+	verifyToken,
+} from "../../server/domain/actions/jwt_actions.ts";
+import { startSession } from "../../server/domain/actions/session_actions.ts";
 import { generate } from "@std/uuid/unstable-v7";
-import { createToken } from "../../src/domain/auth/token_actions.ts";
-import { getSessionUserId, getTokenUserId } from "../../src/domain/auth/user_repository.ts";
-import { hashPassword } from "../../src/domain/auth/utils.ts";
+import { createToken } from "../../server/domain/actions/token_actions.ts";
+import { getSessionUserId, getTokenUserId } from "../../server/domain/repositories/user_repository.ts";
+import { hashPassword } from "../../server/domain/utils/crypto.ts";
 import { eq } from "drizzle-orm";
-import { describe, it, afterAll } from "@std/testing/bdd";
+import { afterAll, describe, it } from "@std/testing/bdd";
 
 describe("Auth Domain Tests", () => {
 	afterAll(async () => {
@@ -23,7 +28,7 @@ describe("Auth Domain Tests", () => {
 		const factory = new UserFactory();
 		const users = factory.make(5);
 		assert(users.length === 5);
-		users.forEach(user => {
+		users.forEach((user) => {
 			assert(typeof user.id === "string");
 			assert(typeof user.email === "string");
 			assert(user.email.includes("@"));
@@ -35,7 +40,7 @@ describe("Auth Domain Tests", () => {
 		const factory = new SessionFactory();
 		const sessions = factory.make(3);
 		assert(sessions.length === 3);
-		sessions.forEach(session => {
+		sessions.forEach((session) => {
 			assert(typeof session === "string");
 			assert(session.length === 36); // UUID length
 		});
@@ -45,7 +50,7 @@ describe("Auth Domain Tests", () => {
 		const factory = new ApiTokenFactory();
 		const tokens = factory.make(4);
 		assert(tokens.length === 4);
-		tokens.forEach(token => {
+		tokens.forEach((token) => {
 			assert(typeof token.id === "string");
 			assert(typeof token.user_id === "string");
 			assert(typeof token.name === "string");
@@ -88,7 +93,7 @@ describe("Auth Domain Tests", () => {
 		const systemPermissionFromDbRes = await db.query.system_permissions.findMany({
 			where: eq(system_permissions.user_id, newSuperUser.id),
 		});
-		const systemPermissionFromDb = systemPermissionFromDbRes.map(permission => permission.permission);
+		const systemPermissionFromDb = systemPermissionFromDbRes.map((permission) => permission.permission);
 		assert(systemPermissionFromDb?.includes(SYSTEM_ADMIN_PERMISSION));
 	});
 
@@ -118,7 +123,8 @@ describe("Auth Domain Tests", () => {
 			const invalidToken = generate();
 			await verifyToken(invalidToken);
 			assert(false, "Expected verifyToken to throw an error for invalid token");
-		} catch (error) {
+		}
+		catch (error) {
 			assert(error instanceof Error);
 			assert(error.message === "Invalid or expired token.");
 		}
@@ -163,5 +169,4 @@ describe("Auth Domain Tests", () => {
 		// Check if the hash is a valid argon2 hash (basic check)
 		assert(hashedPassword.startsWith("$argon2id$"));
 	});
-
 });

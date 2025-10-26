@@ -1,10 +1,10 @@
-import { dbConfig } from "./src/config.ts";
+import { dbConfig } from "./server/config.ts";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({
 	dialect: "postgresql",
-	schema: "./src/services/database/schema.ts",
-	out: "./src/services/database/migrations",
+	schema: "./server/services/database/schema.ts",
+	out: "./server/services/database/migrations",
 	migrations: {
 		table: "migrations",
 		schema: "public",
@@ -12,5 +12,5 @@ export default defineConfig({
 	dbCredentials: {
 		url: dbConfig.url,
 		ssl: dbConfig.ssl ? { rejectUnauthorized: false } : false,
-	}
+	},
 });

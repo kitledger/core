@@ -1,11 +1,11 @@
 import { assert } from "@std/assert";
-import { describe, it, afterAll } from "@std/testing/bdd";
-import { db } from "../../src/services/database/db.ts";
-import { createLedger } from "../../src/domain/ledger/ledger_actions.ts";
-import { createAccount } from "../../src/domain/ledger/account_actions.ts";
-import { LedgerFactory, AccountFactory } from "../../src/domain/ledger/factories.ts";
-import { UnitModelFactory } from "../../src/domain/unit/factories.ts";
-import { createUnitModel } from "../../src/domain/unit/unit_model_actions.ts";
+import { afterAll, describe, it } from "@std/testing/bdd";
+import { db } from "../../server/services/database/db.ts";
+import { createLedger } from "../../server/domain/actions/ledger_actions.ts";
+import { createAccount } from "../../server/domain/actions/account_actions.ts";
+import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.ts";
+import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
+import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
 import { generate } from "@std/uuid/unstable-v7";
 
 describe("Ledger Domain Tests", () => {
@@ -20,7 +20,10 @@ describe("Ledger Domain Tests", () => {
 		unitModelData.active = true;
 		const unitModelResult = await createUnitModel(unitModelData);
 
-		if(unitModelResult.success === false || !unitModelResult.data || !Object.keys(unitModelResult.data).includes('id')) {
+		if (
+			unitModelResult.success === false || !unitModelResult.data ||
+			!Object.keys(unitModelResult.data).includes("id")
+		) {
 			throw new Error("Failed to create Unit Model");
 		}
 
@@ -29,20 +32,20 @@ describe("Ledger Domain Tests", () => {
 		ledgerData.unit_model_id = unitModelResult.data.id;
 		const ledgerResult = await createLedger(ledgerData);
 
-		if(ledgerResult.success === false) {
+		if (ledgerResult.success === false) {
 			throw new Error("Failed to create Ledger");
 		}
 
 		assert(ledgerResult.success === true);
 	});
 
-	it("Applies ledger validation correctly", async() => {
+	it("Applies ledger validation correctly", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
 		const unitModelResult = await createUnitModel(unitModelData);
 
-		if(unitModelResult.success === false) {
+		if (unitModelResult.success === false) {
 			throw new Error("Failed to create Unit Model");
 		}
 
@@ -71,13 +74,12 @@ describe("Ledger Domain Tests", () => {
 	});
 
 	it("Can create a valid account", async () => {
-
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
 		const unitModelResult = await createUnitModel(unitModelData);
 
-		if(unitModelResult.success === false) {
+		if (unitModelResult.success === false) {
 			throw new Error("Failed to create Unit Model");
 		}
 
@@ -87,7 +89,7 @@ describe("Ledger Domain Tests", () => {
 		ledgerData.alt_id = generate();
 		const ledgerResult = await createLedger(ledgerData);
 
-		if(ledgerResult.success === false) {
+		if (ledgerResult.success === false) {
 			throw new Error("Failed to create Ledger");
 		}
 

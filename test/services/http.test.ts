@@ -1,16 +1,16 @@
 import { assert } from "@std/assert";
-import { auth } from "../../src/services/http/middleware/auth_middleware.ts";
+import { auth } from "../../server/services/http/middleware/auth_middleware.ts";
 import { Context } from "@hono/hono";
-import { serverConfig } from "../../src/config.ts";
+import { serverConfig } from "../../server/config.ts";
 
 Deno.test("Hono Auth middleware returns 401 for missing token", async () => {
 	const c = {
 		req: {
-            header: () => null,
-            raw: {
-                headers: new Headers(),
-            },
-        },
+			header: () => null,
+			raw: {
+				headers: new Headers(),
+			},
+		},
 		json: (body: Record<string, string>, status: number) => {
 			assert(status === 401, "Expected status code to be 401");
 			console.log("Body Error:", body.error);

@@ -1,14 +1,14 @@
-import { executeQuery } from "../../src/services/database/query.ts";
+import { executeQuery } from "../../server/services/database/query.ts";
 import { Query } from "@kitledger/query";
-import { LedgerFactory, AccountFactory } from "../../src/domain/ledger/factories.ts";
-import { createLedger } from "../../src/domain/ledger/ledger_actions.ts";
-import { createAccount } from "../../src/domain/ledger/account_actions.ts";
-import { createUnitModel } from "../../src/domain/unit/unit_model_actions.ts";
-import { accounts } from "../../src/services/database/schema.ts";
-import { UnitModelFactory } from "../../src/domain/unit/factories.ts";
+import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.ts";
+import { createLedger } from "../../server/domain/actions/ledger_actions.ts";
+import { createAccount } from "../../server/domain/actions/account_actions.ts";
+import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
+import { accounts } from "../../server/services/database/schema.ts";
+import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
 import { assert } from "@std/assert";
-import { describe, beforeAll, afterAll, test } from "@std/testing/bdd";
-import { db } from "../../src/services/database/db.ts";
+import { afterAll, beforeAll, describe, test } from "@std/testing/bdd";
+import { db } from "../../server/services/database/db.ts";
 
 describe("Database Query Service Tests", () => {
 	beforeAll(async () => {
@@ -17,7 +17,10 @@ describe("Database Query Service Tests", () => {
 		unitModelData.active = true;
 		const unitModelResult = await createUnitModel(unitModelData);
 
-		if(unitModelResult.success === false || !unitModelResult.data || !Object.keys(unitModelResult.data).includes('id')) {
+		if (
+			unitModelResult.success === false || !unitModelResult.data ||
+			!Object.keys(unitModelResult.data).includes("id")
+		) {
 			throw new Error("Failed to create Unit Model");
 		}
 
@@ -26,7 +29,7 @@ describe("Database Query Service Tests", () => {
 		ledgerData.unit_model_id = unitModelResult.data.id;
 		const ledgerResult = await createLedger(ledgerData);
 
-		if(ledgerResult.success === false) {
+		if (ledgerResult.success === false) {
 			throw new Error("Failed to create Ledger");
 		}
 
@@ -36,7 +39,7 @@ describe("Database Query Service Tests", () => {
 		accountData.parent_id = null;
 		const accountResult = await createAccount(accountData);
 
-		if(accountResult.success === false) {
+		if (accountResult.success === false) {
 			throw new Error("Failed to create Account");
 		}
 
@@ -46,7 +49,7 @@ describe("Database Query Service Tests", () => {
 		childAccountData.balance_type = accountData.balance_type;
 		const childAccountResult = await createAccount(childAccountData);
 
-		if(childAccountResult.success === false) {
+		if (childAccountResult.success === false) {
 			throw new Error("Failed to create Child Account");
 		}
 	});
@@ -68,7 +71,7 @@ describe("Database Query Service Tests", () => {
 					as: "parent",
 					onLeft: "accounts.parent_id",
 					onRight: "parent.id",
-				}
+				},
 			],
 			where: [
 				{
@@ -77,7 +80,7 @@ describe("Database Query Service Tests", () => {
 						// This condition correctly finds all accounts that have a parent
 						{ column: "accounts.parent_id", operator: "not_empty", value: true },
 					],
-				}
+				},
 			],
 			orderBy: [
 				{ column: "accounts.created_at", direction: "desc" },

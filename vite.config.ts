@@ -1,27 +1,27 @@
-import { defineConfig } from 'vite'
-import deno from '@deno/vite-plugin'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
+import { defineConfig } from "vite";
+import deno from "@deno/vite-plugin";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-	deno(),
-	tanstackRouter({
-		target: 'react',
-      	autoCodeSplitting: true,
-		routesDirectory: './src/client/routes',
-		generatedRouteTree: 'routeTree.gen.ts',
-		addExtensions: true,
-	}),
-	react(),
-	tailwindcss()
-],
-  root: 'src/client',
-  build: {
-	assetsDir: "assets",
-	outDir: '../../dist/client',
-	emptyOutDir: true,
-  }
+	plugins: [
+		deno(),
+		tanstackRouter({
+			target: "react",
+			autoCodeSplitting: true,
+			routesDirectory: "./client/routes",
+			generatedRouteTree: "routeTree.gen.ts",
+			addExtensions: true,
+		}),
+		react(),
+		tailwindcss(),
+	],
+	root: "client",
+	build: {
+		assetsDir: "assets",
+		outDir: "../dist/client",
+		emptyOutDir: true,
+	},
 });

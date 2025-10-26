@@ -1,8 +1,8 @@
 import { assert } from "@std/assert";
-import { describe, it, afterAll } from "@std/testing/bdd";
-import { db } from "../../src/services/database/db.ts";
-import { UnitModelFactory } from "../../src/domain/unit/factories.ts";
-import { createUnitModel } from "../../src/domain/unit/unit_model_actions.ts";
+import { afterAll, describe, it } from "@std/testing/bdd";
+import { db } from "../../server/services/database/db.ts";
+import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
+import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
 
 describe("Unit Domain Tests", () => {
 	afterAll(async () => {
@@ -23,7 +23,7 @@ describe("Unit Domain Tests", () => {
 		assert(unitModelResult.success === true);
 	});
 
-	it("Applies unit model validation correctly", async() => {
+	it("Applies unit model validation correctly", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		const unitModelResult = await createUnitModel(unitModelData);

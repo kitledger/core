@@ -1,5 +1,5 @@
 import { assert } from "@std/assert";
-import { executeScript } from "../../src/services/scripting/runtime.ts";
+import { executeScript } from "../../server/services/scripting/runtime.ts";
 
 Deno.test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	const preCompiledUserCode = `
@@ -55,7 +55,7 @@ Deno.test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () 
 
 	for (let i = 0; i < iterations; i++) {
 		const contextData = JSON.stringify({ eventId: `evt_batch_${i}` });
-		
+
 		promises.push(
 			executeScript({
 				code: preCompiledUserCode,

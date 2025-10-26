@@ -1,8 +1,8 @@
 import { assert } from "@std/assert";
-import { describe, it, afterAll } from "@std/testing/bdd";
-import { db } from "../../src/services/database/db.ts";
-import { createTransactionModel } from "../../src/domain/transaction/transaction_model_actions.ts";
-import { TransactionModelFactory } from "../../src/domain/transaction/factories.ts";
+import { afterAll, describe, it } from "@std/testing/bdd";
+import { db } from "../../server/services/database/db.ts";
+import { createTransactionModel } from "../../server/domain/actions/transaction_model_actions.ts";
+import { TransactionModelFactory } from "../../server/domain/factories/transaction_factories.ts";
 
 describe("Transaction Domain Tests", () => {
 	afterAll(async () => {
@@ -23,7 +23,7 @@ describe("Transaction Domain Tests", () => {
 		assert(transactionModelResult.success === true);
 	});
 
-	it("Applies transaction model validation correctly", async() => {
+	it("Applies transaction model validation correctly", async () => {
 		const transactionModelFactory = new TransactionModelFactory();
 		const transactionModelData = transactionModelFactory.make(1)[0];
 		const transactionModelResult = await createTransactionModel(transactionModelData);
