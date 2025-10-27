@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import deno from "@deno/vite-plugin";
 import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
 // https://vite.dev/config/
@@ -16,9 +15,14 @@ export default defineConfig({
 			addExtensions: true,
 		}),
 		react(),
-		tailwindcss(),
 	],
 	root: "client",
+	base: "/app",
+	server: {
+		proxy: {
+			"/api": "http://localhost:8888",
+		},
+	},
 	build: {
 		assetsDir: "assets",
 		outDir: "../dist/client",

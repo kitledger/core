@@ -23,7 +23,6 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
-	IconBuilding,
 	IconBuildingStore,
 	IconChevronDown,
 	IconDashboard,
@@ -301,12 +300,17 @@ export function AppLayout() {
 					<Group h="100%" px="md" justify="space-between">
 						<Group>
 							<Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-							<IconBuilding size={28} />
-							<Text fw={700}>Kitledger</Text>
+							<Image
+								src={KlIcon}
+								w={rem(28)}
+								h={rem(28)}
+								alt="Kitledger Logo"
+							/>
+							
 						</Group>
-						<ActionIcon variant="default" size="lg" aria-label="Inbox">
-							<IconInbox style={{ width: rem(18), height: rem(18) }} />
-						</ActionIcon>
+						<Text fw={600} size="sm" truncate>
+							{clientName}
+						</Text>
 					</Group>
 				</AppShell.Header>
 

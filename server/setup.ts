@@ -1,5 +1,4 @@
 import { createSuperUser } from "./domain/actions/user_actions.ts";
-import { startSession } from "./domain/actions/session_actions.ts";
 
 type Command = {
 	name: string;
@@ -10,12 +9,12 @@ type Command = {
 
 const commands: Command[] = [
 	{
-		name: "createSuperUser",
-		description: "Create a superuser",
-		usage: "createSuperUser <first> <last> <email>",
+		name: "setup",
+		description: "Setup a new super user",
+		usage: "setup <first> <last> <email>",
 		handler: async (args) => {
 			if (args.length < 3) {
-				console.error(`Usage: ${commands.find((c) => c.name === "createSuperUser")!.usage}`);
+				console.error(`Usage: ${commands.find((c) => c.name === "setup")!.usage}`);
 				Deno.exit(1);
 			}
 
@@ -31,28 +30,6 @@ const commands: Command[] = [
 			}
 
 			console.table([user]);
-			Deno.exit(0);
-		},
-	},
-	{
-		name: "startSession",
-		description: "Start a session for a user",
-		usage: "startSession <userId>",
-		handler: async (args) => {
-			if (args.length < 1) {
-				console.error(`Usage: ${commands.find((c) => c.name === "startSession")!.usage}`);
-				Deno.exit(1);
-			}
-
-			const userId = args[0];
-			const sessionId = await startSession(userId);
-
-			if (!sessionId) {
-				console.error("Failed to start session.");
-				Deno.exit(1);
-			}
-
-			console.log(`Session started with ID: ${sessionId}`);
 			Deno.exit(0);
 		},
 	},

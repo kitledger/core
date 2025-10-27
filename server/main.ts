@@ -5,7 +5,7 @@ import { authPrefix, authRouter } from "./services/http/api/auth/router.ts";
 import { join } from "@std/path/join";
 import { runMigrations } from "./services/database/db.ts";
 import { serverConfig } from "./config.ts";
-import { execute } from "./cli.ts";
+import { execute } from "./setup.ts";
 
 await runMigrations();
 

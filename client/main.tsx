@@ -36,10 +36,6 @@ const theme = createTheme({
 		'"IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans"',
 	fontFamilyMonospace:
 		'"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-	primaryShade: {
-		light: 6,
-		dark: 5,
-	},
 });
 
 // Render the app

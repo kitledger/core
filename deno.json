@@ -65,12 +65,11 @@
 	"nodeModulesDir": "auto",
 	"tasks": {
 		"build": "deno run -A npm:vite build",
-		"client:dev": "",
 		"db:custom": "deno run -A npm:drizzle-kit generate --custom",
 		"db:generate": "deno run -A npm:drizzle-kit generate",
-		"dev": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts & deno run -A npm:vite build --watch",
+		"dev": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts & deno run -A npm:vite",
 		"format": "deno fmt",
-		"start": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts createSuperUser Alejandro Barrera alebarrera76@gmail.com",
+		"setup": "deno run -A --watch --env-file --unstable-worker-options ./server/main.ts setup",
 		"test": "deno test --unstable-worker-options --env-file -A",
 		"typecheck": "deno check server/**/*.ts test/**/*.ts client/**/*.tsx client/**/*.ts"
 	}
