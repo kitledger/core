@@ -5,7 +5,5 @@ export const Route = createFileRoute("/accounts")({
 });
 
 export function Accounts() {
-	return (
-		<Outlet></Outlet>
-	);
+	return <Outlet></Outlet>;
 }
