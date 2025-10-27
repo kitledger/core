@@ -29,3 +29,9 @@ export type User = InferSelectModel<typeof users>;
 
 export type UserRoleInsert = InferInsertModel<typeof user_roles>;
 export type UserRole = InferSelectModel<typeof user_roles>;
+
+export type AppUser = Omit<User, "password_hash"> & {
+	roles: Role[];
+	permissions: Permission[];
+	system_permissions: SystemPermission[];
+};

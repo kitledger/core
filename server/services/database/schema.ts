@@ -219,10 +219,18 @@ export const roleRelations = relations(roles, ({ many }) => ({
 	permissions: many(permission_assignments),
 }));
 
+export const systemPermissionRelations = relations(system_permissions, ({ one }) => ({
+	user: one(users, {
+		fields: [system_permissions.user_id],
+		references: [users.id],
+	}),
+}));
+
 export const userRelations = relations(users, ({ many }) => ({
 	roles: many(user_roles),
 	apiTokens: many(api_tokens),
 	permissions: many(permission_assignments),
+	system_permissions: many(system_permissions),
 }));
 
 export const userRoleRelations = relations(user_roles, ({ one }) => ({

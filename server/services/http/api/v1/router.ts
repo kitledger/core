@@ -1,28 +1,32 @@
-import { serverConfig } from "../../../../config.ts";
-import { auth } from "../../middleware/auth_middleware.ts";
+import { serverConfig } from "@server/config.ts";
+import { auth } from "@server/services/http/middleware/auth_middleware.ts";
 import { cors } from "@hono/hono/cors";
 import { Hono } from "@hono/hono";
-import { createUnitModel } from "../../../../domain/actions/unit_model_actions.ts";
-import { UnitModelCreateData } from "../../../../domain/types/unit_model_types.ts";
+import { createUnitModel } from "@server/domain/actions/unit_model_actions.ts";
+import { UnitModelCreateData } from "@server/domain/types/unit_model_types.ts";
 import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
-import { isValidationFailure } from "../../../../domain/utils/validation.ts";
-import { createLedger } from "../../../../domain/actions/ledger_actions.ts";
-import { Ledger, LedgerCreateData } from "../../../../domain/types/ledger_types.ts";
-import { Account, AccountCreateData } from "../../../../domain/types/account_types.ts";
-import { filterAccounts } from "../../../../domain/repositories/account_repository.ts";
-import { createAccount } from "../../../../domain/actions/account_actions.ts";
-import { filterLedgers } from "../../../../domain/repositories/ledger_repository.ts";
-import { filterEntityModels } from "../../../../domain/repositories/entity_model_repository.ts";
-import { filterTransactionModels } from "../../../../domain/repositories/transaction_model_repository.ts";
-import { filterUnitModels } from "../../../../domain/repositories/unit_model_repository.ts";
-import { createEntityModel } from "../../../../domain/actions/entity_model_actions.ts";
-import { EntityModel, EntityModelCreateData } from "../../../../domain/types/entity_model_types.ts";
-import { createTransactionModel } from "../../../../domain/actions/transaction_model_actions.ts";
-import { TransactionModel, TransactionModelCreateData } from "../../../../domain/types/transaction_model_types.ts";
+import { isValidationFailure } from "@server/domain/utils/validation.ts";
+import { createLedger } from "@server/domain/actions/ledger_actions.ts";
+import { Ledger, LedgerCreateData } from "@server/domain/types/ledger_types.ts";
+import { Account, AccountCreateData } from "@server/domain/types/account_types.ts";
+import { filterAccounts } from "@server/domain/repositories/account_repository.ts";
+import { createAccount } from "@server/domain/actions/account_actions.ts";
+import { filterLedgers } from "@server/domain/repositories/ledger_repository.ts";
+import { filterEntityModels } from "@server/domain/repositories/entity_model_repository.ts";
+import { filterTransactionModels } from "@server/domain/repositories/transaction_model_repository.ts";
+import { filterUnitModels } from "@server/domain/repositories/unit_model_repository.ts";
+import { createEntityModel } from "@server/domain/actions/entity_model_actions.ts";
+import { EntityModel, EntityModelCreateData } from "@server/domain/types/entity_model_types.ts";
+import { createTransactionModel } from "@server/domain/actions/transaction_model_actions.ts";
+import { TransactionModel, TransactionModelCreateData } from "@server/domain/types/transaction_model_types.ts";
 import { GetOperationResult, GetOperationType } from "../../../database/helpers.ts";
-import { UnitModel } from "../../../../domain/types/unit_model_types.ts";
+import { UnitModel } from "@server/domain/types/unit_model_types.ts";
+import { getAuthUser } from "../../../../domain/repositories/user_repository.ts";
 
-const router = new Hono();
+type Variables = {
+  user?: string
+}
+const router = new Hono<{Variables: Variables}>();
 
 router.use(cors(serverConfig.cors));
 router.use(auth);
@@ -315,6 +319,22 @@ router.post("/unit-models", async (c) => {
 		console.error(error);
 		return c.json({ error: "Internal server error" }, 500);
 	}
+});
+
+router.get("/user", async (c) => {
+	const userId = c.get("user");
+	
+	if (!userId) {
+		return c.json({ error: "Unauthorized" }, 401);
+	}
+
+	const appUser = await getAuthUser(userId);
+
+	if (!appUser) {
+		return c.json({ error: "User not found" }, 404);
+	}
+
+	return c.json({ data: appUser });
 });
 
 export const apiV1Router = router;

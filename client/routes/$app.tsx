@@ -1,5 +1,5 @@
 import KlIcon from "../assets/brand/vector.svg";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import {
 	ActionIcon,
 	AppShell,
@@ -46,6 +46,31 @@ import { Spotlight, spotlight, SpotlightActionData } from "@mantine/spotlight";
 // --- TanStack Router Route Definition ---
 export const Route = createFileRoute("/$app")({
 	component: AppLayout,
+	beforeLoad: async ({context}) => {
+
+		try {
+			const response = await context.queryClient.ensureQueryData({
+				queryKey: ["user"],
+				queryFn: async () => {
+					const response = await fetch("/api/v1/user");
+					const data = await response.json();
+					return data;
+				},
+			});
+
+			console.log("User data in beforeLoad:", response);
+
+			if (!response.data) {
+				throw "No user data";
+			}
+		}
+
+		catch (_e) {
+			throw redirect({
+				to: "/accounts/login",
+			});
+		}
+	}
 });
 
 function ThemeSwitcher() {
