@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import React from "react";
+import { Button } from "@mantine/core";
 
 export const Route = createFileRoute("/accounts/login")({
 	component: LoginPage,
@@ -47,7 +48,7 @@ function LoginPage() {
 					<input type="password" name="password" />
 				</label>
 				<br />
-				<button type="submit">Login</button>
+				<Button type="submit">Login</Button>
 			</form>
 		</>
 	);
