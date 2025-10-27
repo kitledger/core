@@ -31,6 +31,7 @@
     "npm:@mantine/notifications@^8.3.5": "8.3.5_@mantine+core@8.3.5__@mantine+hooks@8.3.5___react@19.2.0__react@19.2.0__react-dom@19.2.0___react@19.2.0__@types+react@19.2.2_@mantine+hooks@8.3.5__react@19.2.0_react@19.2.0_react-dom@19.2.0__react@19.2.0_@types+react@19.2.2",
     "npm:@mantine/spotlight@^8.3.5": "8.3.5_@mantine+core@8.3.5__@mantine+hooks@8.3.5___react@19.2.0__react@19.2.0__react-dom@19.2.0___react@19.2.0__@types+react@19.2.2_@mantine+hooks@8.3.5__react@19.2.0_react@19.2.0_react-dom@19.2.0__react@19.2.0_@types+react@19.2.2",
     "npm:@node-rs/argon2@^2.0.2": "2.0.2",
+    "npm:@tabler/icons-react@^3.35.0": "3.35.0_react@19.2.0",
     "npm:@tanstack/react-query@^5.90.5": "5.90.5_react@19.2.0",
     "npm:@tanstack/react-router-devtools@^1.133.27": "1.133.27_@tanstack+react-router@1.133.27__react@19.2.0__react-dom@19.2.0___react@19.2.0_react@19.2.0_react-dom@19.2.0__react@19.2.0",
     "npm:@tanstack/react-router@^1.133.27": "1.133.27_react@19.2.0_react-dom@19.2.0__react@19.2.0",
@@ -1056,6 +1057,16 @@
     },
     "@standard-schema/utils@0.3.0": {
       "integrity": "sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g=="
+    },
+    "@tabler/icons-react@3.35.0_react@19.2.0": {
+      "integrity": "sha512-XG7t2DYf3DyHT5jxFNp5xyLVbL4hMJYJhiSdHADzAjLRYfL7AnjlRfiHDHeXxkb2N103rEIvTsBRazxXtAUz2g==",
+      "dependencies": [
+        "@tabler/icons",
+        "react"
+      ]
+    },
+    "@tabler/icons@3.35.0": {
+      "integrity": "sha512-yYXe+gJ56xlZFiXwV9zVoe3FWCGuZ/D7/G4ZIlDtGxSx5CGQK110wrnT29gUj52kEZoxqF7oURTk97GQxELOFQ=="
     },
     "@tanstack/history@1.133.19": {
       "integrity": "sha512-Y866qBVVprdQkmO0/W1AFBI8tiQy398vFeIwP+VrRWCOzs3VecxSVzAvaOM4iHfkJz81fFAZMhLLjDVoPikD+w=="
@@ -2377,6 +2388,7 @@
       "npm:@mantine/notifications@^8.3.5",
       "npm:@mantine/spotlight@^8.3.5",
       "npm:@node-rs/argon2@^2.0.2",
+      "npm:@tabler/icons-react@^3.35.0",
       "npm:@tanstack/react-query@^5.90.5",
       "npm:@tanstack/react-router-devtools@^1.133.27",
       "npm:@tanstack/react-router@^1.133.27",

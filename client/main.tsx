@@ -1,4 +1,5 @@
 import '@mantine/core/styles.css';
+import '@mantine/spotlight/styles.css';
 import "./style.css";
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
