@@ -42,6 +42,8 @@ import {
 	IconUsers,
 } from "@tabler/icons-react";
 import { Spotlight, spotlight, SpotlightActionData } from "@mantine/spotlight";
+import { authUserQueryOptions } from "../data/auth.ts";
+import { useQuery } from "@tanstack/react-query";
 
 // --- TanStack Router Route Definition ---
 export const Route = createFileRoute("/$app")({
@@ -49,18 +51,11 @@ export const Route = createFileRoute("/$app")({
 	beforeLoad: async ({context}) => {
 
 		try {
-			const response = await context.queryClient.ensureQueryData({
-				queryKey: ["user"],
-				queryFn: async () => {
-					const response = await fetch("/api/v1/user");
-					const data = await response.json();
-					return data;
-				},
-			});
+			const response = await context.queryClient.ensureQueryData(authUserQueryOptions);
 
 			console.log("User data in beforeLoad:", response);
 
-			if (!response.data) {
+			if (!response) {
 				throw "No user data";
 			}
 		}
@@ -212,47 +207,50 @@ function MainNavigation() {
 // --- 4. UserMenu (Modified for sidebar) ---
 // Simplified to always show the full version inside the sidebar
 function UserMenu() {
+
+	const userData = useQuery(authUserQueryOptions);
+
 	return (
-		<Menu shadow="md" width={240} position="top-end" withArrow>
-			<Menu.Target>
-				<UnstyledButton w="100%">
-					<Group gap="sm">
-						<Avatar src={null} alt="User" color="blue">
-							BH
-						</Avatar>
-						<div style={{ flex: 1, minWidth: 0 }}>
-							<Text size="sm" fw={500} truncate>
-								Bob Henderson
-							</Text>
-							<Text c="dimmed" size="xs" truncate>
-								bob@kitledger.com
-							</Text>
-						</div>
-						<IconChevronDown style={{ width: rem(14), height: rem(14) }} />
-					</Group>
-				</UnstyledButton>
-			</Menu.Target>
-			<Menu.Dropdown>
-				<Menu.Label>Account</Menu.Label>
-				<Menu.Item
-					leftSection={<IconUserCircle style={{ width: rem(14), height: rem(14) }} />}
-				>
-					Profile
-				</Menu.Item>
-				<Menu.Item
-					leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}
-				>
-					Settings
-				</Menu.Item>
-				<Menu.Divider />
-				<Menu.Item
-					color="red"
-					leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
-				>
-					Sign Out
-				</Menu.Item>
-			</Menu.Dropdown>
-		</Menu>
+		userData.isLoading ?
+			<div>Loading...</div> :
+			<Menu shadow="md" width={240} position="top-end" withArrow>
+				<Menu.Target>
+					<UnstyledButton w="100%">
+						<Group gap="sm">
+							<Avatar src={null} alt={`${userData.data?.first_name} ${userData.data?.last_name}`} color="initials" name={`${userData.data?.first_name} ${userData.data?.last_name}`}></Avatar>
+							<div style={{ flex: 1, minWidth: 0 }}>
+								<Text size="sm" fw={500} truncate>
+									{userData.data?.first_name} {userData.data?.last_name}
+								</Text>
+								<Text c="dimmed" size="xs" truncate>
+									{userData.data?.email}
+								</Text>
+							</div>
+							<IconChevronDown style={{ width: rem(14), height: rem(14) }} />
+						</Group>
+					</UnstyledButton>
+				</Menu.Target>
+				<Menu.Dropdown>
+					<Menu.Label>Account</Menu.Label>
+					<Menu.Item
+						leftSection={<IconUserCircle style={{ width: rem(14), height: rem(14) }} />}
+					>
+						Profile
+					</Menu.Item>
+					<Menu.Item
+						leftSection={<IconSettings style={{ width: rem(14), height: rem(14) }} />}
+					>
+						Settings
+					</Menu.Item>
+					<Menu.Divider />
+					<Menu.Item
+						color="red"
+						leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
+					>
+						Sign Out
+					</Menu.Item>
+				</Menu.Dropdown>
+			</Menu>
 	);
 }
 
