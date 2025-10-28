@@ -1,4 +1,4 @@
-import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.js";
+/*import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.js";
 import type {
 	ExecutionResultPayload,
 	HostToWorkerMessage,
@@ -40,25 +40,20 @@ function timeout(
 		}, ms);
 	});
 	return { promise, timeoutId: timeoutId! };
-}
+}*/
 
 /**
  * Arguments for executing a Kit Action Script.
  */
-export interface ExecuteScriptArgs {
-	/** The bundled, executable JavaScript code. */
+/*export interface ExecuteScriptArgs {
 	code: string;
-	/** A JSON string representing the script's 'input' object. */
 	inputJSON: string;
-	/** The script type, e.g., "ServerEvent", "EndpointRequest". */
 	scriptType: string;
-	/** The specific trigger, e.g., "beforeCreate" or "GET". */
 	trigger?: string;
-	/** The execution timeout in milliseconds. */
 	timeoutMs: number;
-}
+}*/
 
-export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionResultPayload> {
+/*export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionResultPayload> {
 	const pooledWorker = await acquireWorker();
 	const worker = pooledWorker.worker;
 	pooledWorker.jobsDone++;
@@ -127,4 +122,4 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
 		}
 		releaseWorker(pooledWorker, terminatedFlag.value);
 	}
-}
+}*/

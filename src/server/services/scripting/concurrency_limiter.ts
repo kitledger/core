@@ -1,11 +1,11 @@
-import { workerConfig } from "../../config.js";
+//import { workerConfig } from "../../config.js";
 
-const workerURL = new URL("./worker.js", import.meta.url);
+//const workerURL = new URL("./worker.js", import.meta.url);
 
 // --- Pool Configuration ---
 
 /** A worker from the pool, with metadata. */
-export type PooledWorker = {
+/*export type PooledWorker = {
 	worker: Worker;
 	jobsDone: number;
 };
@@ -18,12 +18,12 @@ const POOL_CONFIG = {
 
 const idleWorkers: PooledWorker[] = [];
 const waitingTasks: ((worker: PooledWorker) => void)[] = [];
-let currentPoolSize = 0;
+let currentPoolSize = 0;*/
 
 // --- Private Functions ---
 
 /** Creates a new, clean worker and adds it to the pool. */
-function createWorker(): PooledWorker {
+/*function createWorker(): PooledWorker {
 	currentPoolSize++;
 	return {
 		worker: new Worker(workerURL.href, {
@@ -32,36 +32,36 @@ function createWorker(): PooledWorker {
 		}),
 		jobsDone: 0,
 	};
-}
+}*/
 
 /**
  * Safely terminates a worker and starts a new one to
  * maintain the pool's 'min' size.
  */
-function recycleWorker(reason: string) {
+/*function recycleWorker(reason: string) {
 	console.log(`Recycling worker: ${reason}`);
 	currentPoolSize--;
 	// Immediately create a new one to replace it
 	// and add it to the pool.
 	const newWorker = createWorker();
 	releaseWorker(newWorker);
-}
+}*/
 
 // --- Public API ---
 
 /**
  * Starts the worker pool with the minimum number of workers.
  */
-export function initializePool() {
+/*export function initializePool() {
 	for (let i = 0; i < POOL_CONFIG.min; i++) {
 		idleWorkers.push(createWorker());
 	}
-}
+}*/
 
 /**
  * Resolves with an available worker from the pool.
  */
-export function acquireWorker(): Promise<PooledWorker> {
+/*export function acquireWorker(): Promise<PooledWorker> {
 	return new Promise((resolve) => {
 		// 1. If a worker is idle, use it
 		if (idleWorkers.length > 0) {
@@ -80,14 +80,14 @@ export function acquireWorker(): Promise<PooledWorker> {
 		// 3. If at max capacity, wait in the queue
 		waitingTasks.push(resolve);
 	});
-}
+}*/
 
 /**
  * Releases a worker back into the pool.
  * @param pooledWorker The worker to release.
  * @param isDirty If true, the worker is compromised (e.g., timed out) and must be terminated.
  */
-export function releaseWorker(pooledWorker: PooledWorker, isDirty = false) {
+/*export function releaseWorker(pooledWorker: PooledWorker, isDirty = false) {
 	// 1. If worker is dirty or has done too many jobs, recycle it.
 	if (isDirty) {
 		pooledWorker.worker.terminate();
@@ -109,4 +109,4 @@ export function releaseWorker(pooledWorker: PooledWorker, isDirty = false) {
 
 	// 3. If no one is waiting, put it back in the idle queue
 	idleWorkers.push(pooledWorker);
-}
+}*/

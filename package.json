@@ -31,13 +31,13 @@
   "scripts": {
     "build": "npm run build:server && npm run build:client",
     "build:client": "vite build",
-    "build:server": "tsc",
+    "build:server": "tsc --project tsconfig.server.json",
     "db:custom": "drizzle-kit generate --custom",
     "db:generate": "drizzle-kit generate",
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
     "dev:client": "vite",
-    "dev:server": "tsx --env-file=.env ./server/main.ts",
-    "setup": "tsx --env-file=.env ./server/main.ts setup",
+    "dev:server": "tsx --env-file=.env ./src/server/main.ts",
+    "setup": "tsx --env-file=.env ./src/server/main.ts setup",
 	"start": "node --env-file=.env ./dist/server/main.js",
     "test": "tsx --env-file=.env --test test/**/*.test.ts",
     "typecheck": "tsc --build"
