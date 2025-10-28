@@ -1,16 +1,16 @@
-import { assert } from "@std/assert";
-import { afterAll, describe, it } from "@std/testing/bdd";
-import { db } from "../../server/services/database/db.ts";
-import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
-import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
+import assert from "node:assert";
+import { after, describe, test } from "node:test";
+import { db } from "../../src/server/services/database/db.js";
+import { UnitModelFactory } from "../../src/server/domain/factories/unit_factories.js";
+import { createUnitModel } from "../../src/server/domain/actions/unit_model_actions.js";
 
 describe("Unit Domain Tests", () => {
-	afterAll(async () => {
+	after(async () => {
 		// Close up Drizzle DB Connection
 		await db.$client.end();
 	});
 
-	it("Can create a valid unit model", async () => {
+	test("Can create a valid unit model", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
@@ -23,7 +23,7 @@ describe("Unit Domain Tests", () => {
 		assert(unitModelResult.success === true);
 	});
 
-	it("Applies unit model validation correctly", async () => {
+	test("Applies unit model validation correctly", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		const unitModelResult = await createUnitModel(unitModelData);

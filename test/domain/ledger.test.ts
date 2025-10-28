@@ -1,20 +1,20 @@
-import { assert } from "@std/assert";
-import { afterAll, describe, it } from "@std/testing/bdd";
-import { db } from "../../server/services/database/db.ts";
-import { createLedger } from "../../server/domain/actions/ledger_actions.ts";
-import { createAccount } from "../../server/domain/actions/account_actions.ts";
-import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.ts";
-import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
-import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
-import { generate } from "@std/uuid/unstable-v7";
+import assert from "node:assert";
+import { after, describe, test } from "node:test";
+import { db } from "../../src/server/services/database/db.js";
+import { createLedger } from "../../src/server/domain/actions/ledger_actions.js";
+import { createAccount } from "../../src/server/domain/actions/account_actions.js";
+import { AccountFactory, LedgerFactory } from "../../src/server/domain/factories/ledger_factories.js";
+import { UnitModelFactory } from "../../src/server/domain/factories/unit_factories.js";
+import { createUnitModel } from "../../src/server/domain/actions/unit_model_actions.js";
+import { v7 as generate } from "uuid";
 
 describe("Ledger Domain Tests", () => {
-	afterAll(async () => {
+	after(async () => {
 		// Close up Drizzle DB Connection
 		await db.$client.end();
 	});
 
-	it("Can create a valid ledger", async () => {
+	test("Can create a valid ledger", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
@@ -39,7 +39,7 @@ describe("Ledger Domain Tests", () => {
 		assert(ledgerResult.success === true);
 	});
 
-	it("Applies ledger validation correctly", async () => {
+	test("Applies ledger validation correctly", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
@@ -73,7 +73,7 @@ describe("Ledger Domain Tests", () => {
 		assert(duplicateIdsResult.errors?.some((e) => e.type === "data"));
 	});
 
-	it("Can create a valid account", async () => {
+	test("Can create a valid account", async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;

@@ -1,9 +1,10 @@
-import { assert } from "@std/assert";
-import { auth } from "../../server/services/http/middleware/auth_middleware.ts";
-import { Context } from "@hono/hono";
-import { serverConfig } from "../../server/config.ts";
+import assert from "node:assert";
+import test from "node:test";
+import { auth } from "../../src/server/services/http/middleware/auth_middleware.js";
+import { Context } from "hono";
+import { serverConfig } from "../../src/server/config.js";
 
-Deno.test("Hono Auth middleware returns 401 for missing token", async () => {
+test("Hono Auth middleware returns 401 for missing token", async () => {
 	const c = {
 		req: {
 			header: () => null,
@@ -25,7 +26,7 @@ Deno.test("Hono Auth middleware returns 401 for missing token", async () => {
 	await auth(c, async () => {});
 });
 
-Deno.test("CORS Server Configuration is set correctly", () => {
+test("CORS Server Configuration is set correctly", () => {
 	assert(typeof serverConfig.cors === "object" || serverConfig.cors === "*");
 	assert(serverConfig.cors.allowMethods?.includes("GET"), "Expected CORS to allow GET method");
 	assert(serverConfig.cors.allowHeaders?.includes("Authorization"), "Expected CORS to allow Authorization header");

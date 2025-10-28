@@ -1,16 +1,16 @@
-import { assert } from "@std/assert";
-import { afterAll, describe, it } from "@std/testing/bdd";
-import { db } from "../../server/services/database/db.ts";
-import { createTransactionModel } from "../../server/domain/actions/transaction_model_actions.ts";
-import { TransactionModelFactory } from "../../server/domain/factories/transaction_factories.ts";
+import assert from "node:assert";
+import { after, describe, test } from "node:test";
+import { db } from "../../src/server/services/database/db.js";
+import { createTransactionModel } from "../../src/server/domain/actions/transaction_model_actions.js";
+import { TransactionModelFactory } from "../../src/server/domain/factories/transaction_factories.js";
 
 describe("Transaction Domain Tests", () => {
-	afterAll(async () => {
+	after(async () => {
 		// Close up Drizzle DB Connection
 		await db.$client.end();
 	});
 
-	it("Can create a valid transaction model", async () => {
+	test("Can create a valid transaction model", async () => {
 		const transactionModelFactory = new TransactionModelFactory();
 		const transactionModelData = transactionModelFactory.make(1)[0];
 		transactionModelData.active = true;
@@ -23,7 +23,7 @@ describe("Transaction Domain Tests", () => {
 		assert(transactionModelResult.success === true);
 	});
 
-	it("Applies transaction model validation correctly", async () => {
+	test("Applies transaction model validation correctly", async () => {
 		const transactionModelFactory = new TransactionModelFactory();
 		const transactionModelData = transactionModelFactory.make(1)[0];
 		const transactionModelResult = await createTransactionModel(transactionModelData);

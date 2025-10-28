@@ -1,16 +1,16 @@
-import { assert } from "@std/assert";
-import { afterAll, describe, it } from "@std/testing/bdd";
-import { db } from "../../server/services/database/db.ts";
-import { createEntityModel } from "../../server/domain/actions/entity_model_actions.ts";
-import { EntityModelFactory } from "../../server/domain/factories/entity_factories.ts";
+import assert from "node:assert";
+import { after, describe, test } from "node:test";
+import { db } from "../../src/server/services/database/db.js";
+import { createEntityModel } from "../../src/server/domain/actions/entity_model_actions.js";
+import { EntityModelFactory } from "../../src/server/domain/factories/entity_factories.js";
 
 describe("Entity Domain Tests", () => {
-	afterAll(async () => {
+	after(async () => {
 		// Close up Drizzle DB Connection
 		await db.$client.end();
 	});
 
-	it("Can create a valid entity model", async () => {
+	test("Can create a valid entity model", async () => {
 		const entityModelFactory = new EntityModelFactory();
 		const entityModelData = entityModelFactory.make(1)[0];
 		entityModelData.active = true;
@@ -23,7 +23,7 @@ describe("Entity Domain Tests", () => {
 		assert(entityModelResult.success === true);
 	});
 
-	it("Applies entity model validation correctly", async () => {
+	test("Applies entity model validation correctly", async () => {
 		const entityModelFactory = new EntityModelFactory();
 		const entityModelData = entityModelFactory.make(1)[0];
 		const entityModelResult = await createEntityModel(entityModelData);
