@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import test from "node:test";
-import { executeScript } from "../../server/services/scripting/runtime.js";
+import { executeScript } from "../../src/server/services/scripting/runtime.js";
 
 test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	const preCompiledUserCode = `

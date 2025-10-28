@@ -13,11 +13,10 @@ export const db = drizzle({
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const migrationsPath = join(__dirname, "migrations");
 
 export async function runMigrations() {
     await migrate(db, {
-        migrationsFolder: migrationsPath,
+        migrationsFolder: "./migrations",
         migrationsTable: "schema_history",
         migrationsSchema: "public",
     });

@@ -8,13 +8,13 @@ export default defineConfig({
 		tanstackRouter({
 			target: "react",
 			autoCodeSplitting: true,
-			routesDirectory: "./client/routes",
+			routesDirectory: "./src/client/routes",
 			generatedRouteTree: "routeTree.gen.ts",
 			addExtensions: true,
 		}),
 		react(),
 	],
-	root: "client",
+	root: "src/client",
 	base: "/app",
 	server: {
 		proxy: {
@@ -23,7 +23,7 @@ export default defineConfig({
 	},
 	build: {
 		assetsDir: "assets",
-		outDir: "../dist/client",
+		outDir: "../../dist/client",
 		emptyOutDir: true,
 	},
 });

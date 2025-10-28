@@ -16,7 +16,7 @@
     
     "baseUrl": ".",
     "paths": {
-      "@server/*": ["server/*"]
+      
     },
 
     "esModuleInterop": true,
@@ -25,7 +25,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "server/**/*.ts",
+    "src/server/**/*.ts",
     "test/**/*.ts"
   ],
   "exclude": ["node_modules", "dist"]

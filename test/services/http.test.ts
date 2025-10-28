@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import test from "node:test";
-import { auth } from "../../server/services/http/middleware/auth_middleware.js";
+import { auth } from "../../src/server/services/http/middleware/auth_middleware.js";
 import { Context } from "hono";
-import { serverConfig } from "../../server/config.js";
+import { serverConfig } from "../../src/server/config.js";
 
 test("Hono Auth middleware returns 401 for missing token", async () => {
 	const c = {

@@ -40,7 +40,7 @@ if (args.length === 0 || args[0] === "serve") {
     /**
      * Serve the client SPA and assets.
      */
-    const clientDistPath = join(__dirname, "../dist/client");
+    const clientDistPath = join(__dirname, "../../dist/client");
 
     /**
      * Server the assets.

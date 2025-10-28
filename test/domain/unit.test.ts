@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { after, describe, test } from "node:test";
-import { db } from "../../server/services/database/db.js";
-import { UnitModelFactory } from "../../server/domain/factories/unit_factories.js";
-import { createUnitModel } from "../../server/domain/actions/unit_model_actions.js";
+import { db } from "../../src/server/services/database/db.js";
+import { UnitModelFactory } from "../../src/server/domain/factories/unit_factories.js";
+import { createUnitModel } from "../../src/server/domain/actions/unit_model_actions.js";
 
 describe("Unit Domain Tests", () => {
 	after(async () => {

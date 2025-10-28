@@ -1,12 +1,12 @@
-import { executeQuery } from "../../server/services/database/query.js";
+import { executeQuery } from "../../src/server/services/database/query.js";
 import { Query } from "@kitledger/query";
-import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.js";
-import { createLedger } from "../../server/domain/actions/ledger_actions.js";
-import { createAccount } from "../../server/domain/actions/account_actions.js";
-import { createUnitModel } from "../../server/domain/actions/unit_model_actions.js";
-import { accounts } from "../../server/services/database/schema.js";
-import { UnitModelFactory } from "../../server/domain/factories/unit_factories.js";
-import { db } from "../../server/services/database/db.js";
+import { AccountFactory, LedgerFactory } from "../../src/server/domain/factories/ledger_factories.js";
+import { createLedger } from "../../src/server/domain/actions/ledger_actions.js";
+import { createAccount } from "../../src/server/domain/actions/account_actions.js";
+import { createUnitModel } from "../../src/server/domain/actions/unit_model_actions.js";
+import { accounts } from "../../src/server/services/database/schema.js";
+import { UnitModelFactory } from "../../src/server/domain/factories/unit_factories.js";
+import { db } from "../../src/server/services/database/db.js";
 import assert from "node:assert";
 import { after, before, describe, test } from "node:test";
 

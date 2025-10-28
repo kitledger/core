@@ -20,7 +20,7 @@
     "skipLibCheck": true
   },
   "include": [
-    "client"
+    "src/client"
   ],
-  "exclude": ["node_modules", "dist", "server"]
+  "exclude": ["node_modules", "dist", "src/server"]
 }
