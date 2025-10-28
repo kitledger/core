@@ -47,7 +47,7 @@ test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	};
 	`;
 
-	console.log("--- Executing Kit Action Script (1,000x Concurrency Benchmark) ---");
+	console.log("--- Executing Kit Action Script (5x Concurrency Benchmark) ---");
 
 	const iterations = 5;
 	const promises = [];
