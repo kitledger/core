@@ -2,7 +2,9 @@ import assert from "node:assert";
 import {test, after} from "node:test";
 import { executeScript, shutdownScripting } from "../../server/services/scripting/runtime.js";
 
-test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
+const iterations = 1000;
+
+test(`Kit Action Script Benchmark - ${iterations} Concurrent Executions`, async () => {
 	const preCompiledUserCode = `
 	var __defProp = Object.defineProperty;
 	var __export = (target, all) => {
@@ -47,9 +49,8 @@ test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	};
 	`;
 
-	console.log("--- Executing Kit Action Script (5x Concurrency Benchmark) ---");
+	console.log(`--- Executing Kit Action Script (${iterations}x Concurrency Benchmark) ---`);
 
-	const iterations = 5;
 	const promises = [];
 
 	const startTime = performance.now();

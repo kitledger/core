@@ -42,6 +42,8 @@ function createWorker(): PooledWorker {
         stdio: ["ignore", "ignore", "ignore", "ipc"], // Only allow IPC communication
     });
 
+	child.setMaxListeners(0);
+
     // Handle unexpected exits
     child.on("exit", (code, signal) => {
         if (code !== 0 && signal !== "SIGTERM") {
