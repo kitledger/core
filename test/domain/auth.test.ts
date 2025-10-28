@@ -65,6 +65,7 @@ describe("Auth Domain Tests", () => {
 			fakeUser.first_name,
 			fakeUser.last_name,
 			fakeUser.email,
+			true,
 		);
 
 		assert(newSuperUser !== null);
@@ -138,6 +139,7 @@ describe("Auth Domain Tests", () => {
 			fakeUser.first_name,
 			fakeUser.last_name,
 			fakeUser.email,
+			true,
 		);
 		if (newSuperUser === null) {
 			throw new Error("Failed to create super user for session test");

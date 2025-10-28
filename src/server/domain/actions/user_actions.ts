@@ -18,6 +18,7 @@ export async function createSuperUser(
 	firstName: string,
 	lastName: string,
 	email: string,
+	overrideExisting = false,
 ): Promise<NewSuperUser | null> {
 	const newSuperUser: NewSuperUser | null = await db.transaction(async (tx) => {
 
@@ -33,7 +34,7 @@ export async function createSuperUser(
 			)
 			.limit(1);
 
-		if (existingAdmin.length > 0) {
+		if (existingAdmin.length > 0 && !overrideExisting) {
 			console.error("A super user already exists. Aborting creation.");
 			return null;
 		}
