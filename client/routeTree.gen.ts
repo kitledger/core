@@ -8,12 +8,12 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root.tsx'
-import { Route as AccountsRouteImport } from './routes/accounts.tsx'
-import { Route as AppRouteImport } from './routes/$app.tsx'
-import { Route as IndexRouteImport } from './routes/index.tsx'
-import { Route as AccountsLoginRouteImport } from './routes/accounts.login.tsx'
-import { Route as AppDashboardRouteImport } from './routes/$app.dashboard.tsx'
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AccountsRouteImport } from './routes/accounts'
+import { Route as AppRouteImport } from './routes/$app'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountsLoginRouteImport } from './routes/accounts.login'
+import { Route as AppDashboardRouteImport } from './routes/$app.dashboard'
 
 const AccountsRoute = AccountsRouteImport.update({
   id: '/accounts',

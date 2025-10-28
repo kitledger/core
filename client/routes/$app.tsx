@@ -41,7 +41,7 @@ import {
 	IconUsers,
 } from "@tabler/icons-react";
 import { Spotlight, spotlight, SpotlightActionData } from "@mantine/spotlight";
-import { authUserQueryOptions } from "../data/auth.ts";
+import { authUserQueryOptions } from "../data/auth";
 import { useQuery } from "@tanstack/react-query";
 
 // --- TanStack Router Route Definition ---

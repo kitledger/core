@@ -10,8 +10,6 @@
     "moduleResolution": "NodeNext",
     "lib": ["ESNext"],
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "rootDir": "server",

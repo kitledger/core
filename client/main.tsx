@@ -8,7 +8,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { createTheme, MantineProvider } from "@mantine/core";
 
 // Import the generated route tree
-import { routeTree } from "./routeTree.gen.ts";
+import { routeTree } from "./routeTree.gen";
 
 // Create a client for React Query
 const queryClient = new QueryClient();
