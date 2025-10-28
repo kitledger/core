@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { setCookie } from "hono/cookie";
-import { assembleSessionJwtPayload, signToken } from "../../../../domain/actions/jwt_actions.ts";
-import { validateUserCredentials } from "../../../../domain/repositories/user_repository.ts";
-import { startSession } from "../../../../domain/actions/session_actions.ts";
-import { sessionConfig } from "../../../../config.ts";
+import { assembleSessionJwtPayload, signToken } from "../../../../domain/actions/jwt_actions.js";
+import { validateUserCredentials } from "../../../../domain/repositories/user_repository.js";
+import { startSession } from "../../../../domain/actions/session_actions.js";
+import { sessionConfig } from "../../../../config.js";
 
 const router = new Hono();
 

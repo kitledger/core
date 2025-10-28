@@ -1,4 +1,4 @@
-import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.ts";
+import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.js";
 import type {
 	ExecutionResultPayload,
 	HostToWorkerMessage,

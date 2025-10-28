@@ -1,5 +1,5 @@
-import { ThreadWorker } from "@poolifier/poolifier-web-worker";
-import { hashPassword } from "../../domain/utils/crypto.ts";
+import { ThreadWorker } from "poolifier";
+import { hashPassword } from "../../domain/utils/crypto.js";
 
 export enum availableWorkerTasks {
 	HASH_PASSWORD = "HASH_PASSWORD",

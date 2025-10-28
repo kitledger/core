@@ -1,6 +1,6 @@
-import { workerConfig } from "../../config.ts";
+import { workerConfig } from "../../config.js";
 
-const workerURL = new URL("./worker.ts", import.meta.url);
+const workerURL = new URL("./worker.js", import.meta.url);
 
 // --- Pool Configuration ---
 

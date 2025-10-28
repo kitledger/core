@@ -1,7 +1,8 @@
-import { assert } from "@std/assert";
-import { executeScript } from "../../server/services/scripting/runtime.ts";
+import assert from "node:assert";
+import test from "node:test";
+import { executeScript } from "../../server/services/scripting/runtime.js";
 
-Deno.test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
+test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	const preCompiledUserCode = `
 	var __defProp = Object.defineProperty;
 	var __export = (target, all) => {

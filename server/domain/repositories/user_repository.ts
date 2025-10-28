@@ -1,8 +1,8 @@
-import { db } from "../../services/database/db.ts";
-import { api_tokens, sessions, users } from "../../services/database/schema.ts";
+import { db } from "../../services/database/db.js";
+import { api_tokens, sessions, users } from "../../services/database/schema.js";
 import { and, eq, gt, isNull } from "drizzle-orm";
-import { verifyPassword } from "../utils/crypto.ts";
-import type { AppUser, Role, Permission } from "../types/auth_types.ts";
+import { verifyPassword } from "../utils/crypto.js";
+import type { AppUser, Role, Permission } from "../types/auth_types.js";
 
 export async function getSessionUserId(sessionId: string): Promise<string | null> {
 	const session = await db.query.sessions.findFirst({

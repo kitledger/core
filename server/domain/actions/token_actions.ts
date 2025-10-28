@@ -1,6 +1,6 @@
-import { db } from "../../services/database/db.ts";
-import { api_tokens } from "../../services/database/schema.ts";
-import { generate as v7 } from "@std/uuid/unstable-v7";
+import { db } from "../../services/database/db.js";
+import { api_tokens } from "../../services/database/schema.js";
+import { v7 } from "uuid";
 
 export async function createToken(userId: string, name?: string | null): Promise<string> {
 	const tokenId = v7();

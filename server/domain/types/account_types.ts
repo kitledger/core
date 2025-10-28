@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import * as v from "@valibot/valibot";
-import { InferOutput } from "@valibot/valibot";
-import { accounts } from "../../services/database/schema.ts";
+import * as v from "valibot";
+import { InferOutput } from "valibot";
+import { accounts } from "../../services/database/schema.js";
 
 export enum BalanceType {
 	DEBIT = "debit",

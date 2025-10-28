@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
-import { UnitModel } from "../types/unit_model_types.ts";
-import { BaseFactory } from "../factories/base_factory.ts";
-import { generate } from "@std/uuid/unstable-v7";
+import { UnitModel } from "../types/unit_model_types.js";
+import { BaseFactory } from "../factories/base_factory.js";
+import { v7 as generate } from "uuid";
 
 export class UnitModelFactory extends BaseFactory<UnitModel> {
 	constructor() {

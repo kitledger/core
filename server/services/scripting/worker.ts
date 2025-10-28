@@ -1,5 +1,5 @@
 import type { HostToWorkerMessage, WorkerToHostMessage } from "@kitledger/actions/runtime";
-import type { ExecuteScriptArgs } from "./runtime.ts";
+import type { ExecuteScriptArgs } from "./runtime.js";
 
 self.onmessage = async (event: MessageEvent<ExecuteScriptArgs>) => {
 	const port = event.ports[0];

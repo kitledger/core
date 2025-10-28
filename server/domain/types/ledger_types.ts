@@ -1,7 +1,7 @@
 import { InferInsertModel, InferSelectModel } from "drizzle-orm";
-import * as v from "@valibot/valibot";
-import { InferOutput } from "@valibot/valibot";
-import { ledgers } from "../../services/database/schema.ts";
+import * as v from "valibot";
+import { InferOutput } from "valibot";
+import { ledgers } from "../../services/database/schema.js";
 
 export const LedgerCreateSchema = v.object({
 	ref_id: v.pipe(v.string(), v.maxLength(64)),

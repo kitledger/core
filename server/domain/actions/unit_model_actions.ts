@@ -1,16 +1,16 @@
-import { UnitModel, UnitModelCreateData, UnitModelCreateSchema, UnitModelInsert } from "../types/unit_model_types.ts";
-import * as v from "@valibot/valibot";
+import { UnitModel, UnitModelCreateData, UnitModelCreateSchema, UnitModelInsert } from "../types/unit_model_types.js";
+import * as v from "valibot";
 import {
 	parseValibotIssues,
 	ValidationError,
 	ValidationFailure,
 	ValidationResult,
 	ValidationSuccess,
-} from "../utils/validation.ts";
-import { db } from "../../services/database/db.ts";
-import { unit_models } from "../../services/database/schema.ts";
+} from "../utils/validation.js";
+import { db } from "../../services/database/db.js";
+import { unit_models } from "../../services/database/schema.js";
 import { eq } from "drizzle-orm";
-import { generate as v7 } from "@std/uuid/unstable-v7";
+import { v7 } from "uuid";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.unit_models.findMany({

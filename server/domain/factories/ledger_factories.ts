@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
-import { generate as v7 } from "@std/uuid/unstable-v7";
-import { Account } from "../types/account_types.ts";
-import { Ledger } from "../types/ledger_types.ts";
-import { BaseFactory } from "../factories/base_factory.ts";
-import { BalanceType } from "../types/account_types.ts";
+import { v7 } from "uuid";
+import { Account } from "../types/account_types.js";
+import { Ledger } from "../types/ledger_types.js";
+import { BaseFactory } from "../factories/base_factory.js";
+import { BalanceType } from "../types/account_types.js";
 
 export class LedgerFactory extends BaseFactory<Ledger> {
 	constructor() {

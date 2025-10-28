@@ -1,8 +1,8 @@
 import { boolean, index, jsonb, pgTable, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { timestamps } from "./helpers.ts";
-import { BalanceType } from "../../domain/types/account_types.ts";
-import { BaseMetaProperty } from "../../domain/utils/base_schema.ts";
+import { timestamps } from "./helpers.js";
+import { BalanceType } from "../../domain/types/account_types.js";
+import { BaseMetaProperty } from "../../domain/utils/base_schema.js";
 
 /**
  * 1. Tables, Indexes, and Constraints

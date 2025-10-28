@@ -1,8 +1,8 @@
 import { ConditionGroup, Query, QuerySchema } from "@kitledger/query";
 import { PgTable } from "drizzle-orm/pg-core";
 import { getTableName } from "drizzle-orm";
-import { parseValibotIssues, ValidationResult } from "../../domain/utils/validation.ts";
-import { db } from "./db.ts";
+import { parseValibotIssues, ValidationResult } from "../../domain/utils/validation.js";
+import { db } from "./db.js";
 import {
 	defaultLimit,
 	defaultOffset,
@@ -10,8 +10,8 @@ import {
 	maxLimit,
 	QueryResultRow,
 	QueryResultSchema,
-} from "./helpers.ts";
-import * as v from "@valibot/valibot";
+} from "./helpers.js";
+import * as v from "valibot";
 import knex, { Knex } from "knex";
 
 /**

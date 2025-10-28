@@ -1,17 +1,17 @@
-import { Ledger, LedgerCreateData, LedgerCreateSchema, LedgerInsert } from "../types/ledger_types.ts";
-import * as v from "@valibot/valibot";
+import { Ledger, LedgerCreateData, LedgerCreateSchema, LedgerInsert } from "../types/ledger_types.js";
+import * as v from "valibot";
 import {
 	parseValibotIssues,
 	ValidationError,
 	ValidationFailure,
 	ValidationResult,
 	ValidationSuccess,
-} from "../utils/validation.ts";
-import { db } from "../../services/database/db.ts";
-import { ledgers } from "../../services/database/schema.ts";
+} from "../utils/validation.js";
+import { db } from "../../services/database/db.js";
+import { ledgers } from "../../services/database/schema.js";
 import { eq } from "drizzle-orm";
-import { generate as v7 } from "@std/uuid/unstable-v7";
-import { findUnitModelId } from "../repositories/ledger_repository.ts";
+import { v7 } from "uuid";
+import { findUnitModelId } from "../repositories/ledger_repository.js";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.ledgers.findMany({

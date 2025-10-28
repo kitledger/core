@@ -1,17 +1,17 @@
-import { executeQuery } from "../../server/services/database/query.ts";
+import { executeQuery } from "../../server/services/database/query.js";
 import { Query } from "@kitledger/query";
-import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.ts";
-import { createLedger } from "../../server/domain/actions/ledger_actions.ts";
-import { createAccount } from "../../server/domain/actions/account_actions.ts";
-import { createUnitModel } from "../../server/domain/actions/unit_model_actions.ts";
-import { accounts } from "../../server/services/database/schema.ts";
-import { UnitModelFactory } from "../../server/domain/factories/unit_factories.ts";
-import { assert } from "@std/assert";
-import { afterAll, beforeAll, describe, test } from "@std/testing/bdd";
-import { db } from "../../server/services/database/db.ts";
+import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.js";
+import { createLedger } from "../../server/domain/actions/ledger_actions.js";
+import { createAccount } from "../../server/domain/actions/account_actions.js";
+import { createUnitModel } from "../../server/domain/actions/unit_model_actions.js";
+import { accounts } from "../../server/services/database/schema.js";
+import { UnitModelFactory } from "../../server/domain/factories/unit_factories.js";
+import { db } from "../../server/services/database/db.js";
+import assert from "node:assert";
+import { after, before, describe, test } from "node:test";
 
 describe("Database Query Service Tests", () => {
-	beforeAll(async () => {
+	before(async () => {
 		const unitModelFactory = new UnitModelFactory();
 		const unitModelData = unitModelFactory.make(1)[0];
 		unitModelData.active = true;
@@ -54,7 +54,7 @@ describe("Database Query Service Tests", () => {
 		}
 	});
 
-	afterAll(async () => {
+	after(async () => {
 		await db.$client.end();
 	});
 

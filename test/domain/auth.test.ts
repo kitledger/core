@@ -1,30 +1,30 @@
-import { ApiTokenFactory, SessionFactory, UserFactory } from "../../server/domain/factories/auth_factories.ts";
-import { system_permissions, users } from "../../server/services/database/schema.ts";
-import { assert } from "@std/assert";
-import { createSuperUser, type NewSuperUser } from "../../server/domain/actions/user_actions.ts";
-import { db } from "../../server/services/database/db.ts";
-import { SYSTEM_ADMIN_PERMISSION } from "../../server/domain/actions/permission_actions.ts";
+import { ApiTokenFactory, SessionFactory, UserFactory } from "../../server/domain/factories/auth_factories.js";
+import { system_permissions, users } from "../../server/services/database/schema.js";
+import assert from "node:assert";
+import { test, before, after, describe } from "node:test";
+import { createSuperUser, type NewSuperUser } from "../../server/domain/actions/user_actions.js";
+import { db } from "../../server/services/database/db.js";
+import { SYSTEM_ADMIN_PERMISSION } from "../../server/domain/actions/permission_actions.js";
 import {
 	assembleApiTokenJwtPayload,
 	assembleSessionJwtPayload,
 	signToken,
 	verifyToken,
-} from "../../server/domain/actions/jwt_actions.ts";
-import { startSession } from "../../server/domain/actions/session_actions.ts";
-import { generate } from "@std/uuid/unstable-v7";
-import { createToken } from "../../server/domain/actions/token_actions.ts";
-import { getSessionUserId, getTokenUserId } from "../../server/domain/repositories/user_repository.ts";
-import { hashPassword } from "../../server/domain/utils/crypto.ts";
+} from "../../server/domain/actions/jwt_actions.js";
+import { startSession } from "../../server/domain/actions/session_actions.js";
+import { v7 as generate } from "uuid";
+import { createToken } from "../../server/domain/actions/token_actions.js";
+import { getSessionUserId, getTokenUserId } from "../../server/domain/repositories/user_repository.js";
+import { hashPassword } from "../../server/domain/utils/crypto.js";
 import { eq } from "drizzle-orm";
-import { afterAll, describe, it } from "@std/testing/bdd";
 
 describe("Auth Domain Tests", () => {
-	afterAll(async () => {
+	after(async () => {
 		// Close up Drizzle DB Connection
 		await db.$client.end();
 	});
 
-	it("User factory creates valid User objects", () => {
+	test("User factory creates valid User objects", () => {
 		const factory = new UserFactory();
 		const users = factory.make(5);
 		assert(users.length === 5);
@@ -36,7 +36,7 @@ describe("Auth Domain Tests", () => {
 		});
 	});
 
-	it("Session factory creates valid Session objects", () => {
+	test("Session factory creates valid Session objects", () => {
 		const factory = new SessionFactory();
 		const sessions = factory.make(3);
 		assert(sessions.length === 3);
@@ -46,7 +46,7 @@ describe("Auth Domain Tests", () => {
 		});
 	});
 
-	it("ApiToken factory creates valid ApiToken objects", () => {
+	test("ApiToken factory creates valid ApiToken objects", () => {
 		const factory = new ApiTokenFactory();
 		const tokens = factory.make(4);
 		assert(tokens.length === 4);
@@ -58,7 +58,7 @@ describe("Auth Domain Tests", () => {
 		});
 	});
 
-	it("createSuperUser returns a valid NewSuperUser object", async () => {
+	test("createSuperUser returns a valid NewSuperUser object", async () => {
 		const factory = new UserFactory();
 		const fakeUser = factory.make(1)[0];
 		const newSuperUser: NewSuperUser | null = await createSuperUser(
@@ -97,7 +97,7 @@ describe("Auth Domain Tests", () => {
 		assert(systemPermissionFromDb?.includes(SYSTEM_ADMIN_PERMISSION));
 	});
 
-	it("assembleSessionJwtPayload creates a valid JWT payload", () => {
+	test("assembleSessionJwtPayload creates a valid JWT payload", () => {
 		const sessionId = "test-session-id";
 		const payload = assembleSessionJwtPayload(sessionId);
 		assert(payload.jti === sessionId);
@@ -108,7 +108,7 @@ describe("Auth Domain Tests", () => {
 		assert(apiTokenPayload.token_type === "API");
 	});
 
-	it("verifyToken and signToken work correctly", async () => {
+	test("verifyToken and signToken work correctly", async () => {
 		const sampleJTI = generate();
 		const payload = { jti: sampleJTI, token_type: "TEST" };
 		const token = await signToken(payload);
@@ -130,7 +130,7 @@ describe("Auth Domain Tests", () => {
 		}
 	});
 
-	it("startSession creates a valid session and retrieves user ID", async () => {
+	test("startSession creates a valid session and retrieves user ID", async () => {
 		const factory = new UserFactory();
 		const fakeUser = factory.make(1)[0];
 		// TODO: Refactor to use a regular user creation function once available
@@ -149,7 +149,7 @@ describe("Auth Domain Tests", () => {
 		assert(retrievedUserId === newSuperUser.id);
 	});
 
-	it("createToken and getTokenUserId work correctly", async () => {
+	test("createToken and getTokenUserId work correctly", async () => {
 		const user = new UserFactory().make(1)[0];
 		await db.insert(users).values(user);
 		const tokenId = await createToken(user.id, "Test Token");
@@ -162,7 +162,7 @@ describe("Auth Domain Tests", () => {
 		assert(nonExistentUserId === null);
 	});
 
-	it("hashPassword generates a valid hash", async () => {
+	test("hashPassword generates a valid hash", async () => {
 		const password = "securePassword123";
 		const hashedPassword = await hashPassword(password);
 		assert(typeof hashedPassword === "string" && hashedPassword.length > 0);

@@ -1,5 +1,5 @@
-import { Account, BalanceType } from "../types/account_types.ts";
-import { db } from "../../services/database/db.ts";
+import { Account, BalanceType } from "../types/account_types.js";
+import { db } from "../../services/database/db.js";
 import {
 	ANY,
 	defaultLimit,
@@ -8,9 +8,9 @@ import {
 	GetOperationResult,
 	maxLimit,
 	parseBooleanFilterValue,
-} from "../../services/database/helpers.ts";
+} from "../../services/database/helpers.js";
 import { and, eq, or, type SQL, sql } from "drizzle-orm";
-import { accounts, ledgers } from "../../services/database/schema.ts";
+import { accounts, ledgers } from "../../services/database/schema.js";
 
 /**
  * Procedurally builds and executes a filter query for accounts based on the provided parameters.

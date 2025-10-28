@@ -1,9 +1,10 @@
-import { workerPool } from "../../server/services/workers/pool.ts";
-import { availableWorkerTasks } from "../../server/services/workers/worker.ts";
-import { assert } from "@std/assert";
-import { generate } from "@std/uuid/unstable-v7";
+import { workerPool } from "../../server/services/workers/pool.js";
+import { availableWorkerTasks } from "../../server/services/workers/worker.js";
+import assert from "node:assert";
+import test from "node:test";
+import { v7 as generate } from "uuid";
 
-Deno.test("Worker pool can add and run tasks", async () => {
+test("Worker pool can add and run tasks", async () => {
 	const passwordToHash = generate();
 
 	const result = await workerPool.execute(passwordToHash, availableWorkerTasks.HASH_PASSWORD);

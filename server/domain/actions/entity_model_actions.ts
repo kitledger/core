@@ -3,19 +3,19 @@ import {
 	EntityModelCreateData,
 	EntityModelCreateSchema,
 	EntityModelInsert,
-} from "../types/entity_model_types.ts";
-import * as v from "@valibot/valibot";
+} from "../types/entity_model_types.js";
+import * as v from "valibot";
 import {
 	parseValibotIssues,
 	ValidationError,
 	ValidationFailure,
 	ValidationResult,
 	ValidationSuccess,
-} from "../utils/validation.ts";
-import { db } from "../../services/database/db.ts";
-import { entity_models } from "../../services/database/schema.ts";
+} from "../utils/validation.js";
+import { db } from "../../services/database/db.js";
+import { entity_models } from "../../services/database/schema.js";
 import { eq } from "drizzle-orm";
-import { generate as v7 } from "@std/uuid/unstable-v7";
+import { v7 } from "uuid";
 
 async function refIdAlreadyExists(refId: string): Promise<boolean> {
 	const results = await db.query.entity_models.findMany({

@@ -1,13 +1,13 @@
-import { db } from "../../services/database/db.ts";
+import { db } from "../../services/database/db.js";
 import { randomBytes } from "node:crypto";
-import { generate as v7 } from "@std/uuid/unstable-v7";
-import { SYSTEM_ADMIN_PERMISSION } from "./permission_actions.ts";
-import { createToken } from "./token_actions.ts";
-import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.ts";
-import { workerPool } from "../../services/workers/pool.ts";
-import { availableWorkerTasks } from "../../services/workers/worker.ts";
-import { type User } from "../types/auth_types.ts";
-import { system_permissions, users } from "../../services/database/schema.ts";
+import { v7 } from "uuid";
+import { SYSTEM_ADMIN_PERMISSION } from "./permission_actions.js";
+import { createToken } from "./token_actions.js";
+import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.js";
+import { workerPool } from "../../services/workers/pool.js";
+import { availableWorkerTasks } from "../../services/workers/worker.js";
+import { type User } from "../types/auth_types.js";
+import { system_permissions, users } from "../../services/database/schema.js";
 import { eq, and, isNotNull } from "drizzle-orm";
 
 export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {

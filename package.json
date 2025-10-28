@@ -25,6 +25,9 @@
   "directories": {
     "test": "test"
   },
+  "engines" : { 
+    "node" : ">=25.0.0"
+  },
   "scripts": {
     "build": "npm run build:server && npm run build:client",
     "build:client": "vite build --project tsconfig.client.json",

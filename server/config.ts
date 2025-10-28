@@ -1,44 +1,45 @@
 import { AlgorithmTypes } from "hono/utils/jwt/jwa";
+import { cpus } from "node:os";
 
 /*
  * 1) Define the types
  */
 
 type AuthConfig = {
-	secret: string;
-	pastSecrets: string[];
-	jwtAlgorithm: AlgorithmTypes;
+    secret: string;
+    pastSecrets: string[];
+    jwtAlgorithm: AlgorithmTypes;
 };
 
 type CorsConfig = {
-	origin: string | string[];
-	allowMethods?: string[];
-	allowHeaders?: string[];
-	maxAge?: number;
-	credentials?: boolean;
-	exposeHeaders?: string[];
+    origin: string | string[];
+    allowMethods?: string[];
+    allowHeaders?: string[];
+    maxAge?: number;
+    credentials?: boolean;
+    exposeHeaders?: string[];
 };
 
 type DbConfig = {
-	url: string;
-	ssl: boolean;
-	max: number;
+    url: string;
+    ssl: boolean;
+    max: number;
 };
 
 type ServerConfig = {
-	port: number;
-	cors: CorsConfig;
+    port: number;
+    cors: CorsConfig;
 };
 
 type SessionConfig = {
-	cookieName: string;
-	ttl: number;
+    cookieName: string;
+    ttl: number;
 };
 
 type WorkerConfig = {
-	poolSize: number;
-	taskTimeout: number;
-	maxQueueSize: number;
+    poolSize: number;
+    taskTimeout: number;
+    maxQueueSize: number;
 };
 
 /*
@@ -50,11 +51,11 @@ type WorkerConfig = {
  */
 const jwtAlgorithm = "HS256" as AlgorithmTypes;
 
-const authSecret = Deno.env.get("KL_AUTH_SECRET");
+const authSecret = process.env.KL_AUTH_SECRET;
 if (!authSecret) {
-	throw new Error("KL_AUTH_SECRET environment variable is not set.");
+    throw new Error("KL_AUTH_SECRET environment variable is not set.");
 }
-const pastSecretsString = Deno.env.get("KL_AUTH_PAST_SECRETS");
+const pastSecretsString = process.env.KL_AUTH_PAST_SECRETS;
 const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
 
 /**
@@ -62,32 +63,32 @@ const pastSecrets = pastSecretsString ? pastSecretsString.split(",") : [];
  */
 const corsDefaultHeaders = ["Content-Type", "Authorization", "X-Requested-With"];
 const corsAllowedHeaders = [
-	...new Set([...corsDefaultHeaders, ...(Deno.env.get("KL_CORS_ALLOWED_HEADERS")?.split(",") || [])]),
+    ...new Set([...corsDefaultHeaders, ...(process.env.KL_CORS_ALLOWED_HEADERS?.split(",") || [])]),
 ];
 const corsAllowedMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
-const corsAllowedOrigins = Deno.env.get("KL_CORS_ALLOWED_ORIGINS")
-	? String(Deno.env.get("KL_CORS_ALLOWED_ORIGINS")).split(",")
-	: "*";
+const corsAllowedOrigins = process.env.KL_CORS_ALLOWED_ORIGINS
+    ? process.env.KL_CORS_ALLOWED_ORIGINS.split(",")
+    : "*";
 const corsCredentials = false;
 const corsExposeHeaders: string[] = [];
-const corsMaxAge = parseInt(Deno.env.get("KL_CORS_MAX_AGE") || "86400");
+const corsMaxAge = parseInt(process.env.KL_CORS_MAX_AGE || "86400");
 
 /**
  * Session configuration values and defaults.
  * This is used to manage session lifetimes and time-to-live (TTL).
  */
-const sessionEnvTtl = Deno.env.get("KL_SESSION_TTL");
+const sessionEnvTtl = process.env.KL_SESSION_TTL;
 const sessionTtl = sessionEnvTtl ? parseInt(sessionEnvTtl) : (60 * 60 * 24); // 1 hour default
-const sessionCookieName = Deno.env.get("KL_SESSION_COOKIE_NAME") || "kitledger_session";
+const sessionCookieName = process.env.KL_SESSION_COOKIE_NAME || "kitledger_session";
 
 /**
  * Worker pool configuration values and defaults.
  */
-const workerPoolSize = parseInt(Deno.env.get("KL_WORKER_POOL_SIZE") || String(navigator.hardwareConcurrency)) || 1;
-const workerTaskTimeout = parseInt(Deno.env.get("KL_WORKER_TASK_TIMEOUT") || "5000"); // Default to 5 seconds
-const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
-	? parseInt(String(Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")))
-	: Infinity;
+const workerPoolSize = parseInt(process.env.KL_WORKER_POOL_SIZE || String(cpus().length)) || 1;
+const workerTaskTimeout = parseInt(process.env.KL_WORKER_TASK_TIMEOUT || "5000"); // Default to 5 seconds
+const workerMaxQueueSize = process.env.KL_WORKER_MAX_QUEUE_SIZE
+    ? parseInt(process.env.KL_WORKER_MAX_QUEUE_SIZE)
+    : Infinity;
 
 /*
  * 3) Export the configuration objects.
@@ -98,9 +99,9 @@ const workerMaxQueueSize = Deno.env.get("KL_WORKER_MAX_QUEUE_SIZE")
  * Values are a mix of environment variables and defaults.
  */
 export const authConfig: AuthConfig = {
-	secret: authSecret,
-	pastSecrets: pastSecrets,
-	jwtAlgorithm: jwtAlgorithm,
+    secret: authSecret,
+    pastSecrets: pastSecrets,
+    jwtAlgorithm: jwtAlgorithm,
 };
 
 /**
@@ -108,9 +109,9 @@ export const authConfig: AuthConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const dbConfig: DbConfig = {
-	url: Deno.env.get("KL_POSTGRES_URL") || "postgres://localhost:5432/kitledger",
-	ssl: Deno.env.get("KL_POSTGRES_SSL") === "true",
-	max: parseInt(Deno.env.get("KL_POSTGRES_MAX_CONNECTIONS") || "10"),
+    url: process.env.KL_POSTGRES_URL || "postgres://localhost:5432/kitledger",
+    ssl: process.env.KL_POSTGRES_SSL === "true",
+    max: parseInt(process.env.KL_POSTGRES_MAX_CONNECTIONS || "10"),
 };
 
 /**
@@ -118,15 +119,15 @@ export const dbConfig: DbConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const serverConfig: ServerConfig = {
-	port: Deno.env.get("KL_SERVER_PORT") ? parseInt(String(Deno.env.get("KL_SERVER_PORT"))) : 8888,
-	cors: {
-		origin: corsAllowedOrigins,
-		allowMethods: corsAllowedMethods,
-		allowHeaders: corsAllowedHeaders,
-		exposeHeaders: corsExposeHeaders,
-		credentials: corsCredentials,
-		maxAge: corsMaxAge,
-	},
+    port: process.env.KL_SERVER_PORT ? parseInt(process.env.KL_SERVER_PORT) : 8888,
+    cors: {
+        origin: corsAllowedOrigins,
+        allowMethods: corsAllowedMethods,
+        allowHeaders: corsAllowedHeaders,
+        exposeHeaders: corsExposeHeaders,
+        credentials: corsCredentials,
+        maxAge: corsMaxAge,
+    },
 };
 
 /**
@@ -134,8 +135,8 @@ export const serverConfig: ServerConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const sessionConfig: SessionConfig = {
-	ttl: sessionTtl,
-	cookieName: sessionCookieName,
+    ttl: sessionTtl,
+    cookieName: sessionCookieName,
 };
 
 /**
@@ -143,7 +144,7 @@ export const sessionConfig: SessionConfig = {
  * Values are a mix of environment variables and defaults.
  */
 export const workerConfig: WorkerConfig = {
-	poolSize: workerPoolSize,
-	taskTimeout: workerTaskTimeout,
-	maxQueueSize: workerMaxQueueSize,
+    poolSize: workerPoolSize,
+    taskTimeout: workerTaskTimeout,
+    maxQueueSize: workerMaxQueueSize,
 };

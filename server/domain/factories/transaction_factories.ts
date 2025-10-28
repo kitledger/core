@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { TransactionModel } from "../types/transaction_model_types.ts";
-import { BaseFactory } from "../factories/base_factory.ts";
+import { TransactionModel } from "../types/transaction_model_types.js";
+import { BaseFactory } from "../factories/base_factory.js";
 
 export class TransactionModelFactory extends BaseFactory<TransactionModel> {
 	constructor() {

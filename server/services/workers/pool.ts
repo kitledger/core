@@ -1,7 +1,7 @@
-import { FixedThreadPool } from "@poolifier/poolifier-web-worker";
-import { workerConfig } from "../../config.ts";
+import { FixedThreadPool } from "poolifier";
+import { workerConfig } from "../../config.js";
 
 export const workerPool = new FixedThreadPool(
 	workerConfig.poolSize,
-	new URL("./worker.ts", import.meta.url),
+	new URL("./worker.js", import.meta.url).toString(),
 );
