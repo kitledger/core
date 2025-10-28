@@ -1,6 +1,6 @@
 import assert from "node:assert";
-import test from "node:test";
-import { executeScript } from "../../src/server/services/scripting/runtime.js";
+import {test, after} from "node:test";
+import { executeScript, shutdownScripting } from "../../server/services/scripting/runtime.js";
 
 test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 	const preCompiledUserCode = `
@@ -82,4 +82,8 @@ test("Kit Action Script Benchmark - 1,000 Concurrent Executions", async () => {
 
 	assert(typeof duration === "number" && duration > 0, "Duration should be a positive number");
 	assert(typeof avg === "number" && avg > 0, "Average time should be a positive number");
+});
+
+after(() => {
+    shutdownScripting();
 });

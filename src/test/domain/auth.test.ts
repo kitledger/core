@@ -1,21 +1,21 @@
-import { ApiTokenFactory, SessionFactory, UserFactory } from "../../src/server/domain/factories/auth_factories.js";
-import { system_permissions, users } from "../../src/server/services/database/schema.js";
+import { ApiTokenFactory, SessionFactory, UserFactory } from "../../server/domain/factories/auth_factories.js";
+import { system_permissions, users } from "../../server/services/database/schema.js";
 import assert from "node:assert";
 import { test, after, describe } from "node:test";
-import { createSuperUser, type NewSuperUser } from "../../src/server/domain/actions/user_actions.js";
-import { db } from "../../src/server/services/database/db.js";
-import { SYSTEM_ADMIN_PERMISSION } from "../../src/server/domain/actions/permission_actions.js";
+import { createSuperUser, type NewSuperUser } from "../../server/domain/actions/user_actions.js";
+import { db } from "../../server/services/database/db.js";
+import { SYSTEM_ADMIN_PERMISSION } from "../../server/domain/actions/permission_actions.js";
 import {
 	assembleApiTokenJwtPayload,
 	assembleSessionJwtPayload,
 	signToken,
 	verifyToken,
-} from "../../src/server/domain/actions/jwt_actions.js";
-import { startSession } from "../../src/server/domain/actions/session_actions.js";
+} from "../../server/domain/actions/jwt_actions.js";
+import { startSession } from "../../server/domain/actions/session_actions.js";
 import { v7 as generate } from "uuid";
-import { createToken } from "../../src/server/domain/actions/token_actions.js";
-import { getSessionUserId, getTokenUserId } from "../../src/server/domain/repositories/user_repository.js";
-import { hashPassword } from "../../src/server/domain/utils/crypto.js";
+import { createToken } from "../../server/domain/actions/token_actions.js";
+import { getSessionUserId, getTokenUserId } from "../../server/domain/repositories/user_repository.js";
+import { hashPassword } from "../../server/domain/utils/crypto.js";
 import { eq } from "drizzle-orm";
 
 describe("Auth Domain Tests", () => {

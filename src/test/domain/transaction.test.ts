@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { after, describe, test } from "node:test";
-import { db } from "../../src/server/services/database/db.js";
-import { createTransactionModel } from "../../src/server/domain/actions/transaction_model_actions.js";
-import { TransactionModelFactory } from "../../src/server/domain/factories/transaction_factories.js";
+import { db } from "../../server/services/database/db.js";
+import { createTransactionModel } from "../../server/domain/actions/transaction_model_actions.js";
+import { TransactionModelFactory } from "../../server/domain/factories/transaction_factories.js";
 
 describe("Transaction Domain Tests", () => {
 	after(async () => {

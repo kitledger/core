@@ -140,3 +140,14 @@ export function releaseWorker(pooledWorker: PooledWorker, isDirty = false) {
     // 4. If no one is waiting, put it back in the idle queue
     idleWorkers.push(pooledWorker);
 }
+
+export function terminatePool() {
+    console.log(`Terminating ${idleWorkers.length} idle workers...`);
+    while (idleWorkers.length > 0) {
+        const pooledWorker = idleWorkers.shift()!;
+        pooledWorker.worker.kill("SIGTERM");
+        currentPoolSize--;
+    }
+    // Clear any pending tasks that will never be fulfilled
+    waitingTasks.length = 0; 
+}

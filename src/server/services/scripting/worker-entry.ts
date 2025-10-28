@@ -15,6 +15,7 @@ declare global {
     var postMessage: (message: ChildToParentMessage) => void;
     var addEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
     var removeEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
+	var self: typeof globalThis;
 }
 
 // --- IPC Message Types ---
@@ -36,6 +37,7 @@ const eventListeners = new Map<string, Set<EventListener>>();
 // --- Sandbox Environment Emulation ---
 // This fakes the 'self' (or 'globalThis') environment
 // that the __host_rpc function expects.
+globalThis.self = globalThis;
 
 globalThis.postMessage = (message: ChildToParentMessage) => {
     if (!process.send) {

@@ -1,8 +1,8 @@
 import assert from "node:assert";
 import { after, describe, test } from "node:test";
-import { db } from "../../src/server/services/database/db.js";
-import { createEntityModel } from "../../src/server/domain/actions/entity_model_actions.js";
-import { EntityModelFactory } from "../../src/server/domain/factories/entity_factories.js";
+import { db } from "../../server/services/database/db.js";
+import { createEntityModel } from "../../server/domain/actions/entity_model_actions.js";
+import { EntityModelFactory } from "../../server/domain/factories/entity_factories.js";
 
 describe("Entity Domain Tests", () => {
 	after(async () => {

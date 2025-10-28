@@ -1,4 +1,4 @@
-import { acquireWorker, initializePool, releaseWorker } from "./concurrency_limiter.js";
+import { acquireWorker, initializePool, releaseWorker, terminatePool } from "./concurrency_limiter.js";
 import type {
     ExecutionResultPayload,
     HostToWorkerMessage,
@@ -169,4 +169,8 @@ export async function executeScript(args: ExecuteScriptArgs): Promise<ExecutionR
         
         releaseWorker(pooledWorker, terminatedFlag.value);
     }
+}
+
+export function shutdownScripting() {
+    terminatePool();
 }

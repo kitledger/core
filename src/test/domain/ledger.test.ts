@@ -1,11 +1,11 @@
 import assert from "node:assert";
 import { after, describe, test } from "node:test";
-import { db } from "../../src/server/services/database/db.js";
-import { createLedger } from "../../src/server/domain/actions/ledger_actions.js";
-import { createAccount } from "../../src/server/domain/actions/account_actions.js";
-import { AccountFactory, LedgerFactory } from "../../src/server/domain/factories/ledger_factories.js";
-import { UnitModelFactory } from "../../src/server/domain/factories/unit_factories.js";
-import { createUnitModel } from "../../src/server/domain/actions/unit_model_actions.js";
+import { db } from "../../server/services/database/db.js";
+import { createLedger } from "../../server/domain/actions/ledger_actions.js";
+import { createAccount } from "../../server/domain/actions/account_actions.js";
+import { AccountFactory, LedgerFactory } from "../../server/domain/factories/ledger_factories.js";
+import { UnitModelFactory } from "../../server/domain/factories/unit_factories.js";
+import { createUnitModel } from "../../server/domain/actions/unit_model_actions.js";
 import { v7 as generate } from "uuid";
 
 describe("Ledger Domain Tests", () => {
