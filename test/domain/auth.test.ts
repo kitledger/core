@@ -1,7 +1,7 @@
 import { ApiTokenFactory, SessionFactory, UserFactory } from "../../server/domain/factories/auth_factories.js";
 import { system_permissions, users } from "../../server/services/database/schema.js";
 import assert from "node:assert";
-import { test, before, after, describe } from "node:test";
+import { test, after, describe } from "node:test";
 import { createSuperUser, type NewSuperUser } from "../../server/domain/actions/user_actions.js";
 import { db } from "../../server/services/database/db.js";
 import { SYSTEM_ADMIN_PERMISSION } from "../../server/domain/actions/permission_actions.js";

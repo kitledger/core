@@ -4,11 +4,10 @@ import { v7 } from "uuid";
 import { SYSTEM_ADMIN_PERMISSION } from "./permission_actions.js";
 import { createToken } from "./token_actions.js";
 import { assembleApiTokenJwtPayload, signToken } from "./jwt_actions.js";
-import { workerPool } from "../../services/workers/pool.js";
-import { availableWorkerTasks } from "../../services/workers/worker.js";
 import { type User } from "../types/auth_types.js";
 import { system_permissions, users } from "../../services/database/schema.js";
 import { eq, and, isNotNull } from "drizzle-orm";
+import { hashPassword } from "../utils/crypto.js";
 
 export type NewSuperUser = Pick<User, "id" | "first_name" | "last_name" | "email"> & {
 	password: string;
@@ -47,7 +46,7 @@ export async function createSuperUser(
 			let passwordHash: string | null = null;
 
 			try {
-				passwordHash = await workerPool.execute(password, availableWorkerTasks.HASH_PASSWORD) as string;
+				passwordHash = await hashPassword(password);
 			}
 			catch (error) {
 				console.error("Error hashing password:", error);

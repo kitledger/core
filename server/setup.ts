@@ -27,7 +27,15 @@ const commands: Command[] = [
                 process.exit(1);
             }
 
-            const user = await createSuperUser(firstName, lastName, email);
+			let user = null;
+
+			try {
+				user = await createSuperUser(firstName, lastName, email);
+			} catch (error) {
+				console.error("Error creating super user:", error);
+				process.exit(1);
+			}
+            //const user = await createSuperUser(firstName, lastName, email);
 
             if (!user) {
                 console.error("Failed to create super user.");
