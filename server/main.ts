@@ -1,72 +1,78 @@
 import { Hono } from "hono";
-import { serve } from '@hono/node-server'
-import { serveStatic } from "hono/deno";
-import { apiV1Prefix, apiV1Router } from "./services/http/api/v1/router.ts";
-import { authPrefix, authRouter } from "./services/http/api/auth/router.ts";
-import { join } from "node:path";
-import { runMigrations } from "./services/database/db.ts";
-import { serverConfig } from "./config.ts";
-import { execute } from "./setup.ts";
+import { serve } from '@hono/node-server';
+import { serveStatic } from "@hono/node-server/serve-static";
+import { apiV1Prefix, apiV1Router } from "./services/http/api/v1/router.js";
+import { authPrefix, authRouter } from "./services/http/api/auth/router.js";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { readFile } from "node:fs/promises";
+import { runMigrations } from "./services/database/db.js";
+import { serverConfig } from "./config.js";
+import { execute } from "./setup.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 await runMigrations();
 
 // --- Server and CLI Startup Logic ---
-const args = Deno.args;
+const args = process.argv.slice(2);
 
 if (args.length === 0 || args[0] === "serve") {
-	console.log(`Server is running on port ${serverConfig.port}`);
+    console.log(`Server is running on port ${serverConfig.port}`);
 
-	const server = new Hono();
+    const server = new Hono();
 
-	/**
-	 * Authentication routes
-	 * /api/auth/*
-	 */
-	server.route(authPrefix, authRouter);
+    /**
+     * Authentication routes
+     * /api/auth/*
+     */
+    server.route(authPrefix, authRouter);
 
-	/**
-	 * API v1 routes
-	 * /api/v1/*
-	 */
-	server.route(apiV1Prefix, apiV1Router);
+    /**
+     * API v1 routes
+     * /api/v1/*
+     */
+    server.route(apiV1Prefix, apiV1Router);
 
-	/**
-	 * Serve the client SPA and assets.
-	 */
+    /**
+     * Serve the client SPA and assets.
+     */
+    const clientDistPath = join(__dirname, "../../dist/client");
 
-	/**
-	 * Server the assets.
-	 */
-	server.get(
-		"/assets/*",
-		serveStatic({
-			root: join(String(import.meta.dirname), "../dist/client"),
-		}),
-	);
+    /**
+     * Server the assets.
+     */
+    server.get(
+        "/assets/*",
+        serveStatic({
+            root: clientDistPath,
+        }),
+    );
 
-	/**
-	 * Serve the client's index.html file.
-	 */
-	server.get("/app/*", async (c) => {
-		const html = await Deno.readTextFile(join(String(import.meta.dirname), "../dist/client/index.html"));
-		return c.html(html);
-	});
+    /**
+     * Serve the client's index.html file.
+     */
+    server.get("/app/*", async (c) => {
+        const html = await readFile(join(clientDistPath, "index.html"), "utf-8");
+        return c.html(html);
+    });
 
-	/**
-	 * Redirect root to /app
-	 */
-	server.get("/", (c) => {
-		return c.redirect("/app");
-	});
+    /**
+     * Redirect root to /app
+     */
+    server.get("/", (c) => {
+        return c.redirect("/app");
+    });
 
-	/**
-	 * Start the server.
-	 */
-	serve({
-		fetch: server.fetch,
-		port: serverConfig.port,
-	})
+    /**
+     * Start the server.
+     */
+    serve({
+        fetch: server.fetch,
+        port: serverConfig.port,
+    })
 }
 else {
-	await execute(args);
+    await execute(args);
 }
