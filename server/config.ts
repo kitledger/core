@@ -1,4 +1,4 @@
-import { AlgorithmTypes } from "@hono/hono/utils/jwt/jwa";
+import { AlgorithmTypes } from "hono/utils/jwt/jwa";
 
 /*
  * 1) Define the types

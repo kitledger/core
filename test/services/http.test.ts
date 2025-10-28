@@ -1,6 +1,6 @@
 import { assert } from "@std/assert";
 import { auth } from "../../server/services/http/middleware/auth_middleware.ts";
-import { Context } from "@hono/hono";
+import { Context } from "hono";
 import { serverConfig } from "../../server/config.ts";
 
 Deno.test("Hono Auth middleware returns 401 for missing token", async () => {

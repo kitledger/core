@@ -1,5 +1,5 @@
-import { Hono } from "@hono/hono";
-import { setCookie } from "@hono/hono/cookie";
+import { Hono } from "hono";
+import { setCookie } from "hono/cookie";
 import { assembleSessionJwtPayload, signToken } from "../../../../domain/actions/jwt_actions.ts";
 import { validateUserCredentials } from "../../../../domain/repositories/user_repository.ts";
 import { startSession } from "../../../../domain/actions/session_actions.ts";

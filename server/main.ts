@@ -1,8 +1,9 @@
-import { Hono } from "@hono/hono";
-import { serveStatic } from "@hono/hono/deno";
+import { Hono } from "hono";
+import { serve } from '@hono/node-server'
+import { serveStatic } from "hono/deno";
 import { apiV1Prefix, apiV1Router } from "./services/http/api/v1/router.ts";
 import { authPrefix, authRouter } from "./services/http/api/auth/router.ts";
-import { join } from "@std/path/join";
+import { join } from "node:path";
 import { runMigrations } from "./services/database/db.ts";
 import { serverConfig } from "./config.ts";
 import { execute } from "./setup.ts";
@@ -58,10 +59,13 @@ if (args.length === 0 || args[0] === "serve") {
 		return c.redirect("/app");
 	});
 
-	Deno.serve(
-		{ port: serverConfig.port },
-		server.fetch,
-	);
+	/**
+	 * Start the server.
+	 */
+	serve({
+		fetch: server.fetch,
+		port: serverConfig.port,
+	})
 }
 else {
 	await execute(args);

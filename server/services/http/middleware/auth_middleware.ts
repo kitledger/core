@@ -1,5 +1,5 @@
-import { createMiddleware } from "@hono/hono/factory";
-import { getCookie } from "@hono/hono/cookie";
+import { createMiddleware } from "hono/factory";
+import { getCookie } from "hono/cookie";
 import { TokenType, verifyToken } from "../../../domain/actions/jwt_actions.ts";
 import { getSessionUserId, getTokenUserId } from "../../../domain/repositories/user_repository.ts";
 import { sessionConfig } from "../../../config.ts";

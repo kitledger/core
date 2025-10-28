@@ -1,10 +1,10 @@
 import { serverConfig } from "@server/config.ts";
 import { auth } from "@server/services/http/middleware/auth_middleware.ts";
-import { cors } from "@hono/hono/cors";
-import { Hono } from "@hono/hono";
+import { cors } from "hono/cors";
+import { Hono } from "hono";
 import { createUnitModel } from "@server/domain/actions/unit_model_actions.ts";
 import { UnitModelCreateData } from "@server/domain/types/unit_model_types.ts";
-import { ContentfulStatusCode } from "@hono/hono/utils/http-status";
+import { ContentfulStatusCode } from "hono/utils/http-status";
 import { isValidationFailure } from "@server/domain/utils/validation.ts";
 import { createLedger } from "@server/domain/actions/ledger_actions.ts";
 import { Ledger, LedgerCreateData } from "@server/domain/types/ledger_types.ts";
