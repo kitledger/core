@@ -38,6 +38,7 @@ test(`Kit Action Script Benchmark - ${iterations} Concurrent Executions`, async 
 	return await __host_rpc("UNIT_MODEL.CREATE", data);
 	}
 	async function sample_default(context) {
+
 	// Do just one operation
 	await unit_model_exports.create({
 		ref_id: \`model-\${context.eventId}\`,

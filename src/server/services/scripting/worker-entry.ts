@@ -4,6 +4,8 @@ import type {
 } from "@kitledger/actions/runtime";
 import type { ExecuteScriptArgs } from "./runtime.js"; // Import types from host
 
+// --- Missing DOM Type Definitions ---
+
 interface MessageEvent<T = any> {
     readonly data: T;
 }
@@ -11,11 +13,19 @@ interface MessageEvent<T = any> {
 type EventListener = (event: MessageEvent) => void;
 type EventListenerOrEventListenerObject = EventListener | { handleEvent: EventListener };
 
+// --- NEW: Define Node.js-specific error properties ---
+interface NodeError extends Error {
+    code?: string;
+    permission?: string;
+    resource?: string;
+}
+
+// --- Extend globalThis type ---
 declare global {
     var postMessage: (message: ChildToParentMessage) => void;
     var addEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
     var removeEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
-	var self: typeof globalThis;
+    var self: typeof globalThis;
 }
 
 // --- IPC Message Types ---
@@ -67,7 +77,7 @@ globalThis.postMessage = (message: ChildToParentMessage) => {
 
 globalThis.addEventListener = (
     type: string,
-    listener: EventListenerOrEventListenerObject
+    listener: EventListenerOrEventListenerObject,
 ) => {
     if (type !== "message") return;
     const callback = typeof listener === "function" ? listener : listener.handleEvent;
@@ -83,7 +93,7 @@ globalThis.addEventListener = (
 
 globalThis.removeEventListener = (
     type: string,
-    listener: EventListenerOrEventListenerObject
+    listener: EventListenerOrEventListenerObject,
 ) => {
     if (type !== "message") return;
     const set = eventListeners.get("message");
@@ -130,14 +140,37 @@ async function runJob(args: ExecuteScriptArgs) {
             await handler(input);
         }
 
+        // --- MODIFIED: Check if an unhandled error already fired ---
+        if (!isBusy) {
+            // An unhandled rejection already fired, set isBusy = false, and sent the error.
+            // Don't send a SUCCESS message.
+            return;
+        }
+
         globalThis.postMessage({
             type: "EXECUTION_RESULT",
             payload: { status: "SUCCESS" },
         });
     } catch (error: unknown) {
+        // --- MODIFIED: Check if an unhandled error already fired ---
+        if (!isBusy) {
+            return;
+        }
+
+        // --- MODIFIED: Prettier error formatting for permission errors ---
+        const err = error as NodeError;
+        let errorMsg = err.message;
+
+        if (err.code === "ERR_ACCESS_DENIED") {
+            errorMsg = `Security Error: Access denied. Permission '${err.permission}' was not granted.`;
+            if (err.resource) {
+                errorMsg += ` (Resource: '${err.resource}')`;
+            }
+        }
+
         globalThis.postMessage({
             type: "EXECUTION_RESULT",
-            payload: { status: "ERROR", error: (error as Error).message },
+            payload: { status: "ERROR", error: errorMsg },
         });
     }
 }
@@ -146,7 +179,6 @@ async function runJob(args: ExecuteScriptArgs) {
 // This is the "server" loop of the child process.
 
 process.on("message", (message: ParentToChildMessage) => {
-    
     if (message.type === "JOB_START") {
         if (isBusy) {
             // This should never happen if the pool logic is correct
@@ -154,15 +186,49 @@ process.on("message", (message: ParentToChildMessage) => {
             return;
         }
         isBusy = true;
-        
+
+        // --- NEW: Create a handler for unhandled rejections ---
+        const unhandledRejectionHandler = (reason: any, promise: Promise<any>) => {
+            if (!isBusy) {
+                // Job already finished (or error was already handled), ignore.
+                return;
+            }
+            isBusy = false; // The job is now over.
+
+            let errorMsg = "Unhandled promise rejection: ";
+            if (reason instanceof Error) {
+                const err = reason as NodeError;
+                if (err.code === "ERR_ACCESS_DENIED") {
+                    errorMsg = `Security Error: Access denied (unhandled). Permission '${err.permission}' was not granted.`;
+                    if (err.resource) {
+                        errorMsg += ` (Resource: '${err.resource}')`;
+                    }
+                } else {
+                    errorMsg += err.message;
+                }
+            } else {
+                errorMsg += String(reason);
+            }
+
+            globalThis.postMessage({
+                type: "EXECUTION_RESULT",
+                payload: { status: "ERROR", error: errorMsg },
+            });
+        };
+
+        // --- NEW: Attach the listener for this job ---
+        process.on("unhandledRejection", unhandledRejectionHandler);
+
         // Run the job, but don't await it here.
         // The `finally` block of runJob will post the result.
         runJob(message.payload).finally(() => {
+            // --- NEW: Detach the listener ---
+            process.removeListener("unhandledRejection", unhandledRejectionHandler);
+            
             // Clean up for the next job
             isBusy = false;
             eventListeners.clear();
         });
-
     } else if (message.type === "ACTION_RESPONSE") {
         // This is a message for the user script.
         // Fan it out to all 'message' listeners.

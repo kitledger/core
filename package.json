@@ -48,6 +48,8 @@
     "@kitledger/actions": "^0.0.14",
     "@kitledger/query": "^0.0.14",
     "@node-rs/argon2": "^2.0.2",
+    "@pinia/colada": "^0.17.6",
+    "@tailwindcss/vite": "^4.1.16",
     "@vitejs/plugin-vue": "^6.0.1",
     "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.44.6",
@@ -55,17 +57,21 @@
     "knex": "^3.1.0",
     "motion": "^12.23.24",
     "pg": "^8.16.3",
+    "pinia": "^3.0.3",
     "postgres": "^3.4.7",
+    "tailwindcss": "^4.1.16",
     "uuid": "^13.0.0",
     "valibot": "^1.1.0",
     "vite": "^7.1.11",
-    "vue": "^3.5.22"
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
     "@types/node": "^24.9.1",
     "@vue/tsconfig": "^0.8.1",
     "concurrently": "^9.2.1",
+    "daisyui": "^5.3.10",
     "nodemon": "^3.1.10",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.1.2"
