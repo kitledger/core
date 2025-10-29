@@ -10,6 +10,7 @@ export default defineConfig({
 	],
 	root: "src/client",
 	base: "/app",
+	publicDir: "public",
 	server: {
 		proxy: {
 			"/api": "http://localhost:8888",

@@ -35,7 +35,6 @@
   --size-field: 0.25rem;
   --border: 2px;
   --depth: 1;
-  --noise: 1;
 }
 
 
@@ -44,9 +43,9 @@
   default: false;
   prefersdark: true;
   color-scheme: "dark";
-  --color-base-100: oklch(20% 0 0);
-  --color-base-200: oklch(26% 0 0);
-  --color-base-300: oklch(37% 0 0);
+  --color-base-100: oklch(26% 0 0);
+  --color-base-200: oklch(37% 0 0);
+  --color-base-300: oklch(43% 0 0);
   --color-base-content: oklch(83.768% 0.001 17.911);
   --color-primary: oklch(59% 0.145 163.225);
   --color-primary-content: oklch(0% 0 0);
@@ -71,5 +70,4 @@
   --size-field: 0.25rem;
   --border: 2px;
   --depth: 1;
-  --noise: 1;
 }
